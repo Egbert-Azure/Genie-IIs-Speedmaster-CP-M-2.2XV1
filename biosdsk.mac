@@ -1,4 +1,14 @@
-        page
+page
+; ** Extended CLOSE FILE request
+
+close:  push bc
+        push de
+        call flush
+        pop  de
+        pop  bc
+        jp   3c00h+offset+0c51h   ; CLOSE FILE
+
+; ** Select disk
 
 seldsk: call savstk
         call swtchi
@@ -115,7 +125,7 @@ sectrn: ex   de,hl
 home:   xor  a
         ld   (newtrk),a
         ret
-
+        page
 ; Init for correct error report
 ; call samsec & flush buffer
 
@@ -129,7 +139,7 @@ initio: ex   (sp),hl
         xor  a
         ld   (errflg+1),a
         call samsec
-        call nz,readsk
+        jp   nz,readsk
         ret
 
 ; Common return
@@ -215,6 +225,14 @@ setwrt: ld   a,<clrwrt: xor a>
         ld   (wrtflg),a
         ret
 
+; Flush buffer
+
+flush:  ld   a,(wrtflg)
+        or   a                 ;Unwritten data in mem ?
+        ret  z
+        jp   wrtdsk            ;Y -> Flush buffer
+
+
 ; Compute buffer adress
 
 getblk: ld   bc,(newblk)
@@ -241,10 +259,7 @@ getbl1: scf
 ; Read physical sector from newxxx
 ; & set curxxx = newxxx
 
-readsk: ld   a,(wrtflg)
-        or   a                 ;Unwritten data in mem ?
-        call nz,wrtdsk         ;Y -> Flush buffer first
-
+readsk: call flush
         ld   hl,newpdb
         ld   de,curpdb
         ld   bc,6
@@ -319,7 +334,7 @@ getit0: ld   a,b
         ld   (getit3),de
         call swtchi
         call select
-        ld   b,5               ;No of retries
+getite: ld   b,2               ;No. of retries
 getit1: push bc
         ld   a,(cursec)
         ld   (37eeh),a         ;Set sector
@@ -341,7 +356,6 @@ getitr: ld   (37efh),a         ;Set track
         ld   de,37efh
         ld   bc,secbuf
         call resel
-        di
         ld   (hl),<dskcmd: 88h>
         call wait
         bit  0,a
@@ -402,12 +416,16 @@ getit5: ld   a,(hl)
         pop  bc
         and  <dskerr: 0>
         jp   z,reperr          ;Ok if no error
+        push af
         bit  4,a               ;Record not found ?
         call nz,restor         ;Y-restore
+        pop  af
         dec  b
         jp   nz,getit1
-        ld   a,b
-        inc  a                 ;A = 1
+        ld   b,a
+        ld   a,1
+        call error
+        jp   nz,getite         ;Retry Disk operation
 reperr: ld   hl,errflg+1       ;Report error condition
         or   (hl)
         ld   (hl),a
@@ -419,6 +437,80 @@ wait:   ld   a,20
 wait1:  dec  a
         jr   nz,wait1
         ld   a,(37ech)
+        ret
+
+; Show error at statusline
+
+error:  nop                    ;Errorflag
+        push bc
+        call save25
+        ld   a,(dskerr)
+        ld   hl,rdtxt
+        bit  5,a
+        jr   z,itsrd
+        ld   hl,wrtxt
+itsrd:  ld   de,4380h
+        ld   bc,13
+        ldir
+        pop  af
+        ld   b,6
+error1: rlca
+        jr   c,error2
+        djnz error1
+error2: ld   a,b
+        ld   hl,errtxt-16
+        ld   bc,16
+error3: add  hl,bc
+        dec  a
+        jr   nz,error3
+        ldir                   ;de = 438dh !
+
+        ld   bc,curdrv
+        ld   a,(bc)            ;a=curdrv
+        add  a,0c1h
+        ld   (drvtxt),a
+        inc  bc
+        ld   a,(bc)            ;a=cursid
+        rlca
+        rlca
+        neg
+        add  a,0c6h
+        ld   (sidtxt),a
+        inc  bc
+        ld   a,(bc)            ;a=curtrk
+        ld   hl,trktxt+2
+        call shodec            ;Show decimal
+        inc  bc
+        ld   a,(bc)            ;a=cursec
+        ld   hl,sectxt+2
+        call shodec
+        call bell
+        ld   hl,shotxt
+        ld   de,439dh
+        ld   bc,51
+        ldir
+
+error4: ld   a,(3840h)
+        and  06h               ;brk or clr ?
+        jr   z,error4
+        call load25
+        and  02h               ;clr ?
+        ret
+
+shodec: ld   de,0afafh
+shode1: inc  e
+        sub  100
+        jr   nc,shode1
+        add  a,100
+shode2: inc  d
+        sub  10
+        jr   nc,shode2
+        add  a,0bah
+        ld   (hl),a
+        dec  hl
+        ld   (hl),d
+        dec  hl
+        ld   (hl),e
         ret
 
 ; Parameter table 3
@@ -444,62 +536,61 @@ curtrk: defb 0           ;trk # to seek (in memory)
 cursec: defb 0           ;sec # to seek (in memory)
 
         page
+; Save status line
+
+save25: ld   hl,4380h
+        ld   de,info
+move25: ld   bc,80
+        ldir
+        ret
+
+; Load status line
+
+load25: ld   hl,info
+        ld   de,4380h
+        jr   move25
+
 ; Cold start
 
 boot:   ld   hl,pdtab
         ld   de,pdrive
         ld   bc,16
         ldir
+        ld   sp,cpmstk
         ld   a,0c3h
         ld   hl,intkbd
         ld   (38h),a
         ld   (39h),hl
         ld   a,1
         ld   (curbin),a
-        call clrwrt
-        ld   (curdrv),a
         ld   a,81h
         ld   (3),a
         xor  a
         ld   (4),a
+        ld   (curdrv),a
         ld   (wrtflg),a
+        call swtchi
+        call load25            ;Display infoline
+        call swtcho
         ld   hl,stmsg
-        call prttxt
-        jp   wboot
-
-prttxt: ld   a,(hl)
+boot1:  ld   a,(hl)
         ld   c,a
         or   a
-        ret  z
+        jr   z,wboot1
         call conout
         inc  hl
-        jr   prttxt
+        jr   boot1
 
 ; Warm start
 
-wboot:  ld   sp,0ffffh
-        call readsk            ;Flush buffer
+wboot:  ld   sp,cpmstk
+        call flush             ;Flush buffer
         ld   a,(pdtab+15)      ;A = pd-byte for drive a:
-        and  05h
-        or   05h
         ld   (curpdb),a        ;for next read operation
         ld   a,1
-        out  (0f5h),a
         ld   (curbin),a
-
         call swtchi
-        ld   hl,info
-        ld   de,4380h
-info1:  ld   a,(hl)
-        or   a
-        jr   z,infend
-        or   80h
-        ld   (de),a
-        inc  hl
-        inc  de
-        jr   info1
-
-infend: ld   a,0ffh            ;dden
+        ld   a,0ffh            ;dden
         ld   (37ech),a
         ld   a,80h             ;5"
         ld   (37eeh),a
@@ -510,10 +601,9 @@ infend: ld   a,0ffh            ;dden
         call wbread
         ld   bc,4*256+2
         call wbread
-        call swtcho
-        jp   wboot1
+        jr   wboot1
 
-wbread: ld   a,c
+wbread: ld   a,c               ;read b secs on trk c
         ld   (curtrk),a
         xor  a
 wbrd1:  ld   (cursec),a
@@ -547,12 +637,15 @@ wboot1: ld   hl,bios+3
         call setdma
         xor  a
         ld   (inlen),a
-        ld   c,0
-        call seldsk
+        inc  a                 ;a=1
+        out  (0f5h),a
+        ld   a,0ah
+        out  (0f6h),a
+        inc  a
+        out  (0f7h),a          ;Cursor steady underline
         ld   a,(4)
         ld   c,a
         jp   3400h+offset
-
         page
 ; Drive paramter headers
 
@@ -592,18 +685,18 @@ dph:    defw cvtab1
         defw csv4
         defw alv4
 
-pdtab:  defw 36
+pdtab:  defw 36                ;S80 DD
         defb 4
         defb 15
         defb 1
-        defw 82
+        defw 170
         defw 63
         defw 0080h
         defw 16
-        defw 3
+        defw 4
         defb 05h
 
-        defw 72
+        defw 72                ;GENIE III DSDD
         defb 5
         defb 31
         defb 3
@@ -614,7 +707,7 @@ pdtab:  defw 36
         defw 3
         defb 05h
 
-        defw 36
+        defw 36                ;S40 DD
         defb 4
         defb 15
         defb 1
@@ -625,7 +718,7 @@ pdtab:  defw 36
         defw 3
         defb 05h
 
-        defw 36
+        defw 36                ;S40 DD
         defb 4
         defb 15
         defb 1
@@ -682,26 +775,24 @@ cvtab4: defb 00,01,02,03,04,05,06,07
 
 ; Pdrive info table for pd.com
 
-rdtab:  defb 00h,0bh,00h,00h
-
+rdtab:  defb 0ah,0bh,00h,00h
         page
-
 fkytab: defb 0
         defm 'DIR'                     ; F1
         defb 0dh,0
         defm 'PD'                      ; F2
-        defb 0dh,0
+        defb 0dh,0dh,0
         defm 'STAT '                   ; F3
         defb 0
         defm 'DDT'                     ; F4
         defb 0dh,0
-        defm 'PD B:S40 DD'             ; F5
+        defm 'PD B:S80 DD'             ; F5
         defb 0dh,0
         defm 'PD B:GENIE III DSDD'     ; F6
         defb 0dh,0
         defm 'PD B:CPM3 1024'          ; F7
         defb 0dh,0
-        defm 'PD B:S40 DD'             ; F8
+        defm 'PD B:80 DSDD'            ; F8
         defb 0dh,0
         defm 'BASIC'                   ; F9
         defb 0dh,0
@@ -726,9 +817,83 @@ stmsg:  defb 26
         defm '64K Genie III CP/M 2.2'
         defb 07,13,10,0
 
-info:   defm 'CP/M 2.2 Super-BIOS (c) Klaus K{mpf 5.84'
-        defm ' Your Text goes here ...        HH:MM:SS'
-        defb 0
+info:   defb 195,208,175,205,160,178,174,178,160,211
+        defb 245,240,229,242,173,194,201,207,211,160
+        defb 214,229,242,243,233,239,238,160,179,174
+        defb 176,160,160,160,160,160,160,160,160,160
+        defb 160,160,160,168,227,169,172,168,240,169
+        defb 160,182,174,184,180,160,226,249,160,203
+        defb 236,225,245,243,160,203,251,237,240,230
+        defb 160,160,160,160,160,160,160,160,160,160
+
+vertxt: defb 194,201,207,211,160,214,229,242,243,233
+        defb 239,238,160,179,174,176,160,160,211,229
+        defb 242,233,225,236,160,206,239,174,160,178
+        defb 183,177,182,179,173,203,203,173,184,180
+        defb 160,160,196,225,244,229,160,239,230,160
+        defb 225,243,243,229,237,226,236,249,186,160
+        defb 178,185,174,176,182,174,184,180,160,160
+        defb 160,160,160,160,160,160,160,160,160,160
+
+flgtx0: defm 'Keyclick'
+        defb 80h
+flgtx1: defm 'Repeat'
+        defb 80h
+flgtx2: defm 'Clock'
+        defb 80h
+flgtx3: defm 'Error Display'
+        defb 80h
+flgtx4: defm 'ctrl-4'
+        defb 80h
+flgtx5: defm 'ctrl-5'
+        defb 80h
+flgtx6: defm 'ctrl-6'
+        defb 80h
+flgtx7: defm 'ctrl-7'
+        defb 80h
+
+txtis:  defb 0a0h,0e9h,0f3h    ;' is' invers
+
+txton:  defb 0a0h
+        defm 'ON'
+txtoff: defb 0a0h
+        defm 'OFF'
+
+;'Read Error:  '
+rdtxt:  defb 210,229,225,228,160,197,242,242,239,242
+        defb 186,160,160
+;'Write Error: '
+wrtxt:  defb 215,242,233,244,229,160,197,242,242,239
+        defb 242,186,160
+;'Lost Data       '
+errtxt: defb 204,239,243,244,160,196,225,244,225,160
+        defb 160,160,160,160,160,160
+;'CRC Error       '
+        defb 195,210,195,160,197,242,242,239,242,160
+        defb 160,160,160,160,160,160
+;'Record not found'
+        defb 210,229,227,239,242,228,160,238,239,244
+        defb 160,230,239,245,238,228
+;'Write fault     '
+        defb 215,242,233,244,229,160,230,225,245,236
+        defb 244,160,160,160,160,160
+;'Write protected '
+        defb 215,242,233,244,229,160,240,242,239,244
+        defb 229,227,244,160,160,160
+
+;'  Drive: '
+shotxt: defb 160,160,196,242,233,246,229,186,160
+drvtxt: defb 216
+;'  Side: '
+        defb 160,160,211,233,228,229,186,160
+sidtxt: defb 216
+;'  Track: '
+        defb 160,160,212,242,225,227,235,186,160
+trktxt: defb 216,216,216
+;'  Sector '
+        defb 160,160,211,229,227,244,239,242,186,160
+sectxt: defb 216,216,216
+        defb 160,160,160,160,160,160,160
 
 ; Parameter Table 4
 

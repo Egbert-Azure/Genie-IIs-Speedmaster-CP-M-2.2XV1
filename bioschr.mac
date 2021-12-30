@@ -1,15 +1,37 @@
 ; Bios for CP/M 2.2
-; Originally copyrighted by Kalle Braun
+; Skeletal BIOS (c) Kalle Braun
 ; Genie III adaptions and extensions (c)'84
 ; by Klaus K{mpf
 ; Source only for Z80-Macroassembler
+;
+;
+;
+;
+; Pdrive-Byte:
+;
+; 7   6   5   4   3   2   1   0
+; !   !   !   !   !   !   !   --- Density Flag (SD/DD)
+; !   !   !   !   !   !   ------- Stepping Rate (6/12ms)
+; !   !   !   !   --------------- Sector Length
+; !   !   !   ------------------- Double Sided
+; !   !   ----------------------- Double Track
+; !   --------------------------- Size (5"/8")
+; ------------------------------- nc
+
+
+
+
 
         aseg
 
-offset  equ  09e00h            ; 61 k
+offset  equ  09d00h            ; 61 k (?)
         org  4a00h+offset
 
-        page 66
+
+
+        TITLE CP/M 2.2 Super-BIOS
+        SUBTTL (c)'84 by Klaus K{mpf
+        page 70
 bios:   jp   boot
         jp   wboot
         jp   const
@@ -31,8 +53,8 @@ bios:   jp   boot
         jp   write
         jp   listst
         jp   sectrn
+        jp   close             ;Close File extension
         page
-
 ; Save userstack
 
 savstk: di
@@ -54,10 +76,10 @@ getstk: ld   sp,<usrstk: dw 0>
 
 swtchi: di
         ld   a,71h
+        jr   switch
+swtcho: ld   a,7fh
 switch: out  (0fah),a
         ret
-swtcho: ld   a,7fh
-        jr   switch
 
 
 ; Interrupt Vector
@@ -84,14 +106,7 @@ intkbd: ld   (intret),sp
 
 ; Ring the bell
 
-bell:   call savstk
-        call swtchi
-        call pieps
-        call swtcho
-        xor  a
-        ret
-
-pieps:  push bc
+bell:   push bc
         ld   bc,0b080h
 bell1:  ld   a,(3860h)
         push bc
@@ -103,8 +118,8 @@ bell2:  dec  c
         xor  a
         ret
         page
-
-clock:  ld   a,(clkcnt)
+clock:  nop                    ;Clock Flag
+        ld   a,(clkcnt)
         dec  a
         jp   nz,clkend
         ld   hl,37e0h
@@ -147,7 +162,6 @@ clklo4: ld   a,(hl)
 clkend: ld   (clkcnt),a
         ret
         page
-
 ; Get console status
 
 const:  ld   a,(inlen)
@@ -183,10 +197,11 @@ inkbd1: call inch1
         ld   (rptchr),a
         ld   a,(rptcn1)
         ld   (rptcnt),a
-inkbd2: ld   hl,inlen
+inkbd2: call click
+        ld   hl,inlen
         ld   a,(hl)
         cp   31
-        jp   nc,pieps
+        jp   nc,bell
         inc  (hl)
         ld   hl,kbdbuf
         ld   e,a
@@ -195,7 +210,8 @@ inkbd2: ld   hl,inlen
         ld   (hl),c
         ret
 
-inkbd3: ld   hl,rptcnt
+inkbd3: nop                    ;Repeat Flag
+        ld   hl,rptcnt
         dec  (hl)
         ret  nz
         ld   a,(381fh)
@@ -213,21 +229,142 @@ kyprsd: ld   a,(rptcn2)
         ld   c,(hl)
         jr   inkbd2
         page
-
 inch1:  push hl
         push de
         push bc
-        ld   a,(3840h)         ;clear ?
+        ld   a,(3840h)
         ld   b,a
-        ld   a,(3880h)         ;ctrl ?
-        and  b
-        bit  1,a
-        jr   z,inchgo
-        xor  a
-        ld   (inlen),a
-        jp   nokey
+        cp   0e0h              ;spc,<-,->
+        jr   z,showit
+        ld   a,(3880h)         ;ctrl or shift ?
+        ld   c,a
+        and  03h
+        jp   z,getkey          ;N: jp
+        ld   a,b
+        sub  02h               ;clear ?
+        jr   nz,notclr
+        bit  0,c               ;shift ? Y: jp
+        jr   nz,notclr         ;only ctrl-clear
+        ld   (inlen),a         ;sets inlen to 0
+ctlend: jp   nokey
 
-inchgo: ld   bc,3801h
+notclr: ld   a,c
+        cp   03h               ;shift and ctrl ?
+        jr   z,ctlend          ;not allowed
+        ld   a,(38c0h)         ;0 - 7 ?
+        or   a
+        jr   nz,chnflg         ;Y: chnflg
+        ld   a,(38e0h)
+        bit  2,a               ;00 ?
+        jp   z,getkey
+        bit  0,c               ;shift ?
+        jp   nz,getkey         ;Y: only ctrl-00 allowed
+
+prtscr: ld   hl,3c00h
+        ld   de,0780h
+prtsc1: ld   b,80              ;80 Char/Line
+prtsc2: ld   c,(hl)
+        res  7,c
+        call list1
+        inc  hl
+        dec  de
+        djnz prtsc2
+        ld   c,0dh
+        call list1
+        ld   c,0ah
+        call list1
+        ld   a,d
+        or   e
+        jr   nz,prtsc1
+        jr   ctlend
+
+showit: call save25
+        ld   hl,vertxt
+        call load25+3
+showi1: ld   a,(3840h)
+        cp   0e0h
+        jr   z,showi1
+        call load25            ;Display Normal Info
+        jr   ctlend
+
+chnflg: push af                ;c = (3880h)
+        push bc
+        ld   b,8
+chnfl1: rlca
+        jr   c,flgfou
+        djnz chnfl1
+flgfou: push bc
+        call save25
+        pop  bc
+        ld   hl,adrtab-4
+        ld   e,b
+        ld   d,0
+      4:add  hl,de
+        ld   c,(hl)            ;(bc) = text
+        inc  hl
+        ld   b,(hl)
+        inc  hl
+        ld   de,4380h
+chnfl2: ld   a,(bc)
+        xor  80h
+        jr   z,chnfl3
+        ld   (de),a
+        inc  bc
+        inc  de
+        jr   chnfl2
+chnfl3: ld   a,(hl)            ;(hl) = flag
+        inc  hl
+        ld   h,(hl)
+        ld   l,a
+        pop  bc
+        ld   a,(hl)            ;a = flag
+        bit  0,c               ;shift ?
+        jr   nz,shoflg         ;Y: show flag
+notsft: xor  0c9h              ;ctrl !
+        ld   (hl),a
+        jr   shofl1
+shoflg: ld   hl,txtis          ;' is'
+        ld   bc,3
+        ldir
+shofl1: or   a
+        ld   hl,txton
+        jr   z,chnfl4
+        ld   hl,txtoff
+chnfl4: ld   bc,4
+        ldir
+        ex   de,hl
+chnfl5: ld   (hl),0a0h
+        inc  hl
+        ld   a,l
+        sub  0d0h
+        jr   nz,chnfl5
+        pop  bc                ;B = keycode !
+chnfl6: ld   a,(38c0h)
+        xor  b
+        jr   z,chnfl6          ;wait for key-release
+        xor  a
+        call load25
+        jp   inched
+
+adrtab: defw flgtx0
+        defw click
+        defw flgtx1
+        defw inkbd3
+        defw flgtx2
+        defw clock
+        defw flgtx3
+        defw error
+        defw flgtx4
+        defw dummy
+        defw flgtx5
+        defw dummy
+        defw flgtx6
+        defw dummy
+        defw flgtx7
+        defw dummy
+dummy:  defb 0                 ;Dummy Flag
+        page
+getkey: ld   bc,3801h
         ld   hl,keybuf
         ld   d,0
 keylop: ld   a,(bc)
@@ -288,18 +425,22 @@ nofoun: ld   hl,3880h
         xor  a
         bit  1,c               ;ctrl ?
         jr   nz,addoff         ;Y: no offset
-        ld   a,(38e0h)
+        ld   a,b
+        or   a
+        jr   nz,notat
+        ld   a,40h
+        bit  0,c
+        jr   z,addoff
+        ld   a,60h
+        jr   addoff
+
+notat:  ld   a,(38e0h)
         bit  3,a               ;lock ?
         ld   a,40h
-        jr   nz,chkat          ;Y: offset = 40h
+        jr   nz,addoff         ;Y: offset = 40h
         bit  0,c               ;shift ?
-        jr   nz,chkat          ;Y: offset = 40h
+        jr   nz,addoff         ;Y: offset = 40h
         ld   a,60h
-chkat:  ld   c,a               ;Check for '@'
-        and  b                 ;b = charcode (=0?)
-        ld   a,c
-        jr   nz,addoff
-        xor  20h
 
 addoff: add  a,b
         jr   inched
@@ -324,7 +465,11 @@ inch18: cp   38h
 nokey:  xor  a
         jr   inchex
 
-numkey: cp   52h
+numkey: ld   a,c
+        or   a
+        jr   nz,nokey          ;shift or ctrl
+        ld   a,b
+        cp   52h
         jr   nc,numky1
         sub  48h
         add  a,30h
@@ -369,7 +514,8 @@ fkylo1: cpir
         dec  d
         jr   nz,fkylo1
 
-fkyfou: ld   c,l
+fkyfou: call click
+        ld   c,l
         ld   b,h
         ld   a,(inlen)
         ld   e,a
@@ -397,8 +543,21 @@ delay1: dec  bc
         jr   nz,delay1
         pop  af
         ret
-        page
 
+click:  nop                    ;Clickflag
+        push af
+        push bc
+        ld   bc,04040h
+click1: ld   a,(3860h)
+        push bc
+click2: dec  c
+        jr   nz,click2
+        pop  bc
+        djnz click1
+        pop  bc
+        pop  af
+        ret
+        page
 ; Paramter Table 1
 
 keybuf: defb 0,0,0,0,0,0,0,0,0,0,0
@@ -415,12 +574,18 @@ clktab: defs 9
 curchr: defb 0
 rptchr: defb 0
 rptcnt: defb 0
-rptcn1: defb 013
-rptcn2: defb 002
+rptcn1: defb 020
+rptcn2: defb 003
 inlen:  defb 0
+        page
+; Parameter Table 3
+
 newrow: defb 0
-cursor: defw 3c00h
 invers: defb 0
+cursor: defw 3c00h
+scrtop: defw 3c00h             ;first unprot. pos.
+scrlst: defw 4330h             ;start of last line
+scrbot: defw 437fh             ;last unprot. pos.
 
 ; Control Character Table
 
@@ -430,7 +595,7 @@ gcode   macro x,adr
         org   gtab+2*x
         defw  adr
         endm
-        gcode 7,pieps
+        gcode 7,bell
         gcode 8,back
         gcode 9,tab
         gcode 10,lf
@@ -444,25 +609,31 @@ gcode   macro x,adr
 grnix:  xor  a
         ret
 
-esctab: defb '.'
-        defb '='
-        defb '?'
-        defb 'E'
-        defb 'G'
-        defb 'Q'
-        defb 'R'
-        defb 'T'
-        defb 'W'
-        defb 'Y'
-        defb 'Z'
+esctab: defb '.'               ;Cursor Definition
+        defb '='               ;Cursor Adressing
+        defb '?'               ;Cursor Position
+        defb 'E'               ;Insert Line
+        defb 'R'               ;Delete Line
+        defb 'Q'               ;Insert Char
+        defb 'W'               ;Delete Char
+        defb 'T'               ;Erase to end of line
+        defb 'Y'               ;Erase to end of frame
+        defb ')'               ;Invers on
+        defb '('               ;Invers off
+        defb '<'               ;Scroll protect top
+        defb '>'               ;Scroll protect bottom
+        defb 'Z'               ;Line 25
 
 jmptab: defw line25
+        defw scprbo
+        defw scprto
+        defw invoff
+        defw invon
         defw eraeof
-        defw delchr
         defw eraeol
-        defw dellin
+        defw delchr
         defw inschr
-        defw invert
+        defw dellin
         defw inslin
         defw curpos
         defw curadr
@@ -474,16 +645,29 @@ cdeftb: defb 2bh
         defb 6bh
         defb 0bh
         page
+; HL > scrbot ?  Y->NC
 
-; Cursor > 437fh ?  Y->NC
-
-toobig: ld   a,h
-        cp   43h
+toobig: ld   de,(scrbot)
+        inc  de
+        ld   a,h
+        cp   d
         ret  c
         ld   a,l
-        cp   80h
+        cp   e
         ret
 
+; HL < scrtop ?  Y->NC
+
+toolow: ld   de,(scrtop)
+        dec  de
+        ld   a,d
+        cp   h
+        ret  c
+        ld   a,e
+        cp   l
+        ret
+
+; Set Cursor Position to CRTC
 
 putcur: ld   de,3c00h
         ld   (cursor),hl
@@ -513,7 +697,6 @@ line1:  sbc  hl,de
         jr   nz,line1
         ret
         page
-
 ; Console output
 
 conout: ld   a,(3)
@@ -533,15 +716,16 @@ conout: ld   a,(3)
         push hl
         ld   a,c
         jp   <escjmp: dw chrout>
-
-
+                               ;a,c    = Character
+                               ;(sp)   = Cursor
+                               ;(sp-2) = Ret Adr.              
 chrout: pop  de                ;de = cursor
         cp   27
         jr   z,grendx
-        ld   hl,grend0         ; change if NOT esc
+        ld   hl,grend0         ;change if NOT esc
         ex   (sp),hl
 
-grendx: push de                ; (sp) = cursor
+grendx: push de                ;(sp) = cursor
         cp   20h
         jr   c,ctrl
 
@@ -552,13 +736,12 @@ grendx: push de                ; (sp) = cursor
         or   c
         ld   (hl),a
         inc  hl
-        ret                    ; to grend0
+        ret                    ;to grend0
 
 ; common return
 
 grend0: call toobig
         jr   c,grend2
-        ld   hl,4330h
         call scroll
 
 grend2: call swtcho
@@ -584,11 +767,9 @@ ctrl:   add  a,a
                                ;(sp)= grend0 if NOT esc
                                ;(sp)= grend2 if esc
         page
-
 back:   dec  hl                ;Backspace does NOT erase
-        ld   a,h
-        cp   3bh
-        ret  nz
+        call toolow
+        ret  c
         inc  hl
         ret
 
@@ -615,7 +796,6 @@ tab:    ld   a,20h
         call toobig
         jr   c,tab1
         call scroll
-        ld   hl,4330h
 tab1:   ld   a,l
         and  7
         jr   nz,tab
@@ -623,9 +803,8 @@ tab1:   ld   a,l
 
 curup:  ld   de,0ffb0h
         add  hl,de
-        ld   a,h
-        cp   3bh
-        ret  nz
+        call toolow
+        ret  c
         ld   de,50h
         add  hl,de
         ret
@@ -636,12 +815,11 @@ currgt: inc  hl
         dec  hl
         ret
 
-chome:  ld   hl,3c00h
+chome:  ld   hl,(scrtop)
         ret
 
         page
 ; a = 27 (esc)
-
 escape: push hl
         ld   hl,escap1
 eschng: ld   (escjmp),hl
@@ -675,44 +853,75 @@ escen1: ld   hl,grend2
         ld   hl,chrout
         jr   eschng
 
-curadr: ld   hl,curad1
-        jr   escng1
 
 curdef: ld   hl,curdf1
         jr   escng1
 
-invert: ld   hl,invrt1
+curadr: ld   hl,curad1
         jr   escng1
 
 line25: ld   hl,linoff
         jr   escng1
 
-linoff: cp   80                ;Get offset for 25th line
-        jp   nc,escen1
-setoff: ld   (offset),a
-linset: ld   hl,lintxt
+scprto: ld   hl,scprt1
         jr   escng1
 
-lintxt: cp   03h
-        jp   z,escen1
-        or   80h
-        ld   c,a
-        ld   hl,4380h
-        ld   a,(offset)
-        ld   e,a
-        ld   d,0
-        add  hl,de
-        ld   (hl),c
-        inc  a
-        cp   80
-        jr   nc,linset
-        jr   setoff
+scprbo: ld   hl,scprb1
+        jr   escng1
+        page
+
+; Define cursor
+
+curdf1: sub  30h
+        jr   c,curdf4
+        cp   5
+        jr   nc,curdf4
+        ld   bc,cdeftb
+curdf2: or   a
+        jr   z,curdf3
+        inc  bc
+        dec  a
+        jr   curdf2
+curdf3: ld   a,0ah
+        out  (0f6h),a
+        ld   a,(bc)
+        out  (0f7h),a
+curdf4: jp   escen1
 
 ; new row
 
 curad1: ld   (newrow),a
         ld   hl,curad2
         jr   escng1
+
+; new column
+
+curad2: pop  hl
+        ld   a,(newrow)
+        sub  20h
+        cp   24
+        jr   c,curad3
+        ld   a,0
+curad3: ld   l,a
+        ld   h,0
+        ld   e,l
+        ld   d,h
+        add  hl,hl
+        add  hl,hl
+        add  hl,de
+        add  hl,hl
+        add  hl,hl
+        add  hl,hl
+        add  hl,hl
+        ld   a,c
+        sub  20h
+        cp   80
+        jr   c,curad4
+        ld   a,0
+curad4: ld   e,a
+        ld   d,3ch
+        add  hl,de
+        jp   escend
 
 ; report cursor position
 
@@ -737,24 +946,27 @@ curpos: pop  hl
 inslin: pop  hl
         call cr                ;HL=Start of CURRENT line
         ld   (cursor),hl
+        ld   de,(scrlst)
         ld   a,h
-        cp   43h
+        cp   d
         jr   nz,not24
         ld   a,l
-        cp   30h
+        cp   e
         jr   nz,not24
         jp   eraeol+1          ;CAUTION !!
 
 not24:  push hl
-        ld   de,432fh
+        ld   de,(scrlst)
+        dec  de
         ex   de,hl
         or   a
         sbc  hl,de
         inc  hl
         ld   c,l
         ld   b,h
-        ld   hl,432fh
-        ld   de,437fh
+        ld   hl,(scrlst)
+        dec  hl
+        ld   de,(scrbot)
         lddr
         pop  hl
         jp   eraeol+1          ;CAUTION !!
@@ -767,7 +979,7 @@ dellin: pop  hl
         call toobig
         jr   nc,is24           ;its 24th line
         push hl
-        ld   de,437fh
+        ld   de,(scrbot)
         ex   de,hl
         or   a
         sbc  hl,de
@@ -782,36 +994,12 @@ dellin: pop  hl
         ex   de,hl
         pop  hl
         ldir
-delend: ld   de,4330h
+delend: ld   de,(scrlst)
         jp   eraeof+1          ;CAUTION !!
 
-is24:   ld   hl,4330h
+is24:   ld   hl,(scrlst)
         ld   (cursor),hl
         jr   delend
-
-; Erase to end of line
-
-eraeol: pop  hl
-        push hl
-        call cureol
-        pop  de
-        jr   filspc
-
-; Erase to end of frame
-
-eraeof: pop  de
-        ld   hl,437fh
-filspc: or   a
-        sbc  hl,de
-        jr   z,filend
-        ld   b,h
-        ld   c,l
-filsp1: ld   h,d
-        ld   l,e
-        inc  de
-        ld   (hl),20h
-        ldir
-filend: jp   nodone
 
 ; Insert character
 
@@ -855,91 +1043,122 @@ delchr: pop  hl
 nodone: ld   hl,(cursor)
         jp   escend
 
-; new column
+; Erase to end of line
 
-curad2: pop  hl
-        ld   a,(newrow)
-        sub  20h
-        cp   24
-        jr   c,curad3
-        ld   a,0
-curad3: ld   l,a
-        ld   h,0
-        ld   e,l
-        ld   d,h
-        add  hl,hl
-        add  hl,hl
-        add  hl,de
-        add  hl,hl
-        add  hl,hl
-        add  hl,hl
-        add  hl,hl
-        ld   a,c
-        sub  20h
-        cp   80
-        jr   c,curad4
-        ld   a,0
-curad4: ld   e,a
-        ld   d,3ch
-        add  hl,de
-        jp   escend
+eraeol: pop  hl
+        push hl
+        call cureol
+        pop  de
+        jr   filspc
+
+; Erase to end of frame
+
+eraeof: pop  de
+        ld   hl,(scrbot)
+filspc: or   a
+        sbc  hl,de
+        jr   z,filend
+        ld   b,h
+        ld   c,l
+filsp1: ld   h,d
+        ld   l,e
+        inc  de
+        ld   (hl),20h
+        ldir
+filend: jp   nodone
 
 ; Invert on/off
 
-invrt1: rrca
-        rrca
-        rrca
-        and  80h
-        ld   (invers),a
+invon:  ld   a,80h
+        jr   invset
+invoff: xor  a
+invset: ld   (invers),a
         jp   escen1
 
-; Define cursor
+; Protect toplines
 
-curdf1: sub  30h
-        jp   c,escen1
-        cp   5
+scprt1: cp   13                ;max 12 lines
         jp   nc,escen1
-        ld   bc,cdeftb
-curdf2: or   a
-        jr   z,curdf3
-        inc  bc
-        dec  a
-        jr   curdf2
-curdf3: ld   a,0ah
-        out  (0f6h),a
-        ld   a,(bc)
-        out  (0f7h),a
+        ld   b,a
+        inc  b
+        ld   hl,3c00h - 80
+        ld   de,80
+scprt2: add  hl,de
+        djnz scprt2
+        ld   (scrtop),hl
         jp   escen1
 
+; Protect bottomlines
 
-scroll: push hl
-        push de
-        push bc
-        ld   hl,3c50h
-        ld   de,3c00h
-        ld   bc,730h
-        ldir
-        ld   hl,4330h
-        ld   de,4331h
-        ld   bc,4fh
-        ld   (hl),20h
-        ldir
-        pop  bc
-        pop  de
-        pop  hl
-        ret
+scprb1: cp   13                ;max 12 lines
+        jp   nc,escen1
+        ld   b,a
+        inc  b
+        ld   hl,4380h
+        ld   de,-80
+scprb2: add  hl,de
+        djnz scprb2
+        ld   (scrlst),hl
+        ld   de,79
+        add  hl,de
+        ld   (scrbot),hl
+        jp   escen1
 
+; Fill statusline
 
-cls:    ld   hl,3c00h
+linoff: cp   80                ;Get offset for 25th line
+        jp   nc,escen1
+setoff: ld   (offset),a
+linset: ld   hl,lintxt
+        jp   escng1
+
+lintxt: cp   03h
+        jp   z,escen1
+        xor  80h
+        ld   c,a
+        ld   hl,4380h
+        ld   a,(offset)
+        ld   e,a
+        ld   d,0
+        add  hl,de
+        ld   (hl),c
+        inc  a
+        cp   80
+        jr   nc,linset
+        jr   setoff
+
+scroll: ld   hl,(scrlst)
         push hl
-        ld   de,3c01h
-        ld   bc,077fh
+        ld   de,(scrtop)
+        or   a
+        sbc  hl,de
+        ld   c,l
+        ld   b,h
+        ld   hl,80
+        add  hl,de
+        ldir
+        ld   bc,79
+
+scrclr: pop  hl
+        push hl
+        ld   e,l
+        ld   d,h
+        inc  de
         ld   (hl),20h
         ldir
         pop  hl
         ret
-        page
 
+
+cls:    ld   de,(scrtop)
+        push de
+        ld   hl,(scrbot)
+        or   a
+        sbc  hl,de
+        ld   c,l
+        ld   b,h
+        jr   scrclr
+        page
 ; List output
 
 list:   ld   a,(3)
@@ -950,7 +1169,7 @@ list:   ld   a,(3)
         cp   0c0h
         jr   z,hexlst
 
-; Lprint char
+; LPT: Lprint char
 
 list1:  call listst
         jr   z,list1
@@ -958,7 +1177,7 @@ list1:  call listst
         out  (0fdh),a
         ret
 
-; Lprint hexbyte
+; UL1: Lprint hexbyte
 
 hexlst: ld   a,c
         push af
