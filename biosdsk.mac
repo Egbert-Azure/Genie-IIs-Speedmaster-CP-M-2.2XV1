@@ -30,7 +30,7 @@ seld1:  rlc  b
         ld   a,(37ech)
         and  2
         ld   e,a
-        ld   hl,8000h
+        ld   hl,0000h
 seld11: ld   a,(37ech)
         and  2
         xor  e
@@ -90,17 +90,11 @@ setsec: ld   a,c
 setdma: ld   (destin),bc
         ret
 
-; ** Read logical record
-
-read:   call savstk
-        call initio
-        jp   reamem
-
 ; ** Write logical record
 
-write:  call savstk
-        ld   a,c
+write:  ld   a,c
         ld   (wrtype+1),a
+        call savstk
         call initio
         call wrtmem
 wrtype: ld   a,0
@@ -126,28 +120,21 @@ home:   xor  a
         ld   (newtrk),a
         ret
         page
-; Init for correct error report
-; call samsec & flush buffer
-
-initio: ex   (sp),hl
-        push de
-        push bc
-        push hl
-        ld   hl,exitio
-        ex   (sp),hl
-        push hl
-        xor  a
-        ld   (errflg+1),a
-        jp   samsec
 
 ; Common return
 
-exitio: pop  bc
-        pop  de
-        pop  hl
-errflg: ld   a,0
+exitio: ld   a,<errflg: 0>
         or   a
         ret
+
+; Init for correct error report
+; call samsec & flush buffer
+
+initio: ld   hl,exitio
+        ex   (sp),hl
+        push hl
+        xor  a
+        ld   (errflg),a
 
 ; Check if same physical sector (Y -> Z)
 ; and set newsec
@@ -184,37 +171,37 @@ cploop: ld   a,(de)
         djnz cploop
         ret
 
-; read record from memory
+; ** Read logical record
 
-reamem: call getblk
-        jp   move
+read:   call savstk
+        call initio
+        call getblk
+
+; Move logical record
+
+move:   ld   bc,0080h
+move1:  ld   a,(hl)
+invert: nop                    ;cpl
+        ld   (de),a
+        inc  hl
+        inc  de
+        dec  bc
+        ld   a,b
+        or   c
+        jr   nz,move1
+        ret
 
 ; write record to memory
 
 wrtmem: call getblk
         ex   de,hl
         call move
-        jp   setwrt
-
-; Move logical record
-
-move:   ld   bc,0080h
-        ldir
-        ret
 
 ; set & reset writeflag
 
 setwrt: ld   a,<clrwrt: xor a>
         ld   (wrtflg),a
         ret
-
-; Flush buffer
-
-flush:  ld   a,(wrtflg)
-        or   a                 ;Unwritten data in mem ?
-        ret  z
-        jp   wrtdsk            ;Y -> Flush buffer
-
 
 ; Compute buffer adress
 
@@ -253,6 +240,12 @@ readsk: call flush
         ld   de,021ah
         jp   getit
 
+; Flush buffer
+
+flush:  ld   a,(wrtflg)
+        or   a                 ;Unwritten data in mem ?
+        ret  z                 ;No: ok else write
+
 ; Write physical sector
 
 wrtdsk: ld   a,0a8h
@@ -275,6 +268,11 @@ select: ld   a,(curpdb)
         or   80h
         ld   (37eeh),a         ;Select size
         ld   (hl),0d0h
+        xor  a                 ;A = NOP !
+        bit  7,b               ;Inverted Sectors ?
+        jr   z,setinv
+        ld   a,<cpl>
+setinv: ld   (invert),a
 
 ; Reselect drive
 
@@ -304,7 +302,7 @@ iss1:   call wait
 ; Perform disk I/O on curdrv, cursid, curtrk, cursec
 
 getit:  ld   (dskcmd),a
-        ld   a,(errflg+1)
+        ld   a,(errflg)
         or   a
         ret  nz                ;Return if previous err
         ld   b,1ch
@@ -404,11 +402,12 @@ getit5: ld   a,(hl)
         pop  af
         dec  b
         jp   nz,getit1
-        ld   b,a
+        ld   b,a               ;Save Status
         ld   a,1
         call error
         jp   nz,getite         ;Retry Disk operation
-reperr: ld   hl,errflg+1       ;Report error condition
+        ld   a,1
+reperr: ld   hl,errflg         ;Report error condition
         or   (hl)
         ld   (hl),a
         jp   swtcho
@@ -455,8 +454,9 @@ error3: add  hl,bc
         ld   a,(bc)            ;a=cursid
         rlca
         rlca
-        neg
-        add  a,0c6h
+        ld   d,a               ;D = 0/4
+        ld   a,0d6h
+        sub  d
         ld   (sidtxt),a
         inc  bc
         ld   a,(bc)            ;a=curtrk
@@ -469,11 +469,10 @@ error3: add  hl,bc
         call bell
         ld   hl,shotxt
         ld   de,439dh
-        ld   bc,51
+        ld   bc,52
         ldir
 
-error4: call inch1             ;inch1 for Flags
-        ld   a,(3840h)
+error4: ld   a,(3840h)
         and  06h               ;brk or clr ?
         jr   z,error4
         call load25
@@ -550,6 +549,7 @@ boot:   ld   hl,pdtab
         ld   (3),a
         xor  a
         ld   (4),a
+        ld   (inlen),a
         ld   (curdrv),a
         ld   (wrtflg),a
         call swtchi
@@ -560,7 +560,9 @@ boot1:  ld   a,(hl)
         ld   c,a
         or   a
         jr   z,wboot1
+        push hl
         call conout
+        pop  hl
         inc  hl
         jr   boot1
 
@@ -572,17 +574,20 @@ wboot:  ld   sp,0
         ld   (curpdb),a        ;for next read operation
         ld   a,1
         ld   (curtrk),a
+        xor  a
+        ld   (errflg),a
         call swtchi
-        ld   a,0ffh            ;dden
-        ld   (37ech),a
-        ld   a,80h             ;5"
-        ld   (37eeh),a
-        ld   a,0d0h
-        ld   (37ech),a
+        ld   hl,37ech
+        ld   (hl),0d0h
+        ld   (hl),0ffh         ;dden
+        ld   (hl),0d0h
+        inc  hl
+        inc  hl
+        ld   (hl),80h          ;5"
         ld   de,3400h+offset
         ld   bc,0501h          ;5 Sectors on Drv1,F
         call wbread
-        ld   bc,0111h          ;1 Sector on Drv1,B
+        ld   bc,0111h          ;1/2 Sector on Drv1,B
         call wbread
         jr   wboot1
 
@@ -601,9 +606,15 @@ wbrd2:  ld   a,88h
         jr   nz,wbrd2
         pop  de
         ld   hl,secbuf
-        ld   bc,400h
+        ld   bc,200h
         ldir
-        pop  bc
+        ld   a,(curbin)
+        and  10h               ;2nd Side ?
+        jr   nz,sidtwo         ;y: jp
+        ld   hl,secbuf+200h
+        ld   bc,200h
+        ldir
+sidtwo: pop  bc
         ld   a,(cursec)
         inc  a
         djnz wbrd1
@@ -621,9 +632,7 @@ wboot1: ld   hl,bios+3
         ld   (39h),hl
         ld   bc,0080h
         call setdma
-        xor  a
-        ld   (inlen),a
-        inc  a                 ;a=1
+        ld   a,1
         out  (0f5h),a
         ld   a,0ah
         out  (0f6h),a
@@ -675,7 +684,7 @@ pdtab:  defw 80                ;S80 DSDD
         defb 5
         defb 31
         defb 3
-        defw 195
+        defw 194
         defw 255
         defw 00c0h
         defw 64
@@ -767,23 +776,23 @@ fkytab: defb 0
         defm 'DIR'                     ; F1
         defb 0dh,0
         defm 'PD'                      ; F2
-        defb 0dh,0dh,0
-        defm 'STAT '                   ; F3
-        defb 0
-        defm 'DDT'                     ; F4
         defb 0dh,0
-        defm 'PD B:D80 DSDD'           ; F5
+        defm 'FKEY'                    ; F3
         defb 0dh,0
-        defm 'PD B:S80 DSDD'           ; F6
+        defm 'FORMAT'                  ; F4
         defb 0dh,0
-        defm 'PD B:GENIE III DSDD'     ; F7
+        defm 'STAT'                    ; F5
         defb 0dh,0
-        defm 'PD B:ECMA 70 '           ; F8
-        defb 0
+        defm 'PIP'                     ; F6
+        defb 0dh,0
+        defm 'PD B:S80 DSDD'           ; F7
+        defb 0dh,0
+        defm 'PD B:D80 DSDD'           ; F8
+        defb 0dh,0
         defm 'BASIC'                   ; F9
         defb 0dh,0
-        defm 'AUTO '                   ; F10
-        defb 0
+        defm 'AUTO 10'                 ; F10
+        defb 0dh,0
         defm 'EDIT '                   ; F11
         defb 0
         defm 'RUN'                     ; F12
@@ -799,51 +808,52 @@ fkytab: defb 0
 
         org  fkytab + 512
 
-stmsg:  defb 26
-        defm '64K Genie III CP/M 2.2'
+info:   defb 195,208,175,205,160,178,174,178,216,160
+        defb 160,160,160,160,160,160,160,199,197,206
+        defb 201,197,160,201,201,201,160,195,194,201
+        defb 207,211,160,168,227,169,172,168,240,169
+        defb 160,203,236,225,245,243,160,203,251,237
+        defb 240,230,160,177,185,184,180,160,160,160
+        defb 160,160,160,160,160,160,160,160,160,160
+        defb 160,160,160,160,160,160,160,160,160,160
+
+vertxt: defb 195,208,175,205,160,178,174,178,216,160
+        defb 160,160,160,195,194,201,207,211,160,214
+        defb 229,242,243,233,239,238,160,177,174,176
+        defb 160,246,239,237,160,177,181,174,176,184
+        defb 174,184,180,160,160,160,160,160,160,211
+        defb 229,242,233,229,238,238,245,237,237,229
+        defb 242,186,160,178,183,176,177,182,179,173
+        defb 203,173,177,181,176,184,184,180,160,160
+
+stmsg:  defb 27,'*'
+        defm '64K Genie III CP/M 2.2X'
         defb 07,13,10,0
 
-info:   defb 195,208,175,205,160,178,174,178,160,211
-        defb 245,240,229,242,173,194,201,207,211,160
-        defb 214,229,242,243,233,239,238,160,179,174
-        defb 176,160,160,160,160,160,160,160,160,160
-        defb 160,160,160,168,227,169,172,168,240,169
-        defb 160,183,174,184,180,160,226,249,160,203
-        defb 236,225,245,243,160,203,251,237,240,230
-        defb 160,160,160,160,160,160,160,160,160,160
-
-vertxt: defb 194,201,207,211,160,214,229,242,243,233
-        defb 239,238,160,179,174,176,160,160,211,229
-        defb 242,233,225,236,160,206,239,174,160,178
-        defb 183,177,182,179,173,203,203,173,184,180
-        defb 160,160,196,225,244,229,160,239,230,160
-        defb 225,243,243,229,237,226,236,249,186,160
-        defb 177,179,174,176,183,174,184,180,160,160
-        defb 160,160,160,160,160,160,160,160,160,160
-
-flgtx0: defm 'Keyclick'
+flgtx0: defm 'Tastenklick'
         defb 80h
-flgtx1: defm 'Repeat'
+flgtx1: defm 'Wiederholung'
         defb 80h
-flgtx2: defm 'Clock'
+flgtx2: defm 'Uhr'
         defb 80h
-flgtx3: defm 'Error Display'
+flgtx3: defm 'Fehlermeldung'
         defb 80h
-flgtx4: defm 'ctrl-4'
+flgtx4: defm 'Lautsprecher'
         defb 80h
-flgtx5: defm 'ctrl-5'
+flgtx5: defm 'Pufferanzeige'
         defb 80h
 flgtx6: defm 'ctrl-6'
         defb 80h
 flgtx7: defm 'ctrl-7'
         defb 80h
 
-txtis:  defb 0a0h,0e9h,0f3h    ;' is' invers
+txtis:  defb 0a0h,0e9h,0f3h    ;' ist' invers
+        defb 0f4h
 
 txton:  defb 0a0h
-        defm 'ON'
+        defm 'EIN'
 txtoff: defb 0a0h
-        defm 'OFF'
+        defm 'AUS'
 
 ;'Read Error:  '
 rdtxt:  defb 210,229,225,228,160,197,242,242,239,242
@@ -867,37 +877,39 @@ errtxt: defb 204,239,243,244,160,196,225,244,225,160
         defb 215,242,233,244,229,160,240,242,239,244
         defb 229,227,244,160,160,160
 
-;'  Drive: '
-shotxt: defb 160,160,196,242,233,246,229,186,160
+;'  Disk: '
+shotxt: defb 160,160,196,233,243,235,186,160
 drvtxt: defb 216
-;'  Side: '
-        defb 160,160,211,233,228,229,186,160
+;'  Seite: '
+        defb 160,160,211,229,233,244,229,186,160
 sidtxt: defb 216
-;'  Track: '
-        defb 160,160,212,242,225,227,235,186,160
+;'  Spur: '
+        defb 160,160,211,240,245,242,186,160
 trktxt: defb 216,216,216
-;'  Sector '
-        defb 160,160,211,229,227,244,239,242,186,160
+;'  Sektor: '
+        defb 160,160,211,229,235,244,239,242,186,160
 sectxt: defb 216,216,216
-        defb 160,160,160,160,160,160,160
+        defb 160,160,160,160,160,160,160,160
 
 ; Parameter Table 4
 
 zzzzzy  equ  $
-        defs 100
+        defm 'Genie III CP/M CBIOS Copyright (c) 1984 '
+        defm ' Klaus K{mpf, Jakobstr 236/38, 51 Aachen'
+        defs 48
 cpmstk  equ  $
-        defs 50
+        defs 128
 intstk  equ  $
-kbdbuf: defs 32
+kbdbuf: defs buflen
 secbuf: defs 1024
-alv1:   defs 50
-alv2:   defs 50
-alv3:   defs 50
-alv4:   defs 50
-csv1:   defs 128
-csv2:   defs 128
-csv3:   defs 128
-csv4:   defs 128
+alv1:   defs 64
+alv2:   defs 64
+alv3:   defs 64
+alv4:   defs 64
+csv1:   defs 64
+csv2:   defs 64
+csv3:   defs 64
+csv4:   defs 64
 dirbuf: defs 128
 zzzzzz  equ  $
         end

@@ -1,3 +1,15 @@
+true    equ  0ffh
+false   equ  000h
+
+oldkbd  equ  false             ;True if old Keyboard
+
+buflen  equ  64                ;Lenght of Keyboard Buffer
+
+        aseg
+
+offset  equ  09d00h            ; 61 k (?)
+        org  4a00h+offset
+;
 ; Bios for CP/M 2.2
 ; Skeletal BIOS (c) Kalle Braun
 ; Genie III adaptions and extensions (c)'84
@@ -7,30 +19,26 @@
 ;
 ;
 ;
-; Pdrive-Byte:
+; Pdrive-Byte:                                  ( 0/ 1)
 ;
 ; 7   6   5   4   3   2   1   0
-; !   !   !   !   !   !   !   --- Density Flag (SD/DD)
+; !   !   !   !   !   !   !   --- Density Flag  (SD/DD)
 ; !   !   !   !   !   !   ------- Stepping Rate (6/12ms)
 ; !   !   !   !   --------------- Sector Length
 ; !   !   !   ------------------- Double Sided
 ; !   !   ----------------------- Double Track
-; !   --------------------------- Size (5"/8")
-; ------------------------------- nc
+; !   --------------------------- Size          (5"/8")
+; ------------------------------- Inverted Sect.(N/Y)
 
 
 
 
 
-        aseg
-
-offset  equ  09d00h            ; 61 k (?)
-        org  4a00h+offset
 
 
 
-        TITLE CP/M 2.2 Super-BIOS
-        SUBTTL (c)'84 by Klaus K{mpf
+        TITLE GENIE III CP/M 2.2X CBIOS
+        SUBTTL (c),(p) Klaus K{mpf 1984
         page 70
 bios:   jp   boot
         jp   wboot
@@ -41,9 +49,8 @@ bios:   jp   boot
         ret
         nop
         nop
-        xor  a
+        ld   a,1ah
         ret
-        nop
         jp   home
         jp   seldsk
         jp   settrk
@@ -95,6 +102,7 @@ intkbd: ld   (intret),sp
         ld   a,(37e1h)
         call clock
         call inkbd1
+        call show
         call swtcho
         pop  bc
         pop  de
@@ -106,7 +114,8 @@ intkbd: ld   (intret),sp
 
 ; Ring the bell
 
-bell:   push bc
+bell:   nop                    ;Bell Flag
+        push bc
         ld   bc,0b080h
 bell1:  ld   a,(3860h)
         push bc
@@ -161,6 +170,26 @@ clklo4: ld   a,(hl)
 
 clkend: ld   (clkcnt),a
         ret
+
+; Show current Keyboardbuffer at Statusline
+
+show:   ret                    ;Showflag
+        ld   hl,kbdbuf
+        ld   de,4380h
+        ld   a,(inlen)
+        or   a
+        jr   z,show1
+        ld   c,a
+        ld   b,0
+        ldir
+show1:  ex   de,hl
+        ld   (hl),20h
+bufclr: inc  hl
+        ld   a,l
+        cp   0c8h              ;Max. to Clock
+        ret  z
+        ld   (hl),0a0h
+        jr   bufclr
         page
 ; Get console status
 
@@ -175,19 +204,14 @@ const:  ld   a,(inlen)
 conin:  ld   a,(inlen)
         or   a
         jr   z,conin
-        push hl
-        push de
-        push bc
         ld   hl,kbdbuf+1
         ld   de,kbdbuf
-        ld   bc,32
+        ld   bc,buflen-1
         ld   a,(de)
+        res  7,a
         ldir
         ld   hl,inlen
         dec  (hl)
-        pop  bc
-        pop  de
-        pop  hl
         ret
 
 inkbd1: call inch1
@@ -200,13 +224,14 @@ inkbd1: call inch1
 inkbd2: call click
         ld   hl,inlen
         ld   a,(hl)
-        cp   31
+        cp   buflen
         jp   nc,bell
         inc  (hl)
         ld   hl,kbdbuf
         ld   e,a
         ld   d,0
         add  hl,de
+        set  7,c
         ld   (hl),c
         ret
 
@@ -320,8 +345,8 @@ chnfl3: ld   a,(hl)            ;(hl) = flag
 notsft: xor  0c9h              ;ctrl !
         ld   (hl),a
         jr   shofl1
-shoflg: ld   hl,txtis          ;' is'
-        ld   bc,3
+shoflg: ld   hl,txtis          ;' ist'
+        ld   bc,4
         ldir
 shofl1: or   a
         ld   hl,txton
@@ -352,9 +377,9 @@ adrtab: defw flgtx0
         defw flgtx3
         defw error
         defw flgtx4
-        defw dummy
+        defw bell
         defw flgtx5
-        defw dummy
+        defw show
         defw flgtx6
         defw dummy
         defw flgtx7
@@ -386,7 +411,7 @@ keypad: cp   0bh
 
 newkey: ld   e,a
         push bc
-        ld   bc,500h
+        ld   bc,500
         call delay
         pop  bc
         ld   a,(bc)
@@ -402,6 +427,9 @@ inch13: inc  b
         rlca
         rlca
         add  a,b
+
+        if   oldkbd
+
         ld   hl,kytab1
         ld   bc,9
         cpir
@@ -409,6 +437,9 @@ inch13: inc  b
         ld   hl,kytab2
         add  hl,bc
         ld   a,(hl)
+
+        endif
+
 nofoun: ld   hl,3880h
         ld   c,(hl)
         ld   b,a
@@ -491,7 +522,7 @@ inch19: ld   hl,ctltab
         jr   z,inch20
         inc  hl
 inch20: ld   a,(hl)
-inched: ld   bc,2000h
+inched: ld   bc,4000
         jp   delay
 
 fkeys:  ld   hl,fkytab
@@ -518,11 +549,12 @@ fkyfou: call click
         ex   de,hl
         ld   hl,inlen
 fkylo2: ld   a,(hl)
-        cp   31
+        cp   buflen
         jp   nc,inched
         ld   a,(bc)
         or   a
         jp   z,inched
+        set  7,a
         ld   (de),a
         inc  bc
         inc  de
@@ -554,10 +586,16 @@ click2: dec  c
 ; Paramter Table 1
 
 keybuf: defb 0,0,0,0,0,0,0,0,0,0,0
+
+        if   oldkbd
+
 kytab1: defb 00h,19h,1ah,1bh,1ch,1dh,1eh,2ah,2bh
 kytab2: defb 1ch,1eh,00h,2ah,1bh,2bh,19h,1ah,1dh
+
+        endif
+
 ctltab: defb 13,95,27,31,3,127,05,18
-        defb 24,3,8,01,04,6,32,32
+        defb 24,3,8,01,04,6,32,09
 zerotx: defb '0','0',0
 
 ; Paramter Table 2
@@ -566,8 +604,8 @@ clkcnt: defb 40                ;40 ints per sec
 clktab: defs 9                 ;9 Bytes for TIME$
 rptchr: defb 0                 ;Repeat char
 rptcnt: defb 0                 ;Repeat count
-rptcn1: defb 020               ;Time until 1st rpt
-rptcn2: defb 003               ;Repeat interval
+rptcn1: defb 032               ;Time until 1st rpt
+rptcn2: defb 005               ;Repeat interval
 inlen:  defb 0                 ;Buffer lenght
         page
 ; Parameter Table 3
@@ -594,6 +632,7 @@ gcode   macro x,adr
         gcode 11,curup
         gcode 12,currgt
         gcode 13,cr
+        gcode 22,curdo
         gcode 26,cls
         gcode 27,escape
         gcode 30,chome
@@ -641,45 +680,27 @@ cdeftb: defb 2bh
         page
 ; HL > scrbot ?  Y->NC
 
-toobig: ld   de,(scrbot)
-        inc  de
+toobig: ld   bc,(scrbot)
+        inc  bc
         ld   a,h
-        cp   d
+        cp   b
         ret  c
         ld   a,l
-        cp   e
+        cp   c
         ret
 
 ; HL < scrtop ?  Y->NC
 
-toolow: ld   de,(scrtop)
-        dec  de
-        ld   a,d
+toolow: ld   bc,(scrtop)
+        dec  bc
+        ld   a,b
         cp   h
         ret  c
-        ld   a,e
+        ld   a,c
         cp   l
         ret
 
-; Set Cursor Position to CRTC
-
-putcur: ld   de,3c00h
-        ld   (cursor),hl
-        or   a
-        sbc  hl,de
-        ld   c,0f6h
-        ld   a,0eh
-        out  (c),a
-        inc  c
-        out  (c),h
-        dec  c
-        inc  a
-        out  (c),a
-        inc  c
-        out  (c),l
-        ret
-
-; compute line# in b
+; compute line# in b (1-24)
 
 lineno: ld   de,0050h
         ld   b,0
@@ -701,9 +722,6 @@ conout: ld   a,(3)
         ret  nz
         call savstk
         call swtchi
-        push hl
-        push de
-        push bc
         ld   hl,<retadr: dw grend2>
         push hl
         ld   hl,(cursor)
@@ -739,11 +757,22 @@ grend0: call toobig
         call scroll
 
 grend2: call swtcho
-        call putcur
-        pop  bc
-        ld   a,c
-        pop  de
-        pop  hl
+
+; Set Cursor Position to CRTC
+
+putcur: ld   bc,-3c00h
+        ld   (cursor),hl
+        add  hl,bc
+        ld   c,0f6h
+        ld   a,0eh
+        out  (c),a
+        inc  c
+        out  (c),h
+        dec  c
+        inc  a
+        out  (c),a
+        inc  c
+        out  (c),l
         ret
 
 ctrl:   add  a,a
@@ -807,6 +836,12 @@ currgt: inc  hl
         call toobig
         ret  c
         dec  hl
+        ret
+
+curdo:  call lf
+        call toobig
+        ret  c
+        sbc  hl,de             ;CY is 0 !
         ret
 
 chome:  ld   hl,(scrtop)
@@ -918,21 +953,22 @@ curad4: ld   e,a
         jp   escend
 
 ; report cursor position
+; E = Row, D = Column
 
 curpos: pop  hl
         push hl
         call lineno
         ld   a,b
         call cr1
-        ex   de,hl
+        ex   de,hl             ;de = Current row
         pop  hl
         or   a
-        sbc  hl,de
-        add  a,20h
-        ld   d,a
+        sbc  hl,de             ;hl = Current column
+        add  a,1fh
+        ld   e,a
         ld   a,l
         add  a,20h
-        ld   e,a
+        ld   d,a
         jp   escend
 
 ; Insert line
@@ -1125,7 +1161,8 @@ clscrn: pop  hl                ;pop cursor
         call cls
         jp   escend
 
-scroll: ld   hl,(scrlst)
+scroll: push de
+        ld   hl,(scrlst)
         push hl
         ld   de,(scrtop)
         or   a
@@ -1145,10 +1182,12 @@ scrclr: pop  hl
         ld   (hl),20h
         ldir
         pop  hl
+        pop  de
         ret
 
 
-cls:    ld   de,(scrtop)
+cls:    push de
+        ld   de,(scrtop)
         push de
         ld   hl,(scrbot)
         or   a
