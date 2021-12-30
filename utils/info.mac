@@ -1,0 +1,140 @@
+;********************************************************
+;*							*	
+;*	INFO.MAC Set/Reset Info-Line			*
+;*	Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;					1985,1986	*
+;*							*
+;********************************************************
+;
+	.z80
+	.com
+	org	100h
+;
+r$info	equ	1			;record # of info text in config.sys
+o$info	equ	30h			;offset of info text in record
+;
+?boot	equ	0000h
+?bdos	equ	0005h
+@buffer	equ	?boot+80h
+;
+getchr	equ	01h
+prtstr	equ	09h
+getbuf	equ	0ah
+open	equ	0fh
+close	equ	10h
+read	equ	21h
+write	equ	22h
+setdma	equ	1ah
+;
+bell	equ	07h
+lf	equ	0ah
+cr	equ	0dh
+esc	equ	1bh
+;
+;
+	jp	entry
+;
+	defb	cr
+	defm	'INFO.COM Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'1985,1986'
+	defb	cr,lf
+	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86'
+	defb	1ah
+;
+cnffcb:
+	defb	0
+	defm	'CONFIG  ','SYS'
+	defs	21
+rec$num:
+	defs	3
+;
+entry:
+	ld	sp,stack
+;
+	ld	de,cnffcb
+	ld	c,open
+	call	?bdos
+	inc	a
+	jr	nz,open$ok
+	ld	a,1				;try on A:
+	ld	(cnffcb),a
+	ld	c,open
+	call	?bdos
+	ld	de,no$config
+	inc	a
+	jp	z,error1
+
+open$ok:
+	ld	de,@buffer
+	ld	c,setdma
+	call	?bdos
+	ld	a,r$info
+	ld	(rec$num),a
+	ld	de,cnffcb
+	ld	c,read
+	call	?bdos
+;
+	ld	de,frage
+	ld	c,prtstr
+	call	?bdos
+	ld	de,txtbuf
+	ld	c,getbuf
+	call	?bdos
+;
+	ld	de,@buffer+o$info
+	ld	a,(txtbuf+1)
+	or	a				;Any input ?
+	jr	z,noinfo			;N: Info Off
+
+	ld	hl,txtbuf+2
+	push	hl
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	(hl),cr
+	inc	hl
+	ld	(hl),lf
+	pop	hl
+	add	a,2				;2 more (cr,lf)
+	ld	c,a
+	ld	b,0
+	ldir					;Set text
+noinfo:
+	xor	a
+	ld	(de),a				;Mark end with 00h
+	ld	de,@buffer
+	ld	c,setdma
+	call	?bdos
+	ld	a,r$info
+	ld	(rec$num),a
+	ld	de,cnffcb
+	ld	c,write
+	call	?bdos
+	ld	de,cnffcb
+	ld	c,close
+	call	?bdos
+	jp	?boot
+;
+;
+error1:	ld	c,prtstr
+	call	?bdos
+	jp	?boot
+;
+frage:	defb	cr,lf
+	defm	'Gew}nschten Text eingeben (bis 80 Zeichen)'
+	defb	cr,lf,'$'
+no$config:
+	defb	cr,lf,bell
+	defm	'Fehler: File CONFIG.SYS nicht gefunden'
+	defb	cr,lf,'$'
+;
+txtbuf:
+	defb	80	;max 80 Chars
+	defb	0
+	defs	80,0
+
+	defs	128
+stack:
+
+	end

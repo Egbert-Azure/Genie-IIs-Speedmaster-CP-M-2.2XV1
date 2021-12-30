@@ -1,0 +1,630 @@
+;********************************************************
+;*							*
+;*	Customized BIOS for Mini-DOS	 		*
+;*	Genie III/IIIs Version 1.0 vom 25.2.86		*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1985,1986	*
+;*							*
+;********************************************************
+;
+	.printl Including MBIOS
+
+false	equ	0
+true	equ	not false
+
+drei_s		equ	false
+version_number	equ	0
+
+step$rate	equ	3
+switch_port	equ	0fah
+
+	if drei_s
+
+	if1
+	.printl Genie IIIs Version
+	endif
+
+video_start	equ	3800h
+switch_in	equ	1101_0100b
+switch_out	equ	1101_0101b
+
+	else
+
+	if1
+	.printl Genie III Version
+	endif
+
+video_start	equ	3c00h
+switch_in	equ	71h
+switch_out	equ	7fh
+
+	endif
+
+	.printn	version_number
+
+video_end	equ	video_start+24*80-1
+;
+bios:
+mbios:
+	jp	cboot		;+0
+	jp	conout
+	jp	seldsk
+	jp	settrk
+	jp	setsec
+	jp	setdma
+	jp	read
+;
+
+enaio:
+	di
+	push	af
+	ld	a,switch_in
+setio:
+	out	(switch_port),a
+	pop	af
+	ret
+disio:
+	di
+	push	af
+	ld	a,switch_out
+	jr	setio
+;
+;
+;--------------------------------------------------------------
+;
+; **** CBOOT
+;
+cboot:
+	di
+
+	if	drei_s
+	ld	hl,0ffa0h
+	else
+	ld	hl,042a0h
+	endif
+
+	ld	de,xltab
+	ld	bc,52
+	ldir
+
+	if	drei_s
+	ld	hl,0ffe1h
+	else
+	ld	hl,042e1h
+	endif
+
+	ld	de,dpb
+	ld	bc,31
+	ldir
+
+	ld	c,1ah
+	call	conout
+	ret
+;
+;--------------------------------------------------------------
+;
+; **** CONOUT
+;
+con$out1:
+conout:
+	di
+	call	enaio
+	ld	hl,conend
+	push	hl
+	ld	hl,<cursor_position: defw video_start>
+	ld	a,c
+	cp	20h				;ctrl-Char ?
+	jr	c,ctrl
+	ld	(hl),a
+	inc	hl
+	ret					;to conend
+
+conend:
+	call	toobig
+	call	nc,scroll
+	ld	(cursor_position),hl
+	jp	disio				;back to keyboard in mem
+
+; crtl-char processing
+
+ctrl:
+	cp	0dh
+	jp	z,carriage_return
+	cp	0ah
+	jp	z,line_feed
+	cp	1ah
+	jp	z,cls
+	xor	a
+	ret
+
+carriage_return:
+	call	lineno
+	ld	a,b		;a= line # 1-24
+cr1:
+	ld	hl,video_start-80
+cr2:
+	add	hl,de
+	djnz	cr2
+	ret
+
+line_feed:
+	ld	de,80
+	add	hl,de
+	ret
+
+scroll:
+	ld	hl,(last_line)		;Does what it says
+	push	hl
+	ld	de,(top_of_screen)
+	or	a
+	sbc	hl,de
+	ld	b,h
+	ld	c,l
+	ld	hl,80
+	add	hl,de			;de=top_of_screen
+	ldir				;hl=top_of_screen+80
+	ld	hl,(bottom_of_screen)
+	call	clear			;Clear last line
+	pop	hl
+	ret
+
+cls:
+	ld	hl,(bottom_of_screen)
+ if not drei_s
+	ld	de,80
+	add	hl,de
+ endif
+	ld	de,(top_of_screen)
+	push	de			;save new cursor_position
+	call	clear
+	pop	hl
+	ret
+
+; Clear from (DE) up to (HL) with A
+
+clear:
+	ld	a,' '
+	ld	(de),a			;at least one
+	or	a
+	sbc	hl,de
+	ret	z			;if hl=de
+	ld	b,h
+	ld	c,l
+	ld	h,d
+	ld	l,e
+	inc	de
+	ldir
+	ret
+
+; HL > bottom_of_screen ?  Y->NC
+
+toobig:
+	ld	bc,(bottom_of_screen)
+	inc	bc
+	ld	a,h
+	cp	b
+	ret	c
+	ld	a,l
+	cp	c
+	ret
+
+; compute line# in b (1-24)
+
+lineno:
+	ld	de,80
+	ld	b,0
+	or	a
+line1:
+	sbc	hl,de
+	inc	b
+	ld	a,h
+	cp	high video_start-1
+	jr	nz,line1
+	ret
+
+top_of_screen:		defw	video_start	;first unprot. pos.
+last_line:		defw	video_end-79	;start of last line
+bottom_of_screen:	defw	video_end	;last unprot. pos.
+;--------------------------------------------------------------
+;
+; **** SELDSK
+;
+seldsk:
+	ld	a,(dpb+11h)
+	ld	b,a
+	xor	a		;nop
+	bit	1,b		;Inverted Sectors ?
+	jr	z,setinv
+	ld	a,02fh		;cpl
+setinv:
+	ld	(dskinv),a
+
+	ld	hl,dpb+1dh		;(hl) = # of tracks of drive
+	ld	a,(dpb+13h)		;a= # of tracks of format
+	sub	(hl)			;same ?
+	ld	(double$step),a		;Y: Z, N: NZ
+
+	ld	a,b
+	and	38h
+	rrca
+	rrca
+	ld	e,a
+	ld	d,0
+	ld	hl,side$access
+	add	hl,de
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ld	(side$jump),hl
+
+	call	enaio
+	call	resel
+	ld	hl,0
+selct_loop:
+	dec	hl
+	ld	a,h
+	or	l
+	jr	nz,selct_loop
+	call	resel
+	call	disio
+
+	ld	hl,dph
+	ret
+
+side$access:
+	defw	side$0	;no 2nd side or by skew table
+	defw	side$1	;even on front, odd on back
+	defw	side$2	;0 -> (tracks) on front, 0 -> (tracks) on back
+	defw	side$3	;sector offset on 2nd side
+	defw	side$4	;0 -> (tracks) on front, (tracks) -> 0 on back
+	defw	side$5	;odd on front, even on back
+	defw	side$6	;reserved
+	defw	side$7	;reserved
+;
+;
+; **** SETTRK
+;
+settrk:
+	ld	a,c
+	ld	(dsk_track),a
+	ret
+;
+;
+; **** SETSEC
+;
+setsec:
+	ld	e,c
+	ld	a,(dpb+0fh)		;a=psh
+	inc	a
+sec_loop:
+	dec	a
+	jr	z,sec_loop_end
+	srl	b
+	rr	c
+	jr	sec_loop
+sec_loop_end:
+	ld	hl,xltab
+	add	hl,bc
+	ld	a,(hl)
+	ld	(dsk_sector),a		;save physical sector
+
+	ld	a,(dpb+10h)
+	and	e
+	inc	a
+	ld	b,a
+	ld	hl,disk_buffer-128
+	ld	de,128
+buf_loop:
+	add	hl,de
+	djnz	buf_loop
+	ld	(buffer_offset),hl
+	ret
+;
+;
+; **** SETDMA
+;
+setdma:
+	ld	(dma_address),bc
+	ret
+;----------------------------------------------------------
+; Read: track, sector to dma_address
+;
+;
+; **** READ
+;
+read:
+	ld	a,(dsk_sector)
+	ld	b,a
+	ld	a,(buf_sector)
+	cp	b
+	jr	nz,new_sector
+	ld	a,(dsk_track)
+	ld	b,a
+	ld	a,(buf_track)
+	cp	b
+new_sector:
+	call	nz,get_sector		;get new physical sector
+	ld	hl,(buffer_offset)
+	defb	11h			;'ld de,'
+dma_address:
+	defw	0
+	ld	bc,128
+	ldir
+	xor	a
+	ret
+	
+get_sector:
+	call	enaio
+
+	ld	a,0d0h
+	ld	(37ech),a
+
+	ld	a,(dpb+11h)
+	and	1			;Double Density ?
+	or	0feh
+	ld	(37ech),a		;Select density
+
+	ld	a,(dpb+14h)
+	and	01h
+	rrca
+	rrca
+	or	80h
+	ld	(37eeh),a		;Select Size
+
+	ld	a,0d0h
+	ld	(37ech),a
+
+	ld	b,5			;# of retries
+getit1:
+	call	enaio
+	call	resel
+	push	bc
+
+	ld	bc,(dpb+12h)		;c=# of sectors,b=# of tracks
+	ld	a,(dsk_sector)
+	ld	e,a			;e=sector
+	ld	a,(dsk_track)
+	ld	d,a			;a,d = track
+	ld	hl,slct_mask
+	defb	0c3h			;jp to side routine
+side$jump:
+	defw	side$0
+
+
+;no 2nd side or by skew table
+side$0:
+	ld	a,e		;a=sector #
+	res	7,e
+	bit	7,a		;sector on 2nd side ?
+	jr	nz,sel$2nd$side
+	jr	sel$1st$side
+
+;even on front, odd on back
+side$1:
+	srl	a		;even ?
+	ld	d,a
+	jr	nc,sel$1st$side	;N: jp
+	jr	sel$2nd$side
+
+;0 -> (tracks) on front, 0 -> (tracks) on back
+side$2:
+	sub	b		;second side ?
+	jr	c,sel$1st$side	;N: jp
+	ld	d,a		;Y: set 2nd side track
+	jr	sel$2nd$side
+
+;sector offset on 2nd side
+side$3:
+	srl	a		;2nd side ?
+	ld	d,a
+	jr	nc,sel$1st$side	;N: jp
+	ld	a,e		;Y: compute sector offset
+	add	a,c		;cursec+sectors
+	ld	e,a
+	jr	sel$2nd$side	;select 2nd side
+
+;0 -> (tracks) on front, (tracks) -> 0 on back
+side$4:
+	sub	b			;second side ?
+	jr	c,sel$1st$side		;N: jp
+	ld	b,a			;b= 0 -> 79
+	ld	a,(dpb+13h)		;a=# of phys tracks
+	dec	a			;-1 for trk 79 NOT 80
+	sub	b			;a= 79 -> 0
+	ld	d,a			;e= track #
+	jr	sel$2nd$side
+
+;odd on front, even on back
+side$5:
+	srl	a			;odd ?
+	ld	d,a
+	jr	c,sel$1st$side		;N: jp
+	jr	sel$2nd$side
+
+; select 2nd side
+sel$2nd$side:
+	set	4,(hl)			;Select 2. Side
+	jr	seek$track
+
+; no 2nd side, side select by skew table
+side$6:
+side$7:
+sel$1st$side:
+	res	4,(hl)			;Select 1. Side
+seek$track:
+	ld	(logical$address),de	;set trk,sec
+	ld	a,(dpb+11h)
+	and	01000000b		;map logical=physical ?
+	jr	z,no$mapping		;N: jp
+	ld	a,(dsk_track)
+	ld	(logical$address+1),a	;Y: set logical=physical trk #
+no$mapping:
+	call	resel
+
+	ld	a,(double$step)
+	or	a			;double step ?
+	ld	a,d			;A=trk#
+	jr	z,set$phys$pos		;N: jp
+	sla	a			;Y: A = A*2
+set$phys$pos:
+	ld	(37efh),a		;Set phys Head position
+
+	ld	hl,phys_track		;for seek
+	ld	b,(hl)			;Get last phys hd pos
+	ld	(hl),a			;Save new for seldsk
+	ld	a,b
+	ld	(37edh),a		;Set last for seek
+	ld	c,18h			;SEEK
+	call	isscmd
+
+	defb	21h			;ld hl,
+logical$address:
+	defw	0			;Set Trk & Sec #
+	ld	a,l
+	ld	l,h
+	ld	h,a
+	ld	(37edh),hl		;for Read
+	ld	hl,37ech
+	ld	de,37efh
+	ld	bc,disk_buffer
+	call	resel
+	ld	(hl),88h		;READ
+	call	wait
+	bit	0,a			;Busy ?
+	jr	z,getit5		;N: Error
+getrd:
+	ld	a,83h
+	and	(hl)
+	jp	po,getrd
+					; Move data
+getit3:	ld	a,(de)
+dskinv:	nop				;oder cpl
+	ld	(bc),a
+	inc	bc
+getit4:
+	bit	1,(hl)
+	jr	nz,getit3
+	bit	1,(hl)
+	jr	nz,getit3
+	bit	1,(hl)
+	jr	nz,getit3
+	bit	0,(hl)
+	jr	z,getit5
+	bit	1,(hl)
+	jr	nz,getit3
+	bit	7,(hl)
+	jr	z,getit4
+getit5:
+	ld	a,(hl)
+	ld	(hl),0d0h
+	call	disio
+	pop	bc
+	and	1ch
+	jr	nz,retry_disk_io
+	ld	hl,(dsk_track)
+	ld	(buf_track),hl
+	ret
+
+retry_disk_io:
+	push	af
+	ld	e,30h
+	rrca
+	rrca
+calc_code:
+	inc	e
+	rrca
+	jr	nc,calc_code
+	ld	a,e
+	ld	(error_code),a
+	pop	af
+
+	push	bc
+	bit	4,a		;Record not found ?
+	call	nz,restore	;Y: restore
+	pop	bc
+
+	dec	b
+	jp	nz,getit1
+
+	ld	de,disk_error
+	ld	c,1
+	call	mdos
+	jp	$
+
+disk_error:
+	defm	'DISK ERROR '
+error_code:
+	defb	30h
+	defb	0
+;--------------------------------------------------------------
+; Reselect drive
+
+resel:
+	ld	a,(slct_mask)
+	ld	(37e0h),a
+	ret
+
+; Restore drivehead
+
+restore:
+	call	enaio
+
+	ld	c,50h		;stepin
+	call	isscmd
+	xor	a
+	ld	c,a		;restore
+	ld	(phys_track),a	;Set new phys head pos
+				;to 0
+
+; Issue head moving cmd
+
+isscmd:
+	call	resel
+	ld	a,step$rate	;slow step !
+	or	c
+	ld	(37ech),a
+iss1:
+	call	wait
+	bit	0,a
+	ret	z
+	call	resel
+	jr	iss1
+;
+; Wait and get status
+;
+wait:
+	ld	a,20		;GDOS Value (!)
+wait1:
+	dec	a
+	jr	nz,wait1
+	ld	a,(37ech)
+	ret
+;
+	defm	'SCRATCH>'
+slct_mask:	defb	01h		;sel # to read (in memory)
+dsk_track:	defb	0		;trk # to read
+dsk_sector:	defb	0		;sec # to read
+buf_track:	defb	0		;trk # in buffer
+buf_sector:	defb	0		;sec # in buffer
+;
+phys_track:	defb	0		;physical track #
+double$step:	defb	0		;0=single step, <>0=double step
+buffer_offset:	defw	0
+dph:
+		defw	0
+		defw	0
+		defw	0
+		defw	0
+		defw	dirbuf
+		defw	dpb
+		defw	0		;csv
+		defw	0		;alv
+
+dpb:
+		defs	32,0
+xltab:
+		defs	52,0
+
+dirbuf:		defs	128,0
+disk_buffer:	defs	1024,0

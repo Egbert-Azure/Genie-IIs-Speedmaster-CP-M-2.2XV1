@@ -1,0 +1,875 @@
+;********************************************************
+;*							*
+;*	SCREEN.MAC  Video driver module			*
+;*	Genie III  CP/M 2.2XV3  Version 1.5  18.05.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1984,1985,1986	*
+;*	Modification History				*
+;*	1.1  12.02.86  Original Version			*
+;*	1.2  23.03.86  Shorted ctrl_table		*
+;*	1.3  19.04.86  Removed @cursor			*
+;*		       Changed getadr			*
+;*	1.4  11.05.86  corrected ctrl handling		*
+;*	1.5  18.05.86  Added old_iobyte after getadr	*
+;*		       Added savstk to handler		*
+;*							*
+;********************************************************
+	.printl Including SCREEN.MAC
+
+a$vid_start	equ	3c00h
+
+
+;	public		?conout,crtst,crtout
+;	public		monit,esc_change,esc_end
+;
+;	external	getadr,?punch,savstk
+;	external	censt,cenout,v24st,v24out
+;	external	print,clock,newsta
+;	external	bell,load25,rest25,save25
+;	external	click,fkyput
+;	external	usrtxt,statxt,idtext
+;	external	@line25,@crtlf,@wrap,@fxact,@insrt
+;	external	@plmod,@filin
+;
+?conout:
+	call	savstk
+conout:
+	call	getadr
+	defw	<@?conout: dw crtout>
+	defb	0
+	defb	1
+	defw	v24out
+	defw	crtout
+	defw	punch
+	defw	cenout
+
+crtst:
+	ld	a,0ffh
+	or	a
+	ret
+
+crtout:
+	ld	hl,common_return		;Set return adress
+	push	hl
+	ld	hl,<cursor: dw a$vid_start>
+	push	hl
+	ld	a,c
+	jp	<crt_vector: dw chrout>
+;
+; a,c    = Character
+; (sp)   = Cursor
+; (sp-2) = common_return
+;
+chrout:
+	ld   a,c
+	pop  de
+	call monit
+	push de
+chout3:
+	cp   20h			;ctrl-Char ?
+	jr   c,ctrl
+	pop  hl
+	ld   a,(@insrt)			;Insert Mode On/Off
+	ld   b,a
+	ld   a,<vidinv: 0>		;Invers flag
+	or   a				;Invers on ?
+	jr   z,noinv
+	cp   1				;Real Invers ?
+	jr   z,yesinv
+	ld   a,c
+	cp   ' '			;space ?
+	ld   a,0
+	jr   z,noinv			;Y: no inv
+yesinv:
+	ld   a,80h
+noinv:
+	or   c
+	bit  0,b
+	push af
+	call z,inschr
+	pop  af
+	ld   (hl),a
+	inc  hl
+	jp   vtwrap			;Vertical Wrap ?
+
+common_return:
+	call toobig
+	call nc,scroll
+	ld   bc,-a$vid_start
+	ld   (cursor),hl
+	add  hl,bc
+	ld   c,0f6h
+	ld   a,0eh
+	out  (c),a
+	inc  c
+	out  (c),h
+	dec  c
+	inc  a
+	out  (c),a
+	inc  c
+	out  (c),l
+	ret
+;----------------------------------------------------------
+; crtl-char processing
+
+ctrl:
+	pop	hl			;pop cursor !
+	sub	7
+	ret	c
+	add	a,a			;A = 0 (7) .. 48 (31)
+	ld	e,a
+	ld	d,0
+	cp	14			;0 (7) .. 12 (13) ?
+	jr	c,ctrl_val_ok		;Y: ok
+	sub	16			;14 (22) .. 32 (31)
+	ret	c
+	ld	e,a
+ctrl_val_ok:
+	push	hl
+	ld	hl,ctrl_table
+	add	hl,de
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ex	(sp),hl
+	ret
+					; hl = cursor
+					;(sp)= common_return
+
+escape:
+	push hl				;save cursor
+	ld   hl,esc_next
+
+esc_change:
+	ld   (crt_vector),hl
+	pop  hl				;pop cursor adress
+	ret				;to common_return
+
+esc_end:
+	ld   hl,chrout			;Reset jmpvector
+	jr   esc_change
+;
+; a,c    = xx (after esc !)
+; (sp-2) = common_return
+; (sp)   = cursor
+; jmp comes from crt
+;
+esc_next:
+	ld   bc,jump_table-esc_table
+	ld   hl,esc_table
+	cpir
+	jr   nz,esc_end
+	ld   a,c
+	add  a,a
+	add  a,c			;a= 3 * Offset
+	ld   c,a
+	ld   b,0
+	ld   hl,jump_table
+	add  hl,bc
+	ld   a,(hl)
+	inc  hl
+	ld   d,(hl)
+	ld   e,a			;de=adress
+	inc  hl
+	ld   a,(hl)			;get type flag
+	cp   2
+	jr   z,type2
+	ld   hl,chrout
+	ld   (crt_vector),hl
+	dec  a
+	jr   z,type1
+type0:
+	ex   de,hl			;hl=adress
+	ex   (sp),hl			;hl=cursor,(sp)=adress
+	ret				;(sp) = common_return
+type1:
+	pop  hl				;pop cursor
+	pop  hl				;pop common_return
+	push de				;push adress
+	ret				;(sp) = bdos return
+type2:
+	ld   (crt_vector),de		;set new vector
+	pop  de				;pop cursor
+	pop  de				;pop common_return
+	ret				;ret to bdos
+;----------------------------------------------------------
+back:
+	dec	hl
+	call toolow
+	ret  c
+	inc  hl
+	ret
+
+tab:
+	ld	(hl),' '
+	inc	hl
+	call	toobig
+	call	nc,scroll
+	ld	a,l
+	and	7
+	jr	nz,tab
+	ret
+
+cr:
+	call lineno
+	ld   a,b	       ;a= line # 1-24
+cr1:
+	ld   hl,a$vid_start-80
+cr_loop:
+	add  hl,de
+	djnz cr_loop
+	ret
+
+crret:
+	ld	a,(@crtlf)			;Auto linefeed ?
+	or	a
+	jr	nz,cr				;N: cr only
+
+newlin:
+	call cr
+lf:
+	ld   de,80
+	add  hl,de
+	ret
+
+curup:
+	ld   de,-80
+	add  hl,de
+	call toolow
+	ret  c
+	jr   lf
+currgt:
+	inc  hl
+	call vtwrap
+	call toobig
+	ret  c
+	dec  hl
+	ret
+
+curdo:
+	call lf
+	call toobig
+	ret  c
+	sbc  hl,de	     ;CY is 0 !
+	ret
+
+chome:
+	ld   hl,scrtop
+	ret
+;----------------------------------------------------------
+alton:
+	ld   a,02h
+	jr   altset
+altoff:
+	xor  a
+altset:
+	ld   (vidinv),a
+	ret
+
+monon:
+	ld   a,<nop>
+	jr   monset
+monoff:
+	ld   a,<ret>
+monset:
+	ld   (monit),a
+	ret
+
+inson:
+	xor	a
+	ld	hl,instxt
+	jr	insset
+insoff:
+	ld	a,0ffh
+	ld	hl,edttxt
+insset:
+	ld	(@insrt),a
+	ld	de,statxt+52
+	ld	bc,3
+	ldir
+	jp	newsta
+instxt:	defh	'INS'
+edttxt:	defh	'EDT'
+
+wrpon:
+	xor  a
+	jr   wrpset
+wrpoff:
+	ld   a,0ffh
+wrpset:
+	ld   (@wrap),a
+	ret
+;
+edpage:
+	xor  a
+	ld   c,'P'+80h
+	jr   edmset
+edline:
+	ld   a,0ffh
+	ld   c,'L'+80h
+edmset:
+	ld   (@plmod),a
+	ld   a,c
+	ld   (statxt+55),a
+	jp   newsta
+;
+clsnul:
+	ld	a,' '
+	jr	clsset
+clsspc:
+	ld   a,<spcchr: ' '>
+clsset:
+	ld   (clrchr),a
+	jp   cls
+
+trnsid:
+	ld   hl,idtext
+	jp   sndspc
+
+dissta:
+	ld	hl,statxt
+	xor	a
+	jr	disset
+disusr:
+	ld   hl,usrtxt
+	ld   a,01h
+disset:
+	ld   (@line25),a
+	call load25
+	ret
+;----------------------------------------------------------
+; jmp comes from esc_next
+inschr:
+	push hl
+	ld   a,(@plmod)
+	or   a
+	jr   z,inspag
+	call cureol
+	jr   insch1
+inspag:
+	ld   hl,scrbot
+insch1:
+	pop  de				;de=<at> pos.
+	push de				;hl=last pos.
+	ld   bc,1
+	call insert
+	pop  hl
+	ret
+
+delchr:
+	push hl
+	ld   a,(@plmod)
+	or   a
+	jr   z,delpag
+	call cureol
+	jr   delch1
+delpag:
+	ld   hl,scrbot
+delch1:
+	ex   de,hl			;de=last pos.
+	pop  hl				;hl=<at> pos.
+	push hl
+	ld   bc,1
+	call delete
+	pop  hl
+	ret
+
+curpos:
+	push hl
+	call cr				;a=line #
+	ex   de,hl
+	pop  hl				;hl=cursor
+	push hl				;de=start of line
+	or   a
+	sbc  hl,de			;l=column# 0-79
+	ld   bc,cpostx			;bc=Text pointer
+	add  a,1fh
+	ld   (bc),a			;set row
+	inc  bc
+	ld   a,l
+	add  a,20h
+	ld   (bc),a			;set col
+	ld   hl,<postxt: dw 0>		;BC = Position Text
+	call sndspc
+	ld   hl,cpostx			;Set Cursor Pos. Text
+	ld   (postxt),hl
+	pop  hl
+	ret
+
+cpostx:
+	defb 0				;Row
+	defb 0				;Column
+	defb 0				;End of Text
+
+inslin:
+	call lastln
+	push hl
+	ex   de,hl
+	ld   hl,scrbot
+	ld   bc,80
+	call insert
+	pop  hl
+	ret
+
+dellin:
+	call lastln
+	push hl
+	ld   de,scrbot
+	ld   bc,80
+	call delete
+	pop  hl
+	ret
+
+ceolnl:
+	push	hl
+	call	cureol
+	ld	a,' '
+	jr	clear_eol
+ceolsp:
+	push hl
+	call cureol
+	ld   a,(spcchr)
+clear_eol:
+	pop  de
+	push de
+	call clear
+	pop  hl
+	ret
+
+ceopnl:
+	ld	a,' '
+	jr	clear_eop
+ceopsp:
+	ld   a,(spcchr)
+clear_eop:
+	push hl
+	ex   de,hl
+	ld   hl,scrbot
+	call clear
+	pop  hl
+	ret
+
+sndlin:
+	push	hl
+	call	cr
+	push	hl
+	call	lf
+	ld	a,(hl)				;get char from next line
+	ld	(hl),0
+	ex	(sp),hl				;(sp) = next line, HL = line
+	push	af
+	call	sndspc
+	pop	af
+	pop	hl
+	ld	(hl),a
+	pop	hl
+	ret
+;----------------------------------------------------------
+; jmp comes from crt (retadr = common_return)
+vidatr:
+	cp   '4'
+	ld   a,0
+	jr   nz,vdatr1
+	ld   a,01h
+vdatr1:
+	ld   (vidinv),a
+	jp   esc_end
+
+subchr:
+	ld   (spcchr),a
+	jp   esc_end
+
+curatr:
+	sub  '0'
+	jr   c,cuatr3
+	cp   5
+	jr   nc,cuatr3
+	inc  a
+	ld   bc,catrtb-1
+cuatr1:
+	inc  bc
+	dec  a
+	jr   nz,cuatr1
+cuatr2:
+	ld   a,0ah
+	out  (0f6h),a
+	ld   a,(bc)
+	out  (0f7h),a
+cuatr3:
+	jp   esc_end
+
+curadr:
+	ld   (newrow),a
+	ld   hl,curad1
+	jp   esc_change
+
+curad1:
+	pop  hl
+	ld   a,<newrow: 0>
+	sub  20h
+	cp   24				;Value ok ?
+	jr   c,curad2
+	ld   a,23			;N: set to last line
+curad2:
+	ld   l,a			;hl=row
+	ld   h,0
+	ld   e,l			;de=row
+	ld   d,h
+	add  hl,hl			;*2
+	add  hl,hl			;*4
+	add  hl,de			;*5
+	add  hl,hl			;*10
+	add  hl,hl			;*20
+	add  hl,hl			;*40
+	add  hl,hl			;*80
+	ld   a,c			;A = column
+	sub  20h
+	cp   80				;Value ok ?
+	jr   c,curad3
+	ld   a,79
+curad3:
+	ld   e,a
+	ld   d,high a$vid_start		;de=a$vid_start+column
+	add  hl,de
+	push hl
+	jp   esc_end
+
+lduser:
+	cp   0dh
+	jr   z,ldusr2
+	ld   hl,<usrpos: dw usrtxt>
+	ld   (hl),a
+	ld   a,<usrlen: 0>
+	cp   79
+	jr   z,ldusr1
+	inc  a
+	ld   (usrlen),a
+	inc  hl
+	ld   (usrpos),hl
+ldusr1:
+	pop  hl				;pop cursor
+	ret				;to common_return
+
+ldusr2:
+	ld   hl,usrtxt
+	ld   (usrpos),hl
+	xor  a
+	ld   (usrlen),a
+	jp   esc_end
+
+send25:
+	cp   '0'
+	jp   c,esc_end
+	cp   '2'
+	jp   nc,esc_end
+	cp   '1'
+	ld   hl,usrtxt
+	jr   z,snd251
+	ld   hl,statxt
+snd251:
+	call sndspc
+	jp   esc_end
+
+setpar:
+	ld   hl,esc_end
+	push hl				;set ret adr to esc_end
+	sub  '0'
+	ret  c
+	cp   10
+	ret  nc
+	ld   c,a
+	ld   b,0
+	ld   hl,parjmp
+	add  hl,bc
+	add  hl,bc
+	ld   a,(hl)
+	inc  hl
+	ld   h,(hl)
+	ld   l,a
+	jp   (hl)				;(sp) = esc_end
+
+staty:
+	xor	a				;Statln ON
+	jr	stat_set
+statn:
+	ld	hl,a$vid_start+24*80
+	ld	de,a$vid_start+24*80+1
+	ld	bc,79
+	ld	(hl),' '
+	ldir
+	ld	a,3				;Statln OFF
+stat_set:
+	ld	(@line25),a
+	ret
+;
+fknorm:
+	xor	a				;Fkeys normal
+	jr	fkey_set
+fkspcl:
+	ld	a,0ffh				;Fkeys special
+fkey_set:
+	ld	(@fxact),a
+	ret
+;
+clkon:
+	ld   a,<nop>
+	jr   clkset
+clkoff:
+	ld   a,<ret>
+clkset:
+	ld   (clock),a
+	ret
+;----------------------------------------------------------
+; Cursor at last line ?
+; Y:z N:nz
+lastln:
+	call cr
+	ld   de,scrlst
+	ld   a,d
+	cp   h
+	ret  nz
+	ld   a,e
+	cp   l
+	ret  nz
+	pop  de					;pop ret adr
+	push hl					;push cursor
+	ld   bc,80
+	call fill_space				;clear last line
+	pop  hl					;pop start of line
+	ret
+;
+; Insert BC spaces at (DE) up to (HL)
+;
+insert:
+	push	hl,de,bc
+	or	a
+	sbc	hl,de				;HL = diff
+	jr	z,none_insert
+	ld	d,h
+	ld	e,l				;DE = diff
+	or	a
+	sbc	hl,bc				;BC > diff ?
+	jr	nc,bc_is_ok			;N: ok
+	pop	bc
+	push	de				;Y: set de as diff
+bc_is_ok:
+	pop	bc,de,hl
+	push	bc,de,hl
+	or	a
+	sbc	hl,bc
+	push	hl				;(sp) = last leaving pos.
+	ld	bc,1
+	or	a
+	sbc	hl,de				;hl = # of chars to move
+	jr	c,carry_move
+	inc	hl
+	ld	b,h
+	ld	c,l
+carry_move:
+	pop	hl				;hl = last leaving
+	pop	de				;de = last insert
+	lddr
+	pop	hl
+	pop	bc
+;
+fill_space:
+	ld	a,(spcchr)
+	ld	e,a
+fill_loop:
+	ld	(hl),e
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,fill_loop
+	ret
+;
+none_insert:
+	pop	bc,de,hl
+	ret
+;
+; Delete BC chars at (HL) up to (DE)
+;
+delete:
+	push	bc
+	push	hl
+	add	hl,bc			;hl=1st leaving pos.
+	push	hl
+	ex	de,hl
+	or	a
+	sbc	hl,de			;hl=#of chars to move
+	inc	hl
+	ld	b,h
+	ld	c,l			;bc=# of chars
+	pop	hl			;hl=1st leaving pos
+	pop	de			;de=<at> pos.
+	ldir
+	ex	de,hl
+	pop	bc			;bc=counter
+	jr	fill_space			;Fill with spaces
+;
+; Clear from (DE) up to (HL) with A
+;
+clear:
+	ld	(de),a				;at least one
+	or	a
+	sbc	hl,de
+	ret	z				;if hl=de
+	ld	b,h
+	ld	c,l
+	ld	h,d
+	ld	l,e
+	inc	de
+	ldir
+	ret
+;
+;Monitor Mode
+;
+monit:
+	ret					;monitor off is default
+	jp	<monitor_jump: dw monit1>
+;
+; de = cursor
+;
+monit1:
+	cp	27
+	jr	nz,monit2			;jp if not ESC
+	ld	hl,monesc
+	ld	(monitor_jump),hl
+monit2:
+	ld	(de),a
+	inc	de
+monret:
+	ex	de,hl
+	pop	de				;pop ret adr
+	xor	a
+	ret					;to common_return
+
+monesc:
+	cp	'X'
+	jr	z,mnexit
+	ld	hl,monit1
+	ld	(monitor_jump),hl
+	jp	(hl)
+;
+mnexit:
+	ld	hl,monit1
+	ld	(monitor_jump),hl
+	ld	a,<ret>
+	ld	(monit),a
+	jr	monret
+;
+;
+;
+scroll:
+	ld	hl,scrlst
+	push	hl
+	ld	de,scrtop
+	or	a
+	sbc	hl,de
+	ld	b,h
+	ld	c,l
+	ld	hl,80
+	add	hl,de				;de=scrtop
+	ldir					;hl=scrtop+80
+	ld	hl,scrbot
+	ld	a,' '
+	call	clear				;Clear last line
+	pop	hl
+	ret
+;
+;
+;
+cls:
+	ld	hl,scrbot
+	ld	de,scrtop
+	push	de				;save new cursor
+	ld	a,<clrchr: 20h>
+	call	clear
+	pop	hl
+	ret
+;
+; Send Char from HL to (00) to keybuf
+; Send Space ?
+;
+sndspc:
+	ld	a,(@filin)			;fill with space ?
+	or	a
+	push	hl
+	ld	hl,sndsp1
+	call	z,fkyput			;J: send one space
+	pop	hl
+	call	fkyput				;send text
+	ld	hl,sndcr
+	jp	fkyput				;send <CR>
+
+sndsp1:
+	defb	20h,00h
+sndcr:
+	defb	0dh,00h
+;
+; Vertical Wrap ?
+;
+vtwrap:
+	ld	a,(@wrap)
+	or	a
+	ret	z
+	push	hl
+	call	cr
+	ex	de,hl				;de=start of line
+	pop	hl				;hl=cursor
+	ld	a,e				;hl at start of line ?
+	cp	l
+	ret	nz
+	ld	a,d
+	cp	h
+	ret	nz
+	dec	hl				;Y: dec cursor
+	ret
+;
+; HL > scrbot ?  Y->NC
+;
+toobig:
+	ld	bc,scrbot
+	inc	bc
+	ld	a,h
+	cp	b
+	ret	c
+	ld	a,l
+	cp	c
+	ret
+;
+; HL < scrtop ?  Y->NC
+;
+toolow:
+	ld	bc,scrtop
+	dec	bc
+	ld	a,b
+	cp	h
+	ret	c
+	ld	a,c
+	cp	l
+	ret
+;
+; compute line# in b (1-24)
+;
+lineno:
+	ld	de,80
+	ld	b,0
+	or	a
+line1:
+	sbc	hl,de
+	inc	b
+	ld	a,h
+	cp	high a$vid_start - 1
+	jr	nz,line1
+	ret
+;
+; Cursor to end of line
+;
+cureol:
+	call	cr
+	ld	de,79
+	add	hl,de
+	ret

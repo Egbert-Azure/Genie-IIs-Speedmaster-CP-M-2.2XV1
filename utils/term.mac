@@ -1,0 +1,83 @@
+;****************************************************************
+;*								*
+;*	TERM.MAC  Mini Terminal Program				*
+;*	CP/M Version 1.0 vom 23.3.86				*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung 1986	*
+;*								*
+;*	Modification History					*
+;*	1.0 23.3.86  Original Version				*
+;*								*
+;****************************************************************
+;
+	.z80
+	.com
+	org	100h
+;
+boot	equ	0000h
+bdos	equ	0005h
+buffer	equ	boot+80h
+;
+prtchr	equ	02h
+prtstr	equ	09h
+getbuf	equ	0ah
+getsta	equ	0bh
+open	equ	0fh
+close	equ	10h
+reads	equ	14h
+writes	equ	15h
+;
+bell	equ	07h
+lf	equ	0ah
+cr	equ	0dh
+esc	equ	1bh
+;
+	jp	entry
+;
+	defb	cr
+	defm	'TERM.COM Copyright (c) by Klaus K{mpf '
+	defm	'Softwareentwicklung 1986'
+	defb	cr,lf
+	defm	'CP/M Version 0.0 vom 23.3.86'
+	defb	1ah
+;
+entry:
+	ld	hl,(boot+1)
+	ld	l,06h
+	ld	(?const1),hl
+	ld	(?const2),hl
+	ld	l,09h
+	ld	(?conin),hl
+	ld	l,0ch
+	ld	(?conout),hl
+	ld	l,12h
+	ld	(?punch),hl
+	ld	l,15h
+	ld	(?reader),hl
+;
+key_pressed?:
+	ld	a,81h				;keyboard
+	ld	(3),a
+	call	<?const1: dw 0>			;key pressed ?
+	jp	z,chravl			;N: char available ?
+;
+	call	<?conin: dw 0>			;Y: get key
+	ld	c,a
+	call	<?punch: dw 0>			;send to sio
+	jp	key_pressed?
+;
+chravl:
+	ld	a,80h				;RS-232
+	ld	(3),a
+	call	<?const2: dw 0>			;char there ?
+	jp	z,key_pressed?			;N: loop
+	ld	a,81h
+	ld	(3),a
+;
+	call	<?reader: dw 0>			;Y: get char
+	and	7fh
+	ld	c,a
+	call	<?conout: dw 0>			;display char
+	jp	key_pressed?
+;
+	end
+	

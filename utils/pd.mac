@@ -1,0 +1,609 @@
+;********************************************************
+;*							*
+;*	PD.MAC  Set/Show different Formats		*
+;*	Genie III CP/M 2.2XV3 Version 1.0 vom 19.2.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1984,1985,1986	*
+;*							*
+;********************************************************
+
+	.z80
+	.com
+	org	100h
+;
+r$names		equ	0			;Record #s in PDRIVE.SYS
+r$data		equ	16
+r$cnfdpb	equ	4			;DPB Record # in CONFIG.SYS
+r$cnfxlt	equ	5			;XLT Record # in CONFIG.SYS
+;
+c$dpb		equ	50h			;offset from bios-start
+;
+?boot	equ	0000h
+?drive	equ	0004h
+?bdos	equ	0005h
+@buffer	equ	?boot+80h
+;
+;
+getchr	equ	01h
+prtstr	equ	09h
+getbuf	equ	0ah
+open	equ	0fh
+close	equ	10h
+read	equ	21h
+write	equ	22h
+setdma	equ	1ah
+;
+bell	equ	07h
+lf	equ	0ah
+cr	equ	0dh
+esc	equ	1bh
+;
+;
+	jp	entry
+;
+	defb	cr
+	defm	'PD.COM Copyright (c),(p) Klaus K{mpf 1984,1985,1986'
+	defb	cr,lf
+	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 19.2.86'
+	defb	1ah
+;
+;
+entry:
+	ld	sp,stack
+
+	ld	hl,(?boot+1)
+	ld	l,c$dpb
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ld	(?@dpb_start),hl		;set dpb start address
+
+	ld	hl,@buffer			;Save @buffer
+	ld	de,@io_buffer
+	ld	bc,80h
+	ldir
+;
+	LD	DE,fcb_pdrive			;Read Names to name_table
+	LD	C,open
+	CALL	?bdos
+	inc	a				;Successful open ?
+	jr	nz,popenok			;Y: jp
+	ld	a,1				;N: try on A:
+	ld	(fcb_pdrive),a
+	ld	c,open
+	call	?bdos
+	inc	a				;Successful ?
+	jp	z,popener			;N: Error
+
+popenok:
+	ld	hl,name_table-128
+	ld	(read_dma),hl
+	ld	a,r$names-1
+	ld	(prec$num),a
+	ld	b,16				;16 records to read
+read_loop:
+	push	bc
+	ld	hl,<read_dma: defw 0>
+	ld	de,128
+	add	hl,de
+	ld	(read_dma),hl
+	ex	de,hl
+	ld	c,setdma
+	call	?bdos
+	ld	a,(prec$num)
+	inc	a
+	ld	(prec$num),a
+	ld	de,fcb_pdrive
+	ld	c,read
+	call	?bdos
+	pop	bc
+	djnz	read_loop
+;
+	LD	HL,@io_buffer			;Show or Set pd ?
+	ld	a,(hl)				;a= #of chars
+	inc	hl
+	or	a
+	jp	z,showpd
+;
+setpd:
+	cp	4				;Min. 4 Chars
+	jp	c,bad_parm_err
+	cp	22				;Max. 21 Chars
+	jp	nc,bad_parm_err
+	push	hl
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	b,16
+setpd1:
+	ld	(hl),20h			;Pad with blanks
+	inc	hl
+	djnz	setpd1
+	pop	hl
+
+	ld	a,(hl)				;a = 1st char
+	inc	hl
+	cp	' '				;must be space
+	jp	nz,no_space_found
+;
+	ld	a,(hl)				;a = 2nd char ('S' or drive)
+	sub	'S'				;SAVE ?
+	jr	nz,no_save
+	dec	a				;A=FF
+	ld	(@save_it?),a
+	inc	hl
+	ld	a,(hl)
+	cp	' '				;must be space !
+	jp	nz,no_space_found
+	inc	hl
+no_save:
+;
+	ld	a,(hl)
+	inc	hl	
+	SUB	'A'
+	JP	C,drverr
+	CP	04h				;A-D ?
+	JP	NC,drverr
+	ld	(@drive_number),a		;save 00-0F
+
+	ld	a,(hl)
+	cp	':'
+	jp	nz,bad_parm_err
+	inc	hl
+	ld	(?@start_of_name),hl
+;
+; Compute DPB & XLTAB Adress of selected drive
+;
+	ld	a,(@drive_number)
+	inc	a
+	ld	b,a				;B = 1/2/3/4
+	ld	hl,(?@dpb_start)
+	ld	de,-32
+	add	hl,de
+	ld	de,32
+dpb_loop:
+	add	hl,de
+	djnz	dpb_loop
+	ld	(@dpbtbl),hl
+
+	ld	b,a				;B = 1/2/3/4
+	ld	hl,(?@dpb_start)
+	ld	de,4*32-52
+	add	hl,de
+	ld	de,52
+xltab_loop:
+	add	hl,de
+	djnz	xltab_loop
+	ld	(@xlttbl),hl
+;
+	LD	DE,name_table
+	ld	c,0				;C is Namecounter
+setpd2:
+	LD	HL,(?@start_of_name)		;Start of NAME
+	LD	A,(DE)
+	CP	01aH				;End of Table ?
+	jp	z,name_not_found
+	LD	b,16				;Compare 16 Chars
+setpd3:
+	LD	A,(DE)
+	CP	(HL)
+	JR	NZ,nextnm
+	INC	DE
+	INC	HL
+	DJNZ	setpd3
+	JR	found
+;
+nextnm:
+	inc	de				;Inc DE to next name
+	djnz	nextnm
+	inc	c				;Inc Namecounter
+	ld	a,c
+	cp	128				;Max 128 Names
+	jr	c,setpd2
+	jp	name_not_found
+;
+found:
+	LD	A,C
+	ADD	A,16
+	push	af
+	ld	de,@buffer
+	ld	c,setdma
+	call	?bdos
+	pop	af
+	LD	(prec$num),A
+	LD	DE,fcb_pdrive			;Read Record from PDRIVE.SYS
+	LD	c,read
+	CALL	?bdos
+
+	ld	de,extrn$format
+	ld	c,prtstr
+	ld	a,(@buffer+16h)			;internal ?
+	or	a
+	call	nz,?bdos			;N: show it
+;
+;
+	ld	a,(@save_it?)
+	or	a
+	jp	z,no_save_config_1
+;
+;
+	LD	DE,fcb_config			;Open CONFIG.SYS
+	LD	C,open
+	CALL	?bdos
+	inc	a				;Successful open ?
+	jr	nz,copenok			;Y: jp
+	ld	a,1				;N: try on A:
+	ld	(fcb_config),a
+	ld	c,open
+	call	?bdos
+	inc	a				;Successful ?
+	jp	z,copener			;N: Error
+copenok:
+	ld	de,@config_buf
+	ld	c,setdma
+	call	?bdos
+	ld	a,r$cnfdpb
+	LD	(crec$num),A
+	ld	hl,0
+	ld	(crec$num+1),hl
+	LD	DE,fcb_config			;Read CONFIG-DPB Record
+	LD	c,read
+	CALL	?bdos
+	or	a
+	jp	nz,crderr
+;
+;
+no_save_config_1:
+;
+	ld	a,(@drive_number)
+	and	3
+	inc	a
+	ld	b,a
+	ld	hl,@config_buf-32
+	ld	de,32
+cloop1:
+	add	hl,de
+	djnz	cloop1
+	ex	de,hl
+	ld	hl,@buffer
+	ld	bc,32
+	ldir					;Move new DPB to CONFIG.SYS
+	ld	hl,@buffer
+	ld	de,(@dpbtbl)
+	ld	bc,32
+	ldir					;Move new DPB to CBIOS
+
+	ld	a,(@save_it?)
+	or	a
+	jp	z,no_save_config_2
+
+	ld	de,@config_buf
+	ld	c,setdma
+	call	?bdos
+	ld	de,fcb_config
+	ld	c,write
+	call	?bdos				;write CONFIG-DPB record
+	or	a
+	jp	nz,cwrerr			;Error ?
+
+	ld	de,@config_buf
+	ld	c,setdma
+	call	?bdos
+	ld	a,(@drive_number)
+	rrca
+	and	1				;a=0/1
+	add	a,r$cnfxlt			;a=rec#
+	LD	(crec$num),A
+	ld	hl,0
+	ld	(crec$num+1),hl
+	LD	DE,fcb_config			;Read CONFIG-XLTAB Record
+	LD	c,read
+	CALL	?bdos
+	or	a
+	jp	nz,crderr
+;
+no_save_config_2:
+;
+	ld	a,(@drive_number)
+	and	1
+	ld	de,@config_buf
+	jr	z,cnoadd
+	ld	de,@config_buf+64
+cnoadd:
+	ld	hl,@buffer+32
+	ld	bc,64
+	ldir					;Move XLTAB to CONFIG Buffer
+	ld	hl,@buffer+32
+	ld	de,(@xlttbl)
+	ld	bc,52
+	ldir					;Move XLTAB to CBIOS
+;
+	ld	a,(@save_it?)
+	or	a
+	jp	z,no_save_config_3
+;
+	ld	de,@config_buf
+	ld	c,setdma
+	call	?bdos
+	ld	de,fcb_config
+	ld	c,write
+	call	?bdos				;write CONFIG-DPB record
+	or	a
+	jp	nz,cwrerr
+	ld	de,fcb_config
+	ld	c,close
+	call	?bdos
+	inc	a
+	jp	z,cclerr
+;
+no_save_config_3:
+;
+	ld	hl,relog
+	ld	(retjmp),hl
+;	
+;
+showpd:
+	LD	DE,text1
+	LD	c,prtstr
+	CALL	?bdos
+;
+	ld	b,4				;Max 8 Floppies
+	ld	ix,(?@dpb_start)
+	ld	hl,pd_num_tbl
+	ld	de,32
+get_pd_num_loop:
+	ld	a,(ix+30)			;Get Format #
+	ld	(hl),a
+	inc	hl
+	add	ix,de
+	djnz	get_pd_num_loop
+;
+	ld	b,4				;Show 4 Drives
+	LD	HL,pd_num_tbl
+show1:
+	push	bc
+	push	hl
+	ld	a,b
+	ld	(show_disk_number),a
+	ld	a,(hl)				;get number
+	inc	a				;= FF ?
+	jr	nz,drvfou			;N: show
+	ld	hl,text3
+	ld	(dspltx),hl
+	jr	show3
+drvfou:
+	ld	a,4
+	sub	<show_disk_number: 0>
+	add	a,'A'
+	ld	hl,text2
+	ld	(dspltx),hl
+	ld	(hl),a
+	inc	hl
+	ld	(hl),':'
+	inc	hl
+	ld	b,16
+show2:
+	ld	(hl),20h
+	inc	hl
+	djnz	show2
+show3:
+	pop	hl
+	ld	a,(hl)
+	inc	hl
+	inc	a
+	push	hl
+
+	ld	hl,text4
+	or	a
+	jr	z,unknown
+
+	ld	b,a
+	ld	hl,name_table-10h
+	ld	de,10h
+show4:
+	add	hl,de
+	djnz	show4
+unknown:
+	ld	de,text2+2
+	ld	bc,16
+	ldir
+	LD	DE,<dspltx: defw text2>
+	ld	c,prtstr
+	call	?bdos
+	pop	hl
+	pop	bc
+	djnz	show1
+
+	call	crlf
+;
+	jp	<retjmp: defw ?boot>
+;
+;
+relog:
+	ld	a,(?drive)
+	ld	b,a
+	ld	a,(@drive_number)		;Changed main drive ?
+	cp	b
+	jp	nz,reset			;N: WarmStart
+	ld	de,waitxt
+	ld	c,prtstr
+	call	?bdos
+waitcr:
+	ld	c,getchr
+	call	?bdos				;wait for <CR>
+	cp	cr
+	jr	nz,waitcr
+reset:
+	ld	a,(@drive_number)
+	ld	hl,1
+	or	a
+	jr	z,resetok
+	ld	b,a
+resetloop:
+	add	hl,hl				;Compute drive vektor
+	djnz	resetloop
+resetok:
+	ex	de,hl
+	ld	c,37				;RESET DRIVE
+	call	?bdos
+	jp	?boot	
+;
+;
+;
+crlf:
+	push	bc
+	push	de
+	push	hl
+	ld	de,crlftx
+	ld	c,prtstr
+	call	?bdos
+	pop	hl
+	pop	de
+	pop	bc
+	ret
+;
+bad_parm_err:
+	ld	de,bad_parm_txt
+	jp	error
+no_space_found:
+	ld	de,no_space_txt
+	jp	error
+name_not_found:
+	ld	de,no_name_txt
+	jp	error
+popener:
+	ld	de,popetxt
+	jp	error
+copener:
+	ld	de,copetxt
+	jp	error
+drverr:
+	ld	de,drvtxt
+	jp	error
+crderr:
+	ld	de,crdtxt
+	jp	error
+cwrerr:
+	ld	de,cwrtxt
+	jp	error
+cclerr:
+	ld	de,ccltxt
+	jp	error
+;
+error:
+	ld	(log$err),a
+	ld	a,h
+	ld	(phys$err),a
+	push	de
+	ld	de,beltxt
+	LD	c,prtstr
+	call	?bdos
+	pop	de
+	ld	c,prtstr
+	call	?bdos
+	ld	de,crlftx
+	ld	c,prtstr
+	call	?bdos
+
+	jp	?boot
+;
+;
+@drive_number:	defb	0			;Drivecode
+
+?@dpb_start:	defw	0			;Start of DPB in CBIOS
+@dpbtbl:	defw	0			;dpb-start of @drive_number
+@xlttbl:	defw	0			;sectrn-start of @drive_number
+
+@save_it?:	defb	0			;00=no save, FF=save !
+?@start_of_name:
+		defw	0			;address of name in io_buffer
+log$err:	defb	0
+phys$err:	defb	0
+;
+fcb_pdrive:
+	defb	0				;Default @drive_number#
+	defm	'PDRIVE  ','SYS'
+	defs	21
+prec$num:
+	defb	0
+	defs	2
+
+fcb_config:
+	defb	0				;Default @drive_number#
+	defm	'CONFIG  ','SYS'
+	defs	21
+crec$num:
+	defb	0
+	defs	2
+;
+crlftx:
+	defb	cr,lf,'$'
+
+text1:
+	defb	cr,lf
+	defm	'Momentane Laufwerkseinstellung:'
+	defb	cr,lf,cr,lf,'$'
+text2:		;123456789012345678
+	defm	'                  '
+	defb	'  $'
+text3:
+	defm	'Nicht vorhanden   '
+	defb	'  $'
+text4:		;1234567890123456
+	defm	'Format unbekannt'
+	defb	'  $'
+
+beltxt:
+	defb	cr,lf,bell
+	defm	'** Fehler:'
+	defb	cr,lf,'$'
+bad_parm_txt:
+	defm	'Fehlerhafte Parameterangabe'
+	defb	cr,lf
+	defm	'Benutze PD X:NAME zur Einstellung des Laufwerks X'
+	defm	' auf den Datensatz NAME'
+	defb	cr,lf
+	defm	'oder PD S X:NAME zum Speichern der neuen Einstellung'
+	defb	cr,lf
+	defm	'oder PD zur Anzeige der momentanen Einstellung.$'
+no_space_txt:
+	defm	'Trennungszeichen ist nicht Leerzeichen !$'
+no_name_txt:
+	defm	'Gew}nschtes Format ist nicht vorhanden.$'
+drvtxt:
+	defm	'Unzul{ssige Laufwerksangabe'
+	defb	cr,lf
+	defm	'Laufwerk nicht Floppy-Disk oder nicht vorhanden$'
+popetxt:
+	defm	'Datenfile PDRIVE.SYS nicht gefunden !$'
+copetxt:
+	defm	'Datenfile CONFIG.SYS nicht gefunden !$'
+crdtxt:
+	defm	'Kann CONFIG.SYS nicht lesen$' 
+cwrtxt:
+	defm	'Kann CONFIG.SYS nicht {ndern, Diskette schreibgesch}tzt ?$'
+ccltxt:
+	defm	'Kann CONFIG.SYS nicht schliessen$'
+waitxt:
+	defb	cr,lf,cr,lf
+	defm	'Neue Diskette einlegen und <ENTER> dr}cken.'
+	defb	cr,lf,'$'
+extrn$format:
+	defb	cr,lf,bell
+	defm	'Achtung: Mit dem gew{hlten Format kann nicht direkt'
+	defm	' gearbeitet werden'
+	defb	cr,lf
+	defm	'Beachten Sie die Hinweise im Handbuch'
+	defb	cr,lf,'$'
+;
+pd_num_tbl:	defs	4,0ffh
+;
+@io_buffer:	defs	128
+;
+@config_buf:	defs	128			;Buffer for config i/o
+		defs	128
+stack		equ	$
+name_table	equ	$
+;
+	END

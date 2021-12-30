@@ -1,0 +1,1348 @@
+;********************************************************
+;*							*
+;*	FORMAT.MAÃ Formatting routine			*
+;*	Genie III CP/M 2.2XV3 Version 1.0 vom 24.2.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1984,1985,1986	*
+;*							*
+;********************************************************
+
+	.z80
+	.com
+	org	100h
+
+?boot	equ	0000h
+?bdos	equ	0005h
+@buffer	equ	?boot+80h
+
+c$seldsk	equ	1bh		;Seldsk function (low byte)
+o$systab	equ	54h		;SYSTAB address pointer
+
+getchr	equ	01h
+prtstr	equ	09h
+getbuf	equ	0ah
+open	equ	0fh
+close	equ	10h
+read	equ	21h
+write	equ	22h
+setdma	equ	1ah
+
+ctrlc	equ	03h
+bell	equ	07h
+lf	equ	0ah
+cr	equ	0dh
+esc	equ	1bh
+
+a$dslc	equ	037e1h
+a$dcmd	equ	037ech
+a$dsta	equ	037ech
+a$dtrk	equ	037edh
+a$dsec	equ	037eeh
+a$ddta	equ	037efh
+
+b$not$ready	equ	7
+m$not$ready	equ	128
+b$drq		equ	1
+m$drq		equ	2
+b$busy		equ	0
+m$busy		equ	1
+
+cmd$rstore	equ	000h
+cmd$seek	equ	018h
+cmd$stepin	equ	050h
+cmd$read	equ	088h
+cmd$write	equ	0a8h
+cmd$intrpt	equ	0d0h
+cmd$format	equ	0f0h
+
+mask$read	equ	1ch
+mask$write	equ	7ch
+
+;----------------------------------------------------------
+
+	jp	entry
+
+	defb	cr
+	defm	'FORMAT.COM Copyright (c) by Klaus K{mpf Softwareentwicklung'
+	defm	' 1984,1985,1986'
+	defb	cr,lf
+	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 24.2.86'
+	defb	1ah
+
+
+entry:
+	ld	sp,stack
+	call	enable_memio
+
+	ld	hl,(?boot+1)
+	ld	l,c$seldsk
+	ld	(?bios_select),hl
+
+	ld	l,o$systab			;HL -> ?@systab
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a				;HL -> @systab
+	ld	de,20h
+	add	hl,de
+	ld	de,stp$table
+	ld	bc,8				;4 step/ 4 track
+	ldir
+
+	ld	de,text0
+	call	prttxt
+
+	call	get$drive			;Get & Select Drive #
+						;A=drive#
+;
+floppy$format:
+	call	enable_memio
+	call	set$params			;Compute & Set Parameters
+	call	f$select			;Physical Select
+	call	f$restore			;Seek track 0
+	ld	a,(no$of$tracks)
+	ld	b,a
+	xor	a
+	ld	(@track),a
+f$fmt$loop:
+	push	bc
+	call	break
+	call	f$seek
+	call	f$show$trk
+	call	f$build
+	call	f$format
+	call	f$verify
+	call	f$2nd$side
+	pop	bc
+	ld	hl,@track
+	inc	(hl)
+	djnz	f$fmt$loop
+
+	ld	a,(same)
+	ld	e,a
+	ld	a,(?wait)
+	and	e
+	ld	de,text5
+	call	z,wait$key
+	ld	de,f$end$text
+	jp	exit
+;
+;----------------------------------------------------------
+;
+; Format 2nd Side if side$0 & double sided
+;
+f$2nd$side:
+	nop			;or ret
+	call	back
+	call	f$show$trk
+	call	f$build
+	call	f$format
+	call	f$verify
+	ret
+;
+;----------------------------------------------------------
+; ask for drive # to format
+; and get dpb
+;
+get$drive:
+	ld	a,0ffh
+	ld	(?verify),a
+	ld	(?wait),a
+
+	ld	hl,@buffer
+	ld	a,(hl)				;a = lenght
+	inc	hl
+	or	a
+	jr	z,ask$drive
+	inc	hl
+	xor	a
+	ld	(asked),a			;mark not asked
+	ld	a,(hl)
+	jr	check$drive
+
+ask$drive:
+	ld	a,1				;mark asked
+	ld	(asked),a
+	ld	de,text1 			;'Laufwerk?'
+	call	prttxt
+	ld	hl,0007h			;max 7 Chars (X:/vw<ret>)
+	ld	(@buffer),hl
+	ld	de,@buffer
+	ld	c,getbuf
+	call	?bdos
+	call	enable_memio
+	ld	a,(@buffer+1)
+	or	a
+	jp	z,?boot				;No input-> w?boot
+	ld	a,(@buffer+2)			;a=Drive name
+
+check$drive:
+	cp	'/'
+	jr	z,ask$drive
+	and	5fh				;convert to uppercase
+	ld	(drv$name),a
+	ld	de,name$wrong
+	sub	041h
+	jp	c,error
+	cp	4				;A: .. D:
+	jp	nc,error
+	ld	(drv$number),a
+
+	ld	hl,@buffer
+ext$loop:
+	ld	a,(hl)
+	or	a
+	jr	z,no$extens
+	cp	'/'
+	jr	z,ext$found			;extension found
+	inc	hl
+	jr	ext$loop
+
+ext$found:
+	inc	hl
+	ld	a,(hl)
+	and	5fh
+	jr	z,no$extens
+	cp	'V'
+	jr	z,ext$v
+	cp	'W'
+	jr	z,ext$w
+	jr	ext$found
+
+ext$v:
+	xor	a
+	ld	(?verify),a
+	jr	ext$found
+ext$w:
+	xor	a
+	ld	(?wait),a
+	jr	ext$found
+
+no$extens:
+	call	bios$select
+	call	enable_memio
+
+	ld	a,(dpb+30)
+	cp	0ffh
+	ld	de,unknown$format
+	jp	z,error
+
+	ld	c,19h				;get current drive
+	call	?bdos
+	ld	c,a
+	call	enable_memio
+	ld	a,(drv$number)
+	sub	c
+	ld	(same),a
+
+	ld	a,(drv$code)
+
+	and	03h
+	ld	b,a
+	inc	b
+	ld	a,080h
+drvlop:
+	rlca
+	djnz	drvlop
+	ld	(sel$code),a
+
+	ld	a,(drv$code)
+	ret
+;
+;
+bios$select:
+	ld	a,(drv$number)
+	ld	c,a
+	ld	e,1
+	call	<?bios_select: dw 0>
+	call	enable_memio
+	ld	a,h
+	or	l
+	ld	de,no$drive
+	jp	z,error
+	ld	(@?dph),hl
+	push	hl
+	pop	ix
+	ld	l,(ix+0)
+	ld	h,(ix+1)			;hl = xltab
+	ld	de,xltab
+	ld	bc,52
+	ldir
+	ld	l,(ix+10)
+	ld	h,(ix+11)
+	ld	de,dpb
+	ld	bc,32
+	ldir
+
+	ld	a,(drv$number)			;a=floppy unit
+	ld	(drv$code),a
+	ret
+;
+;----------------------------------------------------------
+;
+; compute parameters for build track
+;
+set$params:
+	ld	ix,dpb
+
+	ld	c,(ix)
+	ld	b,(ix+1)			;bc=recs per trk
+	ld	a,(ix+2)			;a=bsh 
+	ld	e,(ix+5)			;de=dsm (# of blocks)
+	ld	d,(ix+6)
+;
+; compute # of tracks
+;
+	inc	de
+param1:
+	or	a
+	jr	z,param2
+	sla	e
+	rl	d
+	dec	a
+	jr	param1
+						;de = # of records on disk
+param2:
+	ex	de,hl				;hl=# of recs per disk
+	ld	d,b				;de=# of recs per track
+	ld	e,c
+	ld	a,0ffh
+param3:
+	inc	a
+	or	a
+	sbc	hl,de
+	jr	nc,param3
+	add	hl,de
+	ld	e,a
+	ld	a,l
+	or	a
+	jr	z,norest
+	inc	e
+
+norest:
+	ld	a,e
+	add	a,(ix+0dh)			;a=total # of trks
+	ld	(no$of$tracks),a
+
+	ld	l,(ix)
+	ld	h,(ix+1)			;hl=recs per track
+	add	hl,hl
+	ld	a,(ix+0fh)
+	ld	b,a
+	inc	b
+log$loop:
+	srl	h
+	rr	l
+	djnz	log$loop
+
+	ld	(sec$on$track),hl		;# of physical sectors on
+						;logical track
+
+	ld	a,(ix+11h)
+	ld	(pd$byte),a
+
+	bit	1,a				;inverted sectors ?
+	ld	a,0e5h
+	jr	z,notinv			;no
+	ld	a,01ah				;1ah = inversed 0e5h 
+notinv:
+	ld	(fill$byte),a
+
+	ld	a,(pd$byte)
+	ld	b,0c9h
+	bit	2,a				;Double sided ?
+	jr	z,not$dsid
+	and	38h
+	jr	nz,not$dsid
+	ld	a,(ix+17h)
+	cp	0ffh
+	jr	z,not$dsid
+	ld	b,00h
+not$dsid:
+	ld	a,b
+	ld	(f$2nd$side),a
+
+	ld	a,(ix+0fh)
+	ld	(s$len$code),a			;save sector length code
+
+	ld	a,(ix+12h)			;a=# of secs per trk
+	ld	(s$per$track),a
+
+	ld	a,(s$len$code)
+	ld	hl,00040h
+	inc	a
+sctlen:
+	add	hl,hl
+	dec	a
+	jr	nz,sctlen
+	ld	(s$length),hl			;save sector length
+
+	ld	a,(ix+17h)
+	ld	(s$f1),a
+	ld	a,(ix+18h)
+	ld	(s$b1),a
+	ld	a,(ix+19h)
+	ld	(skew$factor),a
+	ld	a,(ix+12h)
+	ld	(sectors),a
+	ld	a,(ix+13h)
+	ld	(tracks),a
+	ld	a,(ix+15h)
+	ld	(trk$offset),a
+
+	ret
+;
+;----------------------------------------------------------
+;
+; Physical select disk
+;
+f$select:
+	ld	a,(same)
+	ld	e,a
+	ld	a,(?wait)
+	and	e
+	ld	de,text4
+	call	z,wait$key
+
+	ld	hl,trk$table
+	ld	a,(drv$code)
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	d,(hl)
+	ld	a,(tracks)
+	sub	d
+	ld	(double$step),a
+
+	ld	hl,stp$table
+	ld	a,(drv$code)
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	a,(hl)
+	ld	(step$rate),a
+
+	ld	a,(pd$byte)
+	and	38h
+	rrca
+	rrca
+	ld	e,a
+	ld	d,0
+	ld	hl,side$access
+	add	hl,de
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ld	(side$routine),hl
+
+
+	call	phys$select
+	ld	de,no$disk
+	jp	z,error
+
+	ret
+
+side$access:
+	defw	side$0
+	defw	side$1
+	defw	side$2
+	defw	side$3
+	defw	side$4
+	defw	side$5
+	defw	side$6
+	defw	side$7
+;
+;
+;
+phys$select:
+	call	enable_memio
+
+	ld	a,cmd$intrpt
+	ld	(a$dcmd),a
+
+	ld	a,(drv$code)
+	and	4
+	rlca
+	rlca
+	rlca
+	rlca
+	or	80h
+	ld	(a$dsec),a			;select size
+
+	ld	a,cmd$intrpt
+	ld	(a$dcmd),a
+
+	ld	a,(pd$byte)			;set density
+	and	01h
+	or	0feh
+	ld	(a$dcmd),a
+
+	ld	a,cmd$intrpt
+	ld	(a$dcmd),a
+
+	call	re$select
+
+	ld	a,cmd$intrpt
+	ld	(a$dcmd),a
+
+	ld	a,(a$dsta)
+	and	2
+	ld	e,a
+	ld	hl,0
+fl$loop:
+	ld	a,(a$dsta)
+	and	2
+	xor	e
+	jr	nz,fl$wait
+	dec	hl
+	ld	a,h
+	or	l
+	jr	nz,fl$loop
+	ret
+
+fl$wait:
+	ld	hl,0
+fl$1wait:
+	dec	hl
+	ld	a,h
+	or	l
+	jr	nz,fl$1wait
+
+	call	re$select
+
+	or	0ffh
+
+	ret
+
+;
+;----------------------------------------------------------
+;Set Head position to logical track #
+;
+f$seek:
+	call	enable_memio
+
+	ld	a,(@track)
+	ld	d,a				;D=logical track
+
+	ld	bc,<sectors: dw 0>
+tracks	equ	$-1
+
+	jp	<side$routine: dw side$0>	;enter side select routine
+
+;
+;no 2nd side or by skew table
+;
+side$0:
+	ld	a,(s$f1)
+	cp	0ffh				;NO front ?
+	jr	z,sel$2nd$side			;Y: back only
+	jr	sel$1st$side
+;
+;even on front, odd on back
+;
+side$1:
+	ld	a,d
+	srl	a				;even ?
+	ld	d,a
+	jr	nc,sel$1st$side			;N: jp
+	jr	sel$2nd$side
+;
+;0 -> (tracks) on front, 0 -> (tracks) on back
+;
+side$2:
+	ld	a,d
+	sub	b				;second side ?
+	jr	c,sel$1st$side			;N: jp
+	ld	d,a				;Y: set 2nd side track
+	jr	sel$2nd$side
+;
+;sector offset on 2nd side
+;
+side$3:
+	ld	a,d
+	srl	a				;2nd side ?
+	ld	d,a
+	jr	nc,sel$1st$side			;N: jp
+	jr	sel$2nd$side			;select 2nd side
+;
+;0 -> (tracks) on front, (tracks) -> 0 on back
+;
+side$4:
+	ld	a,d
+	sub	b				;second side ?
+	jr	c,sel$1st$side			;N: jp
+	ld	b,a				;b= 0 -> 79
+	ld	a,(tracks)			;a=# of phys tracks
+	dec	a				;-1 for trk 79 NOT 80
+	sub	b				;a= 79 -> 0
+	ld	d,a				;e= track #
+	jr	sel$2nd$side
+;
+;odd on front, even on back
+;
+side$5:
+	ld	a,d
+	srl	a				;odd ?
+	ld	d,a
+	jr	c,sel$1st$side			;N: jp
+	jr	sel$2nd$side
+;
+; select 2nd side
+;
+sel$2nd$side:
+	call	back				;Select 2. Side
+	jr	seek$track
+;
+; no 2nd side, side select by skew table
+;
+side$6:
+side$7:
+sel$1st$side:
+	call	front				;Select 1. Side
+;
+;
+;	
+seek$track:
+	ld	(logical$address),de		;set trk,sec
+	ld	a,(pd$byte)
+	and	0100_0000b
+	jr	z,no$mapping
+	ld	a,(@track)
+	ld	(logical$address+1),a
+no$mapping:
+	call	re$select
+	ld	a,(double$step)
+	or	a				;double step ?
+	ld	a,d				;A=trk#
+	jr	z,set$phys$pos			;N: jp
+	sla	a				;Y: A = A*2
+set$phys$pos:
+	ld	(a$ddta),a			;Set phys Head position
+
+	ld	hl,head$pos			;for seek
+	ld	b,(hl)				;Get last phys hd pos
+	ld	(hl),a				;Save new for seldsk
+	ld	a,b
+	ld	(a$dtrk),a			;Set last for seek
+
+	ld	c,cmd$seek
+	call	issue$cmd
+
+	ld	hl,<logical$address: dw 0>
+	ld	a,h
+	add	a,<trk$offset: 0>
+	ld	(track$number),a
+
+	ret
+;
+;----------------------------------------------------------
+; build format track #trknum at track
+;
+f$build:
+	call	enable_memio
+	ld	ix,sct$table
+	ld	a,(s$per$track)
+	ld	c,a
+	ld	a,(low$sector)
+	ld	hl,first$sector
+	ld	(hl),a
+
+	ld	a,(s$per$track)
+	ld	b,a				;b=# of sectors
+	add	a,(hl)				;+ lowest sector#
+	ld	d,a				;d=highest sector # +1
+	ld	a,(skew$factor)
+	ld	c,a				;c=skew factor
+
+	ld	a,(hl)				;start with lowest sector#
+
+skew$loop:
+	ld	(ix),a
+	inc	ix
+	add	a,c
+	cp	d
+	jr	c,skew$end
+	inc	(hl)
+	ld	a,(hl)
+skew$end:
+	djnz	skew$loop
+
+	ld	a,(pd$byte)
+	ld	de,sd$table
+	and	001h				;double density ?
+	jr	z,sden				;N:jp
+	ld	de,dd$table
+sden:
+	ld	a,(s$per$track)
+	ld	(sct$count),a
+	ld	a,(s$len$code)
+	ld	l,a
+	ld	h,000h
+	add	hl,hl
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)				;de= gap table
+	ld	hl,track
+	call	gap$fill
+	ld	ix,sct$table
+
+bld1$loop:
+	push	de
+	call	byte$fill
+	ld	(hl),0feh
+	inc	hl
+	ld	(hl),<track$number: 0>		;track number
+	inc	hl
+	ld	(hl),<side$number: 0>		;side number
+	inc	hl
+	ld	a,(ix)				;get sector #
+	inc	ix
+	ld	(hl),a				;set sector #
+	inc	hl
+	ld	(hl),<s$len$code: 0>		;sector length code
+	inc	hl
+	ld	(hl),0f7h
+	inc	hl
+	call	byte$fill
+	ld	(hl),0fbh			;dam nondeleted
+	inc	hl
+	ld	bc,<s$length: dw 0>		;sector length
+bld2$loop:
+	ld	(hl),<fill$byte: 0e5h>		;byte to fill sector with
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,bld2$loop
+
+	ld	(hl),0f7h
+	inc	hl
+	pop	de
+	ld	a,(sct$count)
+	dec	a
+	ld	(sct$count),a
+	jp	nz,bld1$loop
+
+	inc	de
+	ld	a,(de)
+	ld	(hl),a
+	ex	de,hl
+
+	ld	hl,track+7*1024			;fill 7k
+	xor	a
+	sbc	hl,de
+	ld	b,h
+	ld	c,l
+	push	de
+	pop	hl
+	inc	de
+	ldir
+
+	ret
+;
+gap$fill:
+	ld	a,(de)
+	ld	b,a
+	inc	de
+	ld	a,(de)
+	inc	de
+gap$loop:
+	ld	(hl),a
+	inc	hl
+	djnz	gap$loop
+	ret
+;
+byte$fill:
+	ld	a,(de)
+	or	a
+	jr	z,end$of$fill
+	call	gap$fill
+	jr	byte$fill
+;
+end$of$fill:
+	inc	de
+	inc	de
+	ret
+;
+;----------------------------------------------------------
+; write format track to disk
+;
+f$format:
+	call	enable_memio
+	ld	hl,a$dcmd
+	call	re$select
+	ld	(hl),cmd$intrpt
+	call	wait$loop
+	ld	(hl),cmd$format			;write track
+	call	get$status
+	ld	de,track
+	ld	bc,a$ddta
+	di
+	ld	a,(de)
+	inc	de
+frmt1:
+	bit	0,(hl)
+	jp	z,frmt4
+	bit	1,(hl)
+	jp	z,frmt1
+frmt2:
+	ld	(bc),a
+	ld	a,(de)
+	inc	de
+frmt3:
+	bit	1,(hl)
+	jp	nz,frmt2
+	bit	1,(hl)
+	jp	nz,frmt2
+	bit	1,(hl)
+	jp	nz,frmt2
+	bit	0,(hl)
+	jp	z,frmt4
+	bit	1,(hl)
+	jp	nz,frmt2
+	bit	7,(hl)
+	jp	z,frmt3
+frmt4:
+	ld	a,(hl)
+	ld	(hl),cmd$intrpt
+	and	0fch
+	ret	z
+
+	ld	bc,0600h
+frmt5:
+	rlca
+	jr	c,frmt6
+	inc	c
+	inc	c
+	djnz	frmt5
+frmt6:
+	ld	b,0
+	ld	hl,frmt$errors
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	jp	error
+frmt$errors:
+	defw	f$err7
+	defw	f$err6
+	defw	f$err5
+	defw	f$err4
+	defw	f$err3
+	defw	f$err2
+	defw	f$err1
+;
+;----------------------------------------------------------
+;
+f$verify:
+	ld	a,(?verify)
+	or	a
+	ret	nz
+
+ 	ld	hl,text7
+	ld	(what$text),hl
+	call	f$show$trk
+
+	ld	a,(sec$on$track)
+	ld	b,a				;b=# of phys sectors
+	ld	hl,sct$table
+ver$loop:
+	ld	c,(hl)
+	res	7,c
+	inc	hl
+	push	bc
+	push	hl
+	call	f$read				;read sector # C
+	pop	hl
+	pop	bc
+	djnz	ver$loop
+	ret
+;
+;----------------------------------------------------------
+;
+; read sector # c for verification
+;
+f$read:
+	call	enable_memio
+	ld	hl,a$dcmd
+	ld	a,c
+	ld	(a$dsec),a
+	ld	a,(track$number)
+	ld	(a$dtrk),a
+
+	call	re$select
+	ld	(hl),cmd$intrpt
+	call	wait$loop
+
+	ld	(hl),cmd$read			;read sector
+	call	get$status
+	ld	bc,a$ddta
+	di
+read1:
+	bit	0,(hl)
+	jp	z,read4
+	bit	1,(hl)
+	jp	z,read1
+read2:
+	ld	a,(bc)				;dummy read
+read3:
+	bit	1,(hl)
+	jp	nz,read2
+	bit	1,(hl)
+	jp	nz,read2
+	bit	1,(hl)
+	jp	nz,read2
+	bit	0,(hl)
+	jp	z,read4
+	bit	1,(hl)
+	jp	nz,read2
+	bit	7,(hl)
+	jp	z,read3
+read4:
+	ld	a,(hl)
+	ld	(hl),cmd$intrpt
+	and	0fch
+	ret	z
+
+	ld	bc,0600h
+read5:
+	rlca
+	jr	c,read6
+	inc	c
+	inc	c
+	djnz	read5
+read6:
+	ld	b,0
+	ld	hl,read$errors
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	jp	error
+read$errors:
+	defw	r$err7
+	defw	r$err6
+	defw	r$err5
+	defw	r$err4
+	defw	r$err3
+	defw	r$err2
+	defw	r$err1
+
+;
+;----------------------------------------------------------
+; Re-select drive
+;
+re$select:
+	ld	a,(sel$code)
+	ld	(a$dslc),a
+	ret
+;
+; Restore drivehead
+;
+f$restore:
+	call	enable_memio
+
+	ld	c,cmd$stepin			;stepin
+	call	issue$cmd
+	ld	c,cmd$rstore			;restore
+	xor	a
+	ld	(head$pos),a			;Set new phys head pos to 0
+	ld	(a$dtrk),a
+	ld	(a$dsec),a
+;
+; Issue head moving cmd
+;
+issue$cmd:
+	call	re$select
+	ld	a,<step$rate: 0>
+	or	c
+	ld	(a$dcmd),a
+issue1$cmd:
+	call	get$status
+	and	m$busy
+	ret	z
+	call	re$select
+	jr	issue1$cmd
+;
+; Wait & Get status
+;
+get$status:
+	ld	a,8
+get1$status:
+	dec	a
+	jr	nz,get1$status
+	ld	a,(a$dsta)
+	ret
+;
+; Wait a little bit
+;
+wait$loop:
+	push	af,bc
+	ld	b,8
+	djnz	$
+	call	re$select
+	pop	bc,af
+	ret
+;
+;
+; Show Track #
+; print informationtext, de=textpointer
+;
+f$show$trk:
+	ld	a,(@track)
+	ld	c,02fh
+hexdez:
+	inc	c
+	sub	100
+	jr	nc,hexdez
+	add	a,100
+	ld	b,02fh
+hxdz10:
+	inc	b
+	sub	10
+	jr	nc,hxdz10
+	add	a,30h+10
+	ld	(trk1),a
+	ld	a,b
+	ld	(trk10),a
+	ld	a,c
+	ld	(trk100),a
+
+	ld	de,(what$text)
+	call	prttxt
+	ld	de,text8
+	call	prttxt
+	ld	a,(pd$byte)
+	bit	2,a				;double sided ?
+	ret	z
+	and	0011_1000b
+	ret	nz
+	ld	a,(sel$code)			;front or back ?
+	ld	de,frotxt
+	and	010h
+	jr	z,prttxt
+	ld	de,bcktxt
+prttxt:
+	ld	c,prtstr
+	call	?bdos
+	call	enable_memio
+	ld	hl,text6
+	ld	(what$text),hl
+	ret
+what$text:
+	defw	text6
+;
+; select front
+;
+front:
+	ld	a,(s$f1)
+	ld	(low$sector),a
+	ld	a,(sel$code)
+	and	0fh
+	ld	(sel$code),a
+	ld	a,00h
+	ld	(side$number),a
+	ret
+;
+; select back
+;
+back:
+	ld	a,(s$b1)
+	ld	(low$sector),a
+	ld	a,(sel$code)
+	or	10h
+	ld	(sel$code),a
+	ld	a,01h
+	ld	(side$number),a
+	ret
+;
+;----------------------------------------------------------
+;
+wait$key:
+	call	prttxt
+wait1$key:
+	ld	c,getchr
+	call	?bdos
+	push	af
+	call	enable_memio
+	pop	af
+	cp	ctrlc
+	jp	z,quit
+	cp	cr
+	jr	nz,wait1$key
+
+	ld	de,cr$lf$str
+	call	prttxt
+
+	ret
+;
+;
+;
+break:
+	call	enable_memio
+	ld	a,(3840h)
+	cp	04h
+	ret	nz
+quit:
+	ld	de,brktxt
+	jp	exit
+;
+;
+;
+error:
+	push	de
+	ld	de,err$text
+	call	prttxt
+	pop	de
+exit:
+	call	prttxt
+	ld	de,cr$lf$str
+	call	prttxt
+	ld	de,curon
+	call	prttxt
+
+	ld	c,0
+	call	?bdos
+	call	enable_memio
+	jp	?boot
+;
+;----------------------------------------------------------
+;
+enable_memio:
+	di
+	ld	a,71h
+	out	(0fah),a
+	di
+	ret
+;
+;----------------------------------------------------------
+; texte
+;
+text0:
+	defb	cr,lf
+	defm	'Genie III CP/M 2.2XV3 Formatierprogramm'
+	defb	cr,lf
+	defm	'Copyright (c) Klaus K{mpf Softwareentwicklung 1984,1985,1986'
+	defb	cr,lf,cr,lf,cr,lf,'$'
+text1:	defb	esc,'t'
+	defm	'Welches Laufwerk ? $'
+text4:	defb	cr,lf
+	defm	'Zieldiskette einlegen und <ENTER> dr}cken$'   
+text5:  defb    cr,lf
+	defm	'Systemdiskette einlegen und <ENTER> dr}cken$'
+brktxt:	defb	cr,lf,cr,lf
+	defb	esc,'.4',cr,lf
+	defm	'Erzwungener Programmabbruch'
+	defb	cr,lf,cr,lf,'$'
+curon:  defb    esc,'.4'
+	defb	cr,lf,'$'
+curoff:	defb	esc,'.0'
+	defb	cr,lf,cr,lf,'$'
+text6:  defb    cr
+	defm	'Formatiere$'
+text7:	defb	cr
+	defm	'Pr}fe     $'
+text8:	defm	' Spur: '
+trk100:	defb	'0'
+trk10:	defb	'0'
+trk1:	defb	'0'
+	defb	'$'
+frotxt: defm	'  (Vorderseite)$'
+bcktxt:	defm	'  (R}ckseite  )$'
+
+err$text:
+	defb	cr,lf,cr,lf,bell
+	defm	'*** Fehler:'
+cr$lf$str:
+	defb	cr,lf,cr,lf,'$'
+f$end$text:
+	defb	cr,lf,cr,lf
+	defm	'Formatierung abgeschlossen$'
+name$wrong:
+	defm	'Fehlerhafte Laufwerksbezeichnung'
+	defb	cr,lf
+	defm	'Bitte Buchstaben (A) - (P) eingeben$'
+cant$format:
+	defm	'Dieses Format kann nicht bearbeitet werden.$'
+no$disk:
+	defm	'Keine Diskette im gew{hlten Laufwerk.$'
+no$drive:
+	defm	'Gew{hltes Laufwerk ist nicht vorhanden.$'
+unknown$format:
+	defm	'Dieses Laufwerk hat zur Zeit ein unbekanntes Format.'
+	defb	cr,lf,cr,lf
+	defm	'Bitte }ber PD Format neu festlegen.$'
+f$err7:
+	defm	'Laufwerk nicht (mehr) bereit.$'
+f$err6:
+	defm	'Diskette ist schreibgesch}tzt.$'
+f$err5:
+	defm	'Interner Schreibfehler.$'
+f$err4:
+	defm	'Spur nicht gefunden.$'
+f$err3:
+	defm	'Letzte Pr}fsumme war falsch.$'
+f$err2:
+	defm	'Taktfrequenz zu niedrig, Daten verloren.$'
+f$err1:
+	defm	'Unbekannter Fehler.$'
+
+r$err7:
+	defm	'Laufwerk nicht (mehr) bereit.$'
+r$err6:
+	defm	'Diskette ist schreibgesch}tzt.$'
+r$err5:
+	defm	'Falschen Datentyp gelesen.$'
+r$err4:
+	defm	'Spur nicht gefunden.$'
+r$err3:
+	defm	'Letzte Pr}fsumme war falsch.$'
+r$err2:
+	defm	'Taktfrequenz zu niedrig, Daten verloren.$'
+r$err1:
+	defm	'Unbekannter Fehler.$'
+;----------------------------------------------------------
+; parameter table
+;
+		defm	'*PARAMS:'
+@?dph:		defw	0		;Address of DPH
+asked:		defb	0		;=0 if asked for drive
+same:		defb	0		;=0 if same as current drive
+?wait:		defb	0		;=0 wait, FF no wait
+?verify:	defb	0		;=0 verify, FF no verify
+lowsec:		defb	0		;lowest for build
+sct$count:	defb	0		;sector counter during build
+
+no$of$tracks:	defb	0		;#of tracks on disk
+sec$on$track:	defw	0		;#of sectors on track (both sides)
+pd$byte:	defb	0		;PD-Byte
+s$f1:		defb	0		;1st sector on front
+s$b1:		defb	0		;1st sector on back
+s$per$track:	defb	0		;sectors per track & side (one side)
+drv$name:	defb	'A'		;Drive name 'A'-'P'
+drv$number:	defb	0		;logical drive # 00-0F
+drv$code:	defb	0		;physical drive # 00-0E (F=RamDisk)
+sel$code:	defb	0		;Select code (Bitcode)
+skew$factor:	defb	0		;Skew-Factor for build
+double$step:	defb	0		;Double-Step Flag
+low$sector:	defb	0		;1st sector on current side
+first$sector:	defb	0		;first sector during build
+head$pos:	defb	0		;physical head position
+@track:		defb	0		;current logical track #
+;
+stp$table:	defs	4,0
+trk$table:	defs	4,0
+;
+dpb:		defs	32,0		;DPB
+xltab:		defs	64,0		;XLTAB
+sct$table:	defs	32,0		;Sector table for build
+;
+		defm	'*SDTAB:'
+;
+;----------------------------------------------------------
+; single density gap-table
+sd$table:
+	defw    sd128
+	defw    sd256
+	defw    sd512
+	defw    sd1024			
+
+sd128:
+	defw    0ff20h
+        defw    0ff06h
+	defw	00006h
+   	defw	00000h
+	defw	0ff0bh
+	defw	00006h
+	defw	00000h
+sd256:
+	defw	0ff20h
+	defw	0ff0bh
+	defw	00006h
+     	defw	00000h
+	defw	0ff0bh
+	defw	00006h
+	defw	00000h
+sd512:
+	defw	0ff20h
+	defw	0ff16h
+	defw	0000ch
+	defw	00000h
+	defw	0ff0bh
+	defw	00006h
+	defw	00000h
+sd1024:
+	defw	0ff20h
+	defw	0ff2ch
+	defw	0000ch
+	defw	00000h
+	defw	0ff0bh
+	defw	00006h
+	defw	00000h
+
+; double density gap-table
+dd$table:
+	defw	dd128
+	defw	dd256
+	defw	dd512
+	defw	dd1024
+
+dd128:
+	defw	04e28h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+dd256:
+	defw	04e28h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+dd512:
+	defw	04e28h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+dd1024:
+	defw	04e28h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+	defw	04e16h
+	defw	0000ch
+	defw	0f503h
+	defw	00000h
+
+	defs	128
+stack:
+track	equ	5000h
+
+	end

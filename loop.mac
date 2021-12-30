@@ -1,0 +1,59 @@
+;********************************************************
+;*							*
+;*	LOOP.MAC  Character I/O Test Loop		*
+;*	Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86	*
+;*	Copyright (c),(p) Klaus K{mpf 1986		*
+;*							*
+;********************************************************
+;
+	.z80
+	.com
+	org	100h
+;
+?boot	equ	0000h
+?bdos	equ	0005h
+@buffer	equ	?boot+80h
+;
+;
+getchr	equ	01h
+putchr	equ	02h
+drctio	equ	06h
+prtstr	equ	09h
+getbuf	equ	0ah
+open	equ	0fh
+close	equ	10h
+read	equ	21h
+write	equ	22h
+setdma	equ	1ah
+;
+bell	equ	07h
+lf	equ	0ah
+cr	equ	0dh
+esc	equ	1bh
+;
+;
+	jp	entry
+;
+	defb	cr
+	defm	'LOOP.COM Copyright (c),(p) Klaus K{mpf 1986'
+	defb	cr,lf
+	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86'
+	defb	1ah
+;
+entry:
+	ld	sp,stack
+	ld	hl,(?boot+1)
+	ld	l,09h
+	ld	(??conin),hl
+	ld	l,0ch
+	ld	(??conout),hl
+loop:
+	call	<??conin: defw 0>
+	ld	c,a
+	call	<??conout: defw 0>
+	jr	loop
+;
+	defs	64,0
+stack:
+
+	end

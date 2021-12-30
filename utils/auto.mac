@@ -1,0 +1,187 @@
+;********************************************************
+;*							*
+;*	AUTO.MAC  Auto Command Setup			*
+;*	Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1985,1986	*
+;*							*
+;********************************************************
+;
+	.z80
+	.com
+	org	100h
+;
+r$auto	equ	1			;record # of auto cmd in config.sys
+o$auto	equ	0h			;offset of auto cmd in record
+;
+?boot	equ	0000h
+?bdos	equ	0005h
+@buffer	equ	?boot+80h
+;
+;
+getchr	equ	01h
+putchr	equ	02h
+prtstr	equ	09h
+getbuf	equ	0ah
+open	equ	0fh
+close	equ	10h
+read	equ	21h
+write	equ	22h
+setdma	equ	1ah
+;
+bell	equ	07h
+lf	equ	0ah
+cr	equ	0dh
+esc	equ	1bh
+;
+;
+	jp	entry
+;
+	defb	cr
+	defm	'AUTO.COM Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'1985,1986'
+	defb	cr,lf
+	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86'
+	defb	1ah
+;
+cnffcb:
+	defb	0
+	defm	'CONFIG  ','SYS'
+	defs	21
+rec$num:
+	defs	3
+;
+entry:
+	ld	sp,stack
+
+	ld	hl,@buffer			;Save @buffer
+	ld	de,@io_buffer
+	ld	bc,80h
+	ldir
+;
+	ld	de,cnffcb			;Open config.sys
+	ld	c,open
+	call	?bdos
+	inc	a
+	jr	nz,open$ok
+	ld	a,1				;try on A:
+	ld	(cnffcb),a
+	ld	c,open
+	call	?bdos
+	ld	de,no$config
+	inc	a
+	jp	z,error1
+
+open$ok:
+	ld	de,@buffer
+	ld	c,setdma
+	call	?bdos
+	ld	a,r$auto
+	ld	(rec$num),a
+	ld	de,cnffcb			;read auto record
+	ld	c,read
+	call	?bdos
+;
+	ld	hl,@io_buffer			;Any input ?
+	ld	de,@buffer+o$auto
+	ld	a,(hl)
+	or	a				;(Auto off ?)
+	jr	z,noauto			;Y: jp
+	cp	30				;How many chars ?
+	jp	nc,tolong			;>31 -> too long error
+;
+	dec	a
+	ld	c,a
+	ld	b,0
+	ld	hl,@io_buffer+2
+	ldir					;Set text
+	ld	a,cr
+	ld	(de),a				;mark end of text
+	inc	de
+noauto:
+	xor	a
+	ld	(de),a				;mark end for loader
+
+	ld	de,@buffer
+	ld	c,setdma
+	call	?bdos
+	ld	a,r$auto
+	ld	(rec$num),a
+	ld	de,cnffcb
+	ld	c,write
+	call	?bdos
+	ld	de,cnffcb
+	ld	c,close
+	call	?bdos
+
+	ld	hl,@io_buffer
+	ld	a,(hl)
+	or	a
+	jr	z,say$no
+
+	ld	de,yes$txt
+	ld	c,prtstr
+	call	?bdos
+	ld	hl,@io_buffer+2
+show$loop:
+	ld	a,(hl)
+	or	a
+	jr	z,show$ende
+	cp	40h
+	jr	c,no$letter
+	and	5fh
+no$letter:
+	ld	e,a
+	push	hl
+	ld	c,putchr
+	call	?bdos
+	pop	hl
+	inc	hl
+	jr	show$loop
+show$ende:
+	ld	de,yes1$txt
+	ld	c,prtstr
+	call	?bdos
+	jp	?boot
+
+say$no:
+	ld	de,no$txt
+	ld	c,prtstr
+	call	?bdos
+auto$ende:
+	jp	?boot
+;
+;
+error1:
+	ld	c,prtstr
+	call	?bdos
+	jp	?boot
+;
+tolong:
+	ld	de,longtx
+	jr	error1
+;
+longtx:
+	defb	cr,lf,bell
+	defm	'Befehlszeile zu lang (max 29 Zeichen)$'
+no$config:
+	defb	cr,lf,bell
+	defm	'Fehler: File CONFIG.SYS nicht gefunden'
+	defb	cr,lf,'$'
+yes$txt:
+	defb	cr,lf
+	defm	'Auto-Befehl "$'
+yes1$txt:
+	defm	'" aktiviert.'
+	defb	cr,lf,'$'
+no$txt:
+	defb	cr,lf
+	defm	'Kein Auto-Befehl aktiv.'
+	defb	cr,lf,'$'
+;
+@io_buffer:
+	defs	128
+;
+	defs	128
+stack:
+	end

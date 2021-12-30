@@ -1,0 +1,471 @@
+if1
+	.printl LOADER.MAC	Version 1.31  23.1.87
+	.printl
+endif
+;****************************************************************
+;*								*
+;*	LOADER.MAC  System Bootstrap Loader Module		*
+;*	Genie III  CP/M 2.2XV3  				*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung		*
+;*					1984,1985,1986,1987	*
+;*	Modification History					*
+;*	1.0  25.02.86  Original Version				*
+;*	1.1  23.03.86  Added 'L' on entry			*
+;*	1.2  23.03.86  Added MCR to systab			*
+;*	1.3  19.04.86  Changed Keyboard table locations		*
+;*		       Changed Loader phase D300 -> D200	*
+;*	1.31 23.01.87  Minor code changes (shortened)		*
+;*								*
+;****************************************************************
+;
+	.z80
+	.com
+	org	100h
+	.phase 0d200h
+;
+BACK	equ	08h
+LF	equ	0ah
+CR	equ	0dh
+esc	equ	1bh
+;
+start:
+	jp	entry
+
+	defb	CR
+	defm	'LOADER.SYS (c) Klaus K{mpf Softwareentwicklung 1986'
+	defb	CR,LF
+	defm	'Genie III CP/M 2.2XV3 Version 1.3 vom 19.4.86'
+	defb	1ah
+entry:
+	ld	sp,stack
+	ld	a,'L'
+	ld	(3c00h),a
+	call	mbios				;init bios, copy dpb,xltab
+	ld	e,0
+	ld	c,2
+	call	mdos				;select drive
+;----------------------------------------------------------
+	ld	de,fcb_system
+	ld	c,3
+	call	mdos				;open bios22x.sys
+	cp	1
+	jp	z,no_cpm
+
+	ld	de,bios_table
+	ld	c,5
+	call	mdos				;set dma
+	ld	de,fcb_system
+	ld	c,4
+	call	mdos				;read 1st record (bios_table)
+	or	a
+	jp	nz,cpm_error
+
+	ld	hl,(bios_table+0)		;get load address
+	ld	(?cbios),hl
+						;read rest of BIOS
+read_bios_loop:
+	ex	de,hl
+	push	de
+	ld	c,5
+	call	mdos				;set dma
+	ld	de,fcb_system
+	ld	c,4
+	call	mdos				;read
+	pop	hl
+	ld	de,128
+	add	hl,de
+	or	a
+	jr	z,read_bios_loop
+	cp	3
+	jp	nz,cpm_error
+;----------------------------------------------------------
+	ld	de,fcb_config
+	ld	c,3
+	call	mdos				;open config
+	cp	1
+	jp	z,no_config
+
+	ld	hl,systab_table			;to systab_table
+	ld	b,2				;2 records
+	call	read_config
+
+	ld	a,(systab_table+1)		;Logo on ?
+	or	a
+	ld	de,start_text
+	ld	c,1
+	call	z,mdos				;Y: print text
+
+	ld	hl,(bios_table+4)		;to fkytab
+	ld	b,2				;2 records
+	call	read_config
+
+	ld	hl,(bios_table+6)		;to dpb
+	push	hl
+	ld	b,1				;1 record
+	call	read_config
+	ld	hl,xltab_table			;to xltab_table
+	ld	b,2				;2 records
+	call	read_config
+
+; ^ Read Bios & Config
+;----------------------------------------------------------
+; v Setup
+
+	call	disable_memio
+
+	ld	hl,42a0h
+	ld	de,xltab_table
+	ld	bc,64
+	ldir
+
+	pop	de
+	push	de				;de = dpbtab
+	inc	hl				;hl = 42e1h
+	ld	bc,31
+	ldir					;move dpb
+	pop	de
+
+	ld	hl,4*32
+	add	hl,de
+	ex	de,hl				;de -> xltab(s) (52)
+	ld	hl,xltab_table			;hl -> xltab_table (64)
+	ld	b,4				;4 xltabs
+move_xltab_loop:
+	push	bc
+	ld	bc,52
+	ldir
+	ld	bc,12
+	add	hl,bc
+	pop	bc
+	djnz	move_xltab_loop
+
+	ld	hl,systab_table+20h
+	ld	de,(bios_table+2)		;de=systab start
+	ld	bc,(bios_table+28)		;bc=systab length
+	ldir
+
+	ld	hl,systab_table+60h		;hl=crtc table
+	ld	bc,16*256+0f7h
+	xor	a
+init_crtc_loop:
+	out	(0f6h),a
+	inc	a
+	outi
+	jr	nz,init_crtc_loop
+
+	ld	de,systab_table+0b0h
+	ld	c,1
+	call	mdos				;Print Info text
+
+	ld	hl,systab_table+2		;hl=00/c9
+	ld	de,bios_table+10		;de=pointer
+	ld	bc,08ffh			;b=8 for djnz, c=ff for ldi
+ctrl_config_loop:
+	push	de
+	ex	de,hl
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ex	de,hl
+	ldi					;ld (de),(hl)
+	pop	de
+	inc	de
+	inc	de
+	djnz	ctrl_config_loop
+
+	ld	hl,systab_table+70h		;hl = v24 table
+	xor	a
+	out	(0efh),a			;8250 Reset
+	ld	a,80h
+	out	(0ebh),a			;Set Dlab
+	ld	c,0e8h				;C = E8
+	outi
+	inc	c				;C = E9
+	outi					;Set divisor latch
+	xor	a
+	out	(0ebh),a			;Reset Dlab
+	out	(c),a				;Reset Int Enable
+	inc	c				;C = EA
+	out	(c),a				;Reset Int Id
+	inc	hl				;inc over receiver mask
+	ld	b,4
+v24_init_loop:
+	inc	c				;C = EB/EC/ED/EE
+	outi
+	jr	nz,v24_init_loop
+
+	ld	ix,(bios_table+2)		;ix -> systab
+	ld	a,(systab_table+72h)		;mask
+	ld	(ix+16h),a
+	ld	a,(systab_table+77h)		;handshake
+	ld	(ix+13h),a
+	ld	a,(systab_table+74h)		;modem control rts/dtr
+	ld	(ix+17h),a
+
+	ld	hl,systab_table+80h		;hl = auto command
+	ld	de,(bios_table+8)		;de = keyboard buffer
+	ld	b,0
+set_auto_loop:					;set auto cmd
+	ld	a,(hl)
+	or	a
+	jr	z,end_of_auto
+	ld	(de),a
+	inc	hl
+	inc	de
+	inc	b
+	jr	set_auto_loop
+end_of_auto:
+	ld	ix,(bios_table+2)
+	ld	(ix+8),b			;set inlen
+
+	ld	a,(systab_table+00h)		;set iobyte
+	ld	(3),a
+
+	xor	a				;set boot disk to A:
+	ld	(4),a
+
+	ld	a,(systab_table+0ah)		;Ints enabled ?
+	or	a
+	jr	nz,set_date			;N: jp
+	ld	hl,(bios_table+1ah)		;Y: set <EI>
+	ld	(hl),<ei>
+	ld	hl,(bios_table+22h)		;HL -> kbstat
+	ld	de,(bios_table+24h)		;DE = inkbds
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+
+set_date:
+	call	enable_memio
+
+	ld	hl,37e0h
+wait_clock1:
+	ld	a,(hl)
+	rlca
+	jr	c,wait_clock1
+wait_clock2:
+	ld	a,(hl)
+	rlca
+	jr	nc,wait_clock2
+	ld	a,40h
+	out	(0e1h),a
+
+	ld	hl,clktab
+	ld	de,106fh
+	ld	bc,07e0h
+date_loop:
+	ld	a,e
+	out	(c),a
+	add	a,d
+	ld	e,a
+	in	a,(c)
+	and	0fh
+	ld	(hl),a
+	inc	hl
+	djnz	date_loop
+
+	ld	a,(clktab)
+	ld	e,a
+	ld	d,0
+	ld	hl,daytab
+      2:add	hl,de
+	ld	de,(bios_table+30)		;de=datum
+						;(date-field in statln)
+	ldi
+	ldi					;Set Day-of-week
+
+	ld	hl,clktab+2			;hl=clktab+2, de=datum+2
+	res	2,(hl)
+	call	cbnum				;Set Day-of-month
+
+	ld	hl,clktab+4
+	ld	b,(hl)
+	xor	a
+	bit	0,b
+	jr	z,set_month
+	ld	a,10
+set_month:
+	dec	hl
+	add	a,(hl)
+	dec	a
+	ld	c,a
+	ld	b,0
+	ld	hl,montab
+      3:add	hl,bc
+	ld	bc,3
+	inc	de
+	inc	de
+	ldir					;set month
+
+	ld	hl,clktab+6
+	call	cbnum
+
+	ld	hl,systab_table+48h		;hl=search table
+	ld	de,(bios_table+28h)
+	push	hl,de
+	ld	bc,21				;move search/convert/zerotx
+	ldir
+	pop	de,hl
+
+	ld	a,(systab_table+1fh)		;Old or New keyboard ?
+	or	a
+	jr	z,old_keyboard			;jp if old
+
+	push	hl
+	ex	de,hl				;hl->search table
+	ld	de,9
+	push	de
+	add	hl,de
+	ex	de,hl				;de->convert table
+	pop	bc				;bc=9
+	pop	hl				;hl->search_table
+	ldir					;set convert <- search if new
+old_keyboard:
+
+	ld	hl,systab_table+0a0h		;set ctrl key table
+	ld	de,(bios_table+26h)
+	ld	bc,16
+	ldir
+
+	ld	de,(cursor_position)		;DE = Loader cursor pos.
+	ld	hl,(bios_table+24)		;HL = Bios cursor pos adr.
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+
+	call	disable_memio
+
+	ld	de,(bios_table+32)		;DE -> statln position
+	ld	hl,ins_text
+	ld	a,(systab_table+2fh)		;Edit or Insert
+	or	a
+	jr	z,its_insert
+	ld	hl,edt_text
+its_insert:
+	ld	bc,3
+	ldir
+
+	ld	a,(systab_table+30h)		;Page or Line
+	or	a
+	ld	a,'P'+80h
+	jr	z,its_page_edit
+	ld	a,'L'+80h
+its_page_edit:
+	ld	(de),a
+
+	jp	<?cbios: dw 0>
+;
+;----------------------------------------------------------
+;
+enable_memio:
+	ld	a,71h
+switch_around:
+	out	(0fah),a
+	ret
+disable_memio:
+	ld	a,7fh
+	jr	switch_around
+;
+;----------------------------------------------------------
+;
+clktab:	defs	7,0
+
+cbnum:
+	inc	de
+	ld	a,(hl)
+	add	a,'0'+80h
+	cp	'0'+80h
+	jr	nz,not_zero
+	ld	a,' '+80h
+not_zero:
+	ld	(de),a
+	dec	hl
+	inc	de
+	ld	a,(hl)
+	add	a,'0'+80h
+	ld	(de),a
+	ret
+daytab:
+	defh	'MoDiMiDoFrSaSo'
+montab:
+	defh	'JanFebMrzAprMaiJunJulAugSepOktNovDez'
+;----------------------------------------------------------
+read_config:
+	ex	de,hl
+	push	bc
+	push	de
+	ld	c,5
+	call	mdos			;set dma
+	ld	de,fcb_config
+	ld	c,4
+	call	mdos			;read
+	pop	hl
+	ld	de,128
+	add	hl,de
+	pop	bc
+	or	a
+	jp	nz,sys_error
+	djnz	read_config
+
+	ret
+;----------------------------------------------------------
+cpm_error:
+sys_error:
+	ld	de,txt_sys_error
+	jr	error
+no_config:
+	ld	de,txt_no_config
+	jr	error
+no_cpm:
+	ld	de,txt_no_cpm
+error:
+	ld	c,1
+	call	mdos			;show error text
+	jp	$
+;
+ins_text:	defh	'INS'
+edt_text:	defh	'EDT'
+;
+start_text:
+	defm	'GENIE III 64k CP/M 2.2XV3, 1.31'
+	defb	CR,LF,0
+txt_sys_error:
+	defm	'Err: '
+	defb	0
+txt_no_config:
+	defm	'Kein CONFIG.SYS'
+	defb	0
+txt_no_cpm:
+	defm	'Kein BIOS22X.SYS'
+	defb	0
+;
+fcb_config:
+	defb	0
+	defm	'CONFIG  '
+	defm	'SYS'
+	defs	35,0
+fcb_system:
+	defb	0
+	defm	'BIOS22X '
+	defm	'SYS'
+	defs	35,0
+
+	include MDOS.MAC
+	include MBIOS.MAC
+
+
+bios_table	equ	$
+systab_table	equ	$+128
+xltab_table	equ	$+128+256
+stack		equ	$+128+256+256+64	;32 level stack
+
+	if2
+	.printl End of Loader
+	.printn $
+	.printl Max used address
+	.printn $+128+256+256+64
+	endif
+
+	.dephase
+	end

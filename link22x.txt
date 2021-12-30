@@ -1,0 +1,30 @@
+Wie man CP/M 2.2XV3 linked:
+
+Einfach Z80 KERNEL
+Kernel included selbst:
+KERNEL.MAC
+KEY.MAC
+SCREEN.MAC
+SCREEN.INC
+MISCIO.MAC
+DISK.MAC
+heraus kommt
+KERNEL.COM
+Dies ist BIOS22X.SYS !!
+
+Z80 SYSBOOT -> SYSBOOT.COM -> SYSBOOT.SYS
+Z80 LOADER
+LOADER.MAC
+MDOS.MAC
+MBIOS.MAC
+heraus kommt
+LOADER.COM
+Dies ist LOADER.SYS !!
+
+ID.MAC -> ID.COM
+Liest SYSBOOT.SYS, LOADER.SYS und CPM22X.SYS ein und generiert eine
+bootf{hige Systemdiskette.
+CPM22X.SYS ist CCP+BDOS auf die entsprechende Adresse gephased.
+
+CONFIG.SYS wird auch noch ben|tigt.
+

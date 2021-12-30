@@ -1,0 +1,832 @@
+;********************************************************
+;ª							*
+;ª	DISK.MAÃ  Floppù Supporô Modulå			*
+;ª	Geniå IIÉ  CP/Í 2.2XV³  Versioî 1.3  24.4.86	*
+;ª	Copyrighô (c© Klauó K{mpæ Softwareentwicklung	*
+;*					1984,198µ,1986	*
+;*							*
+;*	Modification History				*
+;*	Original Version 1.1 12.2.86			*
+;*	1.2 13.3.86 Shorted Wait-Loop 10h -> 5  	*
+;*	1.3 24.4.86 Rewritten Error Handling		*
+;*							*
+;********************************************************
+	.printl Including DISK.MAC
+
+;	public		?home,?settrk,?setsec,?setdma
+;	public		?sectrn,?close,?flush
+;	public		?read,?write,?seldsk
+;	public		error,error_flag
+;	public		cur_drive
+;
+;	external	dph,dpb
+;	external	secbuf
+;	external	rdtxt,wrtxt,errtxt
+;	external	drvtxt,sidtxt,trktxt,sectxt,shotxt
+;	external	?conout,load25,rest25
+;	external	bell,savstk
+;	external	stptab
+;	external	bios
+;	external	dsknum,newsta
+;	external	chkkbd
+;	external	@retries
+;
+?home:
+	ld	c,0
+
+?settrk:
+	ld	a,c
+	ld	(new_track),a
+	ret
+
+?setsec:
+	ld	a,c
+	ld	(record),a
+	ret
+
+?setdma:
+	ld	(@dma),bc
+	ret
+
+?sectrn:
+	ld	h,b
+	ld	l,c
+	ret
+
+?close:
+	call	bdos+08a2h		;Perform logical close
+	call	savstk
+	jp	?flush
+;
+; ** Select Disk
+?seldsk:
+	call	savstk
+	ld	a,c
+	and	0fh
+	ld	hl,0
+	cp	4
+	ret	nc
+
+	ld	l,a
+	ld	h,0
+      4:add	hl,hl			;*16
+	ld	bc,dph
+	add	hl,bc
+	push	ix
+	push	hl
+	push	af
+
+	push	hl			;change dph addr
+	pop	ix
+	ld	l,(ix+00h)
+	ld	h,(ix+01h)
+	ld	(?xl_table),hl		;set xltab addr
+	ld	l,(ix+0ah)
+	ld	h,(ix+0bh)
+	ld	(new_dpb),hl		;set dpb addr
+
+	push	hl			;change dpb addr
+	pop	ix
+	ld	l,(ix+0fh)
+	ld	h,(ix+10h)
+	ld	(psh),hl		;set new psh,phm
+	ld	a,(ix+11h)
+	ld	(new_pdrive),a		;set new pdrive
+	ld	a,(ix+14h)		;a=size code
+	and	1
+      2:rrca
+	or	80h
+	ld	(new_size),a
+
+	pop	af
+	ld	(new_drive),a		;Save code for display
+	and	3
+	inc	a
+	ld	b,a
+	ld	a,80h
+mask_loop:
+	rlca
+	djnz	mask_loop
+	ld	(new_slct),a		;set new select
+
+	bit	0,e			;drive accessed before ?
+	jr	nz,accessed_before	;Y: select ok
+
+	push	af
+
+	ld	hl,37ech
+	ld	(hl),0d0h		;Force Int
+	call	wait
+	pop	af
+	ld	(37e0h),a		;Select new drive
+	ld	(hl),0d0h
+	ld	bc,0
+	ld	e,(hl)
+index_test:
+	ld	a,(hl)
+	xor	e
+	and	2
+	jr	nz,disk_there
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,index_test
+
+	pop	hl
+	pop	ix
+	ld	h,b
+	ld	l,c			;hl=0
+	ret
+
+disk_there:
+accessed_before:
+	ld	a,(new_drive)
+
+	add	a,'A'+80h
+	ld	(dsknum),a
+	call	newsta			;Show new Drive #
+
+	pop	hl
+	pop	ix
+	ret
+;----------------------------------------------------------
+; ** Read logical record
+;
+?read:
+	call	savstk
+	call	initio
+	call	swtcho
+	ldir
+	ret
+;
+; ** Write logical record
+;
+?write:
+	call	savstk
+	ld	a,c
+	ld	(write_type),a
+	call	initio
+	ex	de,hl
+	call	swtcho
+	ldir
+	call	set_write
+	ld	a,<write_type: 0>
+	cp	1
+	ret	nz
+;
+; Flush buffer
+;
+?flush:
+	ld   a,<write_flag: 0>
+	or   a				;Unwritten data in mem ?
+	ret  z				;No: ok,  else write
+;
+; Write physical sector
+;
+write_disk:
+	call	swtchi
+	ld	a,0a8h
+	ld	de,0a12h
+	call	transfer_data
+	jr	z,clear_write
+	ret
+;
+; set & reset writeflag
+;
+set_write:
+	ld	a,<clear_write: xor a>
+	ld	(write_flag),a
+	ret
+;
+; Common return
+;
+exitio:
+	ld	a,<error_flag: 0>
+	or	a
+	ret
+;
+; Init for correct error report
+; call same_sector & flush buffer
+;
+initio:
+	ld	hl,exitio
+	ex	(sp),hl
+	push	hl
+	xor	a
+	ld	(error_flag),a
+						;set new sector
+	ld	a,(psh)
+	ld	b,a				;b=new psh (0/1/2/3)
+	inc	b
+	ld	a,(record)
+	add	a,a
+convert_loop:
+	srl	a
+	djnz	convert_loop
+	ld	hl,<?xl_table: dw 0>
+	ld	c,a				;b = 0 !
+	add	hl,bc
+	ld	c,(hl)				;c=new physical sector
+;
+; Compare  new <-> old
+;
+	ld	hl,new_sector
+	ld	de,cur_sector
+	ld	(hl),c				;Save new sector
+	ld	b,3
+compare_loop:
+	ld	a,(de)
+	cp	(hl)
+	jr	nz,read_disk			;read new sector
+	inc	hl
+	inc	de
+	djnz	compare_loop
+;
+; Compute buffer adress
+;
+get_block_address:
+	ld	a,(phm)				;a=phm
+	ld	hl,(record)			;l=record #
+	and	l				;mask record and phm
+	inc	a				;+1
+	ld	hl,secbuf-128
+	ld	de,128
+get_block_loop:
+	add	hl,de
+	dec	a
+	jr	nz,get_block_loop
+	ld	de,<@dma: dw 0>
+	ld	bc,128
+	ret
+;
+; Read new physical sector
+; set curxxx = newxxx
+;
+read_disk:
+	call	?flush
+	ld	a,(cur_slct)
+	ld	(old_slct),a
+	call	set_head
+	ld	hl,new_sector
+	ld	de,cur_sector
+	ld	bc,new_sector-cur_sector
+	ldir
+	ld	a,88h
+	ld	de,021ah
+	call	transfer_data
+	jp	get_block_address
+;
+;----------------------------------------------------------
+; Set physical Head position
+;
+set_head:
+	ld	a,(new_drive)
+	ld	c,a
+	ld	a,(cur_drive)
+	cp	c
+	ret	z
+	ld	de,track_table
+	ld	l,a			;hl=cur_drive
+	ld	h,0
+	add	hl,de
+	ld	a,(head_position)	;Get current phys hd pos
+	ld	(hl),a			;Save it in Table
+	ld	l,c			;hl=new_drive
+	ld	h,0
+	add	hl,de
+	ld	a,(hl)			;Get last Head Pos value
+	ld	(head_position),a	;Set it
+	ret
+;
+;----------------------------------------------------------
+; Physical select drive
+;
+set_new_format:
+	ld	hl,37ech
+	call	force_int		;Force Interrupt on old
+	ld	b,(hl)
+	ld	a,(cur_slct)
+	ld	(old_slct),a
+	call	force_int		;Force Interrupt on new
+	call	select_new_int		;Select new
+	bit	7,b			;Not ready before ?
+	call	nz,wait_speed		;Y: wait for speed
+
+	ld	a,(cur_pdrive)
+	ld	b,a
+	and	1			;Double Density ?
+	or	0feh
+	ld	(hl),a			;Select density
+	ld	(hl),0d0h
+
+	push	ix
+	ld	ix,(cur_dpb)
+
+	ld	a,(cur_size)
+	ld	(37eeh),a		;Set 5"/8"
+	ld	(hl),0d0h
+
+	ld	a,(ix+13h)
+	ld	(no_of_tracks),a
+	ld	c,a
+	ld	a,(ix+12h)
+	ld	(no_of_sectors),a
+	ld	a,(ix+15h)
+	ld	(track_offset),a
+	pop	ix
+
+	xor	a			;A = NOP !
+	bit	1,b			;Inverted Sectors ?
+	jr	z,setinv
+	ld	a,<cpl>
+setinv:
+	ld	(disk_invert),a
+	ld	(disk_invert1),a
+	ld	(disk_invert2),a
+
+	ld	hl,stptab
+	ld	de,(new_drive)
+	ld	d,0
+	add	hl,de
+	ld	a,(hl)
+	ld	(step_rate),a		;set stepping rate
+	ld	de,4
+	add	hl,de
+	ld	a,(hl)
+	sub	c			;C = no of tracks !
+	ld	(double_step),a
+
+	ld	a,b			;a=pdrive_byte
+	and	0011_1000b
+	rrca
+	rrca
+	ld	e,a
+	ld	d,0
+	ld	hl,side_access_table
+	add	hl,de
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ld	(side_access_vector),hl
+
+	ret
+;
+;----------------------------------------------------------
+; Force Interrupt on current drive
+;
+force_int:
+	ld	(hl),0d0h
+test_int:
+	call	wait
+	bit	0,a			;Busy ?
+	ret	z			;N: ret
+	rlca				;Not ready ?
+	jr	c,force_int		;Y: Int again
+select_new_int:
+	ld	a,<old_slct: 0>		;Select drive
+	ld	(37e0h),a
+	jr	test_int
+;
+; Wait for full rotation speed
+;
+wait_speed:
+	ld	bc,0
+wait_speed_loop:
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,wait_speed_loop
+	ret
+;
+; Reselect drive
+;
+re_select:
+	ld	a,(cur_slct)
+	ld	(37e0h),a
+	ret
+;
+; Restore drivehead
+;
+restore:
+	ld	c,50h			;stepin
+	call	issue_command
+	xor	a
+	ld	c,a			;restore
+	ld	(head_position),a	;Set new phys head pos to 0
+;
+; Issue head moving cmd
+;
+issue_command:
+	call	re_select
+	ld	a,<step_rate: 0>
+	or	c
+	ld	(hl),a
+issue_wait:
+	call	wait
+	bit	0,a
+	ret	z
+	call	re_select
+	jr	issue_wait
+;
+;----------------------------------------------------------
+; Perform disk I/O
+;
+transfer_data:
+	ld	(disk_command),a
+	ld	a,(error_flag)
+	or	a
+	ret	nz
+	ld	a,e
+	ld	(transfer_byte),a
+	ld	a,d
+	ld	(transfer_byte+2),a
+	ld	b,1ch
+	bit	5,a				;Read CMD ?
+	jr	z,set_mask			;Y: jp
+	ld	b,7ch
+set_mask:
+	ld	a,b
+	ld	(error_mask),a			;set error mask
+
+	call	set_new_format			;select & set new format
+
+retry_entry:
+	call	re_select
+	ld	a,(@retries)			;No. of retries
+	ld	b,a
+
+try_again:
+	push	bc
+	ld	bc,<no_of_sectors: dw 0>	;c= no. of phys Sectors
+no_of_tracks	equ	$-1			;b= no. of phys Tracks
+	ld	de,(cur_sector)			;e= sector #
+	ld	a,(cur_track)			;a,d= track #
+	ld	d,a
+	ld	hl,cur_slct
+	jp	<side_access_vector: defw side_0>
+;
+;----------------------------------------------------------
+;no 2nd side or by skew table
+;
+side_0:
+	bit	7,e				;sector on 2nd side ?
+	res	7,e
+	jr	nz,sel_2nd_side
+	jr	sel_1st_side
+;
+;even on front, odd on back
+;
+side_1:
+	srl	a				;even ?
+	ld	d,a
+	jr	nc,sel_1st_side			;N: jp
+	jr	sel_2nd_side
+;
+;0 -> (tracks) on front, 0 -> (tracks) on back
+;
+side_2:
+	sub	b				;second side ?
+	jr	c,sel_1st_side			;N: jp
+	ld	d,a				;Y: set 2nd side track
+	jr	sel_2nd_side
+;
+;sector offset on 2nd side
+;
+side_3:
+	srl	a				;2nd side ?
+	ld	d,a
+	jr	nc,sel_1st_side			;N: jp
+	ld	a,e				;Y: compute sector offset
+	add	a,c				;cursec+sectors
+	ld	e,a
+	jr	sel_2nd_side			;select 2nd side
+;
+;0 -> (tracks) on front, (tracks) -> 0 on back
+;
+side_4:
+	sub	b				;second side ?
+	jr	c,sel_1st_side			;N: jp
+	ld	b,a				;b= 0 -> 79
+	ld	a,(no_of_tracks)		;a=# of phys tracks
+	dec	a				;-1 for trk 79 NOT 80
+	sub	b				;a= 79 -> 0
+	ld	d,a				;e= track #
+	jr	sel_2nd_side
+;
+;odd on front, even on back
+;
+side_5:
+	srl	a				;odd ?
+	ld	d,a
+	jr	c,sel_1st_side			;N: jp
+	jr	sel_2nd_side
+;
+; select 2nd side
+;
+sel_2nd_side:
+	set	4,(hl)				;Select 2. Side
+	jr	seek_track
+;
+; no 2nd side, side select by skew table
+;
+side_6:
+side_7:
+sel_1st_side:
+	res	4,(hl)				;Select 1. Side
+	
+seek_track:
+	ld	(logical_address),de		;set trk,sec
+	ld	a,(cur_pdrive)
+	and	01000000b			;map logical=physical ?
+	jr	z,no_mapping			;N: jp
+	ld	a,(cur_track)
+	ld	(logical_address+1),a		;Y: set logical=physical trk #
+no_mapping:
+	call	re_select
+
+	ld	a,<double_step: 0>
+	or	a				;double step ?
+	ld	a,d				;A=trk#
+	jr	z,set_phys_pos			;N: jp
+	sla	a				;Y: A = A*2
+set_phys_pos:
+	ld	(37efh),a			;Set phys Head position
+
+	ld	hl,head_position		;for seek
+	ld	b,(hl)				;Get last phys hd pos
+	ld	(hl),a				;Save new for seldsk
+	ld	a,b
+	ld	(37edh),a			;Set last for seek
+
+	ld	hl,37ech
+	ld	c,18h
+	call	issue_command
+	ld	de,<logical_address: defw 0>
+	ld	a,d
+	add	a,<track_offset: 0>
+	ld	(37edh),a
+	ld	(?track),a
+	ld	a,e
+	ld	(37eeh),a
+
+	ld	de,37efh
+	ld	bc,secbuf
+	call	re_select
+	ld	(hl),<disk_command: 88h>
+	call	wait
+	bit	0,a				;Busy ?
+	jr	z,transfer_end			;N: Error
+
+	ld	a,(disk_command)
+	bit	5,a
+	jr	z,begin_read
+;
+; Write 1st & 2nd Byte
+;
+begin_write:
+	ld	a,83h
+	and	(hl)
+	jp	po,begin_write
+	ld	a,(bc)
+disk_invert1:
+	defb	0				;NOP/CPL
+	ld	(de),a
+	inc	bc
+	ld	a,(bc)
+disk_invert2:
+	defb	0				;NOP/CPL
+	ld	(save_byte),a
+	inc	bc
+	ld	a,1
+wait_first_drq:
+	cp	(hl)
+	jr	z,wait_first_drq
+	ld	a,<save_byte: 0>
+	ld	(de),a
+	ld	a,(bc)
+	inc	bc
+	bit	1,(hl)
+	jr	nz,transfer_byte
+	bit	1,(hl)
+	jr	nz,transfer_byte
+	jr	wait_for_drq
+;
+begin_read:
+	ld	a,83h
+	and	(hl)
+	jp	po,begin_read
+
+transfer_byte:
+	ld	a,(de)
+disk_invert:
+	defb	0				;NOP/CPL
+	ld	(bc),a
+	inc	bc
+wait_for_drq:
+	bit	1,(hl)
+	jr	nz,transfer_byte
+	bit	1,(hl)
+	jr	nz,transfer_byte
+	bit	1,(hl)
+	jr	nz,transfer_byte
+	bit	0,(hl)
+	jr	z,transfer_end
+	bit	1,(hl)
+	jr	nz,transfer_byte
+	bit	7,(hl)
+	jr	z,wait_for_drq
+transfer_end:
+	ld	a,(hl)
+	ld	(hl),0d0h
+	pop	bc
+	and	<error_mask: 0>
+	jp	z,report_error			;Ok if no error
+	dec	b
+	jr	z,its_error
+	push	af
+	bit	4,a				;Record not found ?
+	call	nz,restore			;Y: restore
+	pop	af
+	jp	try_again
+its_error:
+	ld	b,a				;Save Status
+	ld	a,1
+	or	a				;make nc
+	call	error
+	jp	c,retry_entry			;Retry Disk operation
+report_error:
+	ld	hl,error_flag
+	or	(hl)
+	ld	(hl),a
+	ret
+;
+; Wait and get status
+;
+wait:
+	ld	a,5				;GDOS Value (!)
+wait_loop:
+	dec	a
+	jr	nz,wait_loop
+	ld	a,(hl)
+	ret
+;----------------------------------------------------------
+; Show error at statusline
+; I: B = last status
+;
+; O: CY = 1, A = X -> retry
+;    CY = 0, A = 1 -> report error
+;    CY = 0, A = 0 -> bypass error
+error:
+	ret					;Errorflag
+	push	bc
+	call	bell
+	ld	a,(@line25)
+	ld	(@old_line25),a
+	call	statn				;clear line 25 (SCREEN.MAC)
+	ld	a,(error_mask)
+	ld	b,'R'+80h
+	bit	5,a
+	jr	z,read_error
+	ld	b,'W'+80h
+read_error:
+	ld	hl,4380h
+	ld	(hl),b
+	inc	hl
+	ld	(hl),':'+80h
+	inc	hl
+	ld	(hl),' '+80h
+	inc	hl
+	pop	af				;a=final status
+	ld	b,8
+what_error:
+	rlca
+	jr	c,this_error
+	djnz	what_error			;B is never = 0,
+						;one bit always set
+this_error:
+	ld	a,b
+	add	a,'0'-1+80h
+	ld	(hl),a
+
+	ld	a,(cur_drive)
+	add	a,0c1h
+	ld	(drvtxt),a
+
+	ld	a,(cur_sector)
+	bit	7,a
+	ld	a,'V'+80h
+	jr	z,set_err_side
+	ld	a,'R'+80h
+set_err_side:
+	ld	(sidtxt),a
+
+	ld	a,(cur_track)
+	ld	hl,trktxt+2
+	call	shodec				;Show CP/M track #
+
+	ld	a,(head_position)
+	ld	hl,trktxt+6
+	call	shodec				;Show physical head position
+
+	ld	a,<?track: 0>
+	ld	hl,trktxt+10
+	call	shodec				;Show log/phys track #
+
+	ld	a,(logical_address)		;a=cursec
+	and	7fh
+	ld	hl,sectxt+2
+	call	shodec				;Show physical sector #
+
+	ld	hl,shotxt
+	ld	de,4384h
+	ld	bc,errtxt_len
+	ldir
+;
+get_response:
+	ld	a,(3840h)
+	and	0000_0010b		;mask CLEAR
+	jr	z,get_response
+;
+	ld	a,(3880h)		;    x/shft/ctrl/shftctrl
+	and	0000_0011b		;A = 0/1/2/3
+	sub	1			;CLEAR alone ?
+	jr	c,err_retry		;Y: retry
+					;A = x/0/1/2
+	xor	1			;Shift-CLEAR ?
+	and	1			;A = x/1/0/1
+					;Y: report, A = 1
+					;N: bypass, A = 0
+err_retry:
+	push	af
+	ld	a,<@old_line25: 0>	;0=stat, 1=usr, 2=keybuf, 3=none
+	or	a
+	jr	nz,old_maybe_user
+	call	dissta
+	ld	a,0ffh
+old_maybe_user:
+	dec	a
+	call	z,disusr		;user if old_line25 = 1
+	pop	af
+	ret
+;
+; Show decimal
+;
+shodec:
+	ld   de,0afafh
+shode1:
+	inc  e
+	sub  100
+	jr   nc,shode1
+	add  a,100
+shode2:
+	inc  d
+	sub  10
+	jr   nc,shode2
+	add  a,0bah
+	ld   (hl),a
+	dec  hl
+	ld   (hl),d
+	dec  hl
+	ld   (hl),e
+	ret
+;----------------------------------------------------------
+side_access_table:
+	defw	side_0	;no 2nd side or by skew table
+	defw	side_1	;even on front, odd on back
+	defw	side_2	;0 -> (tracks) on front, 0 -> (tracks) on back
+	defw	side_3	;sector offset on 2nd side
+	defw	side_4	;0 -> (tracks) on front, (tracks) -> 0 on back
+	defw	side_5	;odd on front, even on back
+	defw	side_6	;reserved
+	defw	side_7	;reserved
+
+	if2
+	.printl Disk Table
+	.printn $
+	endif
+
+head_position:
+		defb	0		;Head pos of current drive
+track_table:
+		defb	0,0,0,0		;track # table
+
+psh:		defb	0
+phm:		defb	0
+record:		defb	0
+
+cur_sector:	defb	0		;sec # to read (in memory)
+cur_track:	defb	0		;trk # to read (in memory)
+cur_drive:	defb	0		;drv # to read (in memory)
+cur_slct:	defb	0		;sel # to read (in memory)
+cur_size:	defb	0
+cur_pdrive:	defb	0
+cur_dpb:	defw	0
+
+new_sector:	defb	0
+new_track:	defb	0
+new_drive:	defb	0
+new_slct:	defb	0
+new_size:	defb	0
+new_pdrive:	defb	0
+new_dpb:	defw	0

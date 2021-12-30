@@ -1,0 +1,969 @@
+;********************************************************
+;*							*	
+;*	FKEY.MAC Show/Change Function Keys		*
+;*	Genie III CP/M 2.2XV3 Version 1.1 vom 19.4.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1984,1985,1986	* 
+;*	Modification History				*
+;*	1.0  20.2.86  Original Version			*
+;*	1.1  19.4.86  Changed ctrl vals to invers	*
+;*							*
+;********************************************************
+	.z80
+	.com
+	org	100h
+;
+r$fkytbl	equ	2		;Record # in CONFIG.SYS
+fkey_length	equ	2*128		;# of Records*128
+no_of_fkeys	equ	16		;16 Fkeys defined
+;
+;
+?boot	equ	0000h
+?bdos	equ	0005h
+@buffer	equ	?boot+80h
+;
+buflen	equ	255
+;
+;
+getchr	equ	01h
+prtchr	equ	02h
+drctio	equ	06h
+prtstr	equ	09h
+getbuf	equ	0ah
+open	equ	0fh
+close	equ	10h
+read	equ	21h
+write	equ	22h
+setdma	equ	1ah
+;
+bell	equ	07h
+back	equ	08h
+tab	equ	09h
+lf	equ	0ah
+forwrd	equ	0ch
+cr	equ	0dh
+esc	equ	1bh
+home	equ	1eh
+;
+;
+	ORG	?boot+0100H
+;
+	jp	entry
+;
+	defb	cr
+	defm	'FKEY.COM Copyright (c),(p) Klaus K{mpf 1984,1985,1986'
+	defb	cr,lf
+	defm	'Genie III CP/M 2.2XV3 Version 1.1 vom 19.4.86'
+	defb	1ah
+;
+cnffcb:
+	defb	0
+	defm	'CONFIG  ','SYS'
+	defs	21
+rec$num:
+	defs	3
+;
+entry:
+	ld	sp,stack
+	ld	hl,(?boot+1)
+	ld	l,52h				;hl -> fkytab address
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ld	(?@fkytab),hl
+;
+	ld	de,cnffcb			;Open config.sys
+	ld	c,open
+	call	?bdos
+	inc	a
+	jr	nz,open$ok
+	ld	a,1
+	ld	(cnffcb),a
+	ld	c,open
+	call	?bdos
+	ld	de,no$config
+	inc	a
+	jp	z,error1
+
+open$ok:					;Read fkybuf from config.sys
+	ld	hl,fkybuf-128
+	ld	(read_dma),hl
+	ld	a,r$fkytbl-1
+	ld	(rec$num),a
+	ld	b,fkey_length/128
+read_loop:
+	push	bc
+	ld	hl,<read_dma: defw 0>
+	ld	de,128
+	add	hl,de
+	ld	(read_dma),hl
+	ex	de,hl
+	ld	c,setdma
+	call	?bdos
+	ld	a,(rec$num)
+	inc	a
+	ld	(rec$num),a
+	ld	de,cnffcb
+	ld	c,read
+	call	?bdos
+	pop	bc
+	djnz	read_loop
+;
+	ld	de,enttxt
+	call	prttxt
+;
+;
+	call	gettab				;Compute Table Adress
+	ld	a,1
+	ld	(topnum),a
+	ld	a,0
+	ld	(relnum),a
+;
+reentr:
+	call	whatky				;What key to change ? 
+	ld	a,(fkynum)
+	or	a				;FKey pressed ?
+	jr	nz,getnew			;Y: Get new text
+;
+	ld	hl,fkybuf-128			;write fkybuf to config.sys
+	ld	(write_dma),hl
+	ld	a,r$fkytbl-1
+	ld	(rec$num),a
+	ld	b,fkey_length/128
+write_loop:
+	push	bc
+	ld	hl,<write_dma: defw 0>
+	ld	de,128
+	add	hl,de
+	ld	(write_dma),hl
+	ex	de,hl
+	ld	c,setdma
+	call	?bdos
+	ld	a,(rec$num)
+	inc	a
+	ld	(rec$num),a
+	ld	de,cnffcb
+	ld	c,write
+	call	?bdos
+	pop	bc
+	djnz	write_loop
+;
+;
+	ld	de,cnffcb
+	ld	c,close
+	call	?bdos
+
+	ld	de,text5			;Install new ?
+	call	prttxt
+ask_install:
+	call	getkey
+	and	05fh
+	cp	3				;ctrl-c ?
+	jr	z,ask_install			;Y: loop
+	cp	'J'
+	jr	nz,exit
+	
+	ld	hl,fkybuf
+	ld	de,<?@fkytab: defw 0>
+	ld	bc,fkey_length
+	ldir					;Y: move
+
+exit:
+	call	clrlen
+
+	jp	?boot
+
+null$byte:
+	defb	0
+;
+;
+getnew:
+	ld	de,text6
+	call	prttxt
+getnw1:
+	ld	hl,getnw1			;Set Ret-Adr
+	push	hl
+;
+	ld	de,text7			;cursor to 3rd line
+	call	prttxt
+	call	shokey				;Show Key, <lf>
+	call	shoins				;Show insertflag 
+	call	shofre				;Show # of free Chars
+	ld	de,text9			;Cursor to 4th line
+	call	prttxt
+	call	poscur				;Position Cursor
+	call	getkey				;Get key & Set newkey
+	ld	a,(newkey)
+	cp	20h				;CTRL-x pressed ? 
+	jr	c,low20h			;Y: Below 20h
+	cp	80h
+	jp	c,newchr			;Insert char 
+low20h:
+	call	swtchi				;Y: Special Key ?
+	ld	a,(3880h)
+	ld	b,a
+	ld	a,(3840h)
+	ld	c,a
+	or	a
+	jr	z,noctky
+yctkey:
+	ld	a,(3840h)
+	or	a
+	jr	nz,yctkey
+noctky:
+	call	swtcho
+	ld	a,c
+	or	a
+	jp	nz,ctlkey
+	bit	1,b				;CTRL pressed ?
+	ret	z				;No: Quit
+	jp	newchr				;Y: Insert CTRL-Char
+;
+ctlkey:
+	ld	de,00feh
+getnw2:
+	inc	e
+	inc	e
+	rrca
+	jr	nc,getnw2
+	ld	hl,jmptab
+	add	hl,de
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+;
+enter:
+	ld	a,0dh				;Enter: Insert 0dh
+	ld	(newkey),a
+	jp	newchr
+;
+space:
+	ld	a,20h				;Space: Insert 20h
+	ld	(newkey),a
+	jp	newchr
+;
+break:
+	pop	af				;pop Ret Adr
+	jp      reentr				;End
+;
+; Clear text
+;
+clear:
+	ld	hl,(tabend)
+	ld	de,(kyend)
+	or	a
+	sbc	hl,de
+	inc	hl
+	ld	b,h
+	ld	c,l
+	ld	hl,(kystrt)
+	ld	(pointr),hl
+	ld	(kyend),hl
+	ex	de,hl
+	ldir
+	ret
+;
+; Cursor left
+;
+curlft:
+	ld	hl,(pointr)
+	ld	de,(kystrt)
+	or	a
+	sbc	hl,de
+	jp	z,rngbel
+	ld	hl,(pointr)
+	dec	hl
+	ld	(pointr),hl
+	ret
+;
+; Cursor right
+;
+currgt:
+	ld	hl,(pointr)	
+	ld	de,(kyend)
+	or	a
+	sbc	hl,de
+	jp	z,rngbel
+	ld	hl,(pointr)
+	inc	hl
+	ld	(pointr),hl
+	ret
+;
+; Switch insert flag
+;
+insert:
+	ld	a,(inschr)
+	xor	0c9h
+	ld	(inschr),a
+	ret
+;
+; Show insert flag
+;
+shoins:
+	ld	a,(inschr)
+	ld	de,inson
+	or	a
+	jr	z,inser1
+	ld	de,insoff
+inser1:
+	jp	prttxt
+;
+; Delete char
+;
+delete:
+	ld	hl,(kystrt)
+	ld	de,(kyend)
+	or	a
+	sbc	hl,de				;Nothing to delete ?
+	jp	z,rngbel
+	ld	hl,(pointr)
+	or	a				;pointr = kyend ?
+	sbc	hl,de
+	jp	z,rngbel			;Y: Nothing to delete
+	dec	de
+	ld	(kyend),de			;Set new kyend
+	ld	hl,(tabend)
+	ld	de,(pointr)
+	or	a
+	sbc	hl,de
+	ld	b,h
+	ld	c,l
+	ld	h,d				;DE = pointr
+	ld	l,e
+	inc	hl				;HL = pointr +1
+	ldir
+	ret
+;
+; Set new char
+;
+newchr:
+	ld	a,0ffh
+	call	inschr				;Insert ?
+	or	a
+	ret	z				;Ret if no space
+	ld	hl,(kyend)
+	ld	de,(pointr)
+	sbc	hl,de
+	jp	z,rngbel
+	ex	de,hl				;HL = pointr
+	ld	a,(newkey)
+	ld	(hl),a				;Set new char
+	inc	hl				;inc pointr
+	ld	(pointr),hl
+	ret
+;
+; Make Space for char
+;
+inschr:
+	ret					;Insert flag
+	ld	hl,(frenum)
+	ld	a,h
+	or	l
+	jr	nz,insch1
+	call	rngbel
+	xor	a
+	ret
+insch1:
+	ld	hl,(kyend)
+	ld	de,(kystrt)
+	or	a
+	sbc	hl,de
+	ld	a,l
+	cp	buflen				;Max buflen Chars
+	jr	nz,insch2
+	call	rngbel
+	xor	a
+	ret
+insch2:
+	ld	hl,(tabend)
+	ld	de,(pointr)
+	sbc	hl,de
+	inc	hl
+	ld	b,h
+	ld	c,l
+	ld	hl,(tabend)
+	ld	d,h
+	ld	e,l
+	dec	hl
+	lddr
+	ld	hl,(kyend)
+	inc	hl
+	ld	(kyend),hl
+	ld	a,0ffh
+	ret
+;
+rngbel:
+	ld	a,bell
+	jp	putchr
+;
+; Position cursor according to pointr
+;
+poscur:
+	ld	a,cr
+	call	putchr
+	ld	hl,(pointr)
+	ld	de,(kystrt)
+	or	a
+	sbc	hl,de
+	ld	a,l
+	add	a,6
+	ld	b,a
+poscu1:
+	push	bc
+	ld	a,forwrd
+	call	putchr
+	pop	bc
+	djnz	poscu1
+	ret
+;
+; Show single Fkey text
+;
+shokey:
+	ld	hl,text21+3
+	ld	(hl),20h
+	dec	hl
+	ld	(hl),20h
+	dec	hl
+	ld	(hl),20h
+	ld	a,(fkynum)
+	cp	10
+	jr	c,shonu4
+	ld	b,'0'-1
+shonu1:
+	inc	b
+	sub	100
+	jr	nc,shonu1
+	add	a,100
+	ld	c,a
+	ld	a,b
+	cp	'0'
+	jr	z,shonu2
+	ld	(hl),b
+	inc	hl
+shonu2:
+	ld	a,c
+	ld	b,'0'-1
+shonu3:
+	inc	b
+	sub	10
+	jr	nc,shonu3
+	add	a,10
+	ld	c,a
+	ld	(hl),b
+	inc	hl
+	ld	a,c
+shonu4:
+	add	a,'0'
+	ld	(hl),a
+;
+	ld	de,text2
+	call	prttxt
+;
+	ld	hl,(tabsta)
+	ld	a,(fkynum)
+	ld	d,a
+	ld	bc,fkey_length
+	xor	a
+shoke1:
+	cpir
+	dec	d
+	jr	nz,shoke1
+	push	hl
+shoke2:
+	pop	hl
+	ld	a,(hl)
+	inc	hl
+	or	a
+	jr	nz,shoke3
+	ld	a,0a0h
+	jp	putchr
+shoke3:
+	push	hl
+	cp	20h
+	jr	c,isctrl
+	call	putchr
+	jr	shoke2
+isctrl:
+	push	hl
+	push	af
+	ld	de,monon
+	call	prttxt
+	pop	af
+	add	a,'@'
+	call	conout
+	ld	de,monoff
+	call	prttxt
+	pop	hl
+	jr	shoke2
+;
+conout:
+	ld	c,06h
+	ld	e,a
+	call	?bdos
+	ret
+;
+; Show all Fkey texts
+;
+shokys:
+	ld	de,text1
+	call	prttxt
+	ld	b,16				;16 Fkeys
+shoky1:
+	push	bc
+	ld	a,(topnum)
+	add	a,16
+	sub	b
+	ld	(fkynum),a
+	call	shokey
+	pop	bc
+	djnz	shoky1
+
+	call	top
+	ld	a,(relnum)
+	inc	a
+	ld	b,a
+sholop:
+	push	bc
+	call	crlf
+	pop	bc
+	djnz	sholop
+	call	insmrk
+shoky2:
+	ld	a,(relnum)
+	ld	b,a
+	ld	a,(topnum)
+	add	a,b
+	ld	(fkynum),a
+	call	tstkey				;ESC 0,ENT 1,BRK 2,UP 3
+						;DOWN 4,SUP 5,SDWN 6
+	cp	3
+	ret	c
+	push	af
+	call	delmrk
+	pop	af
+	cp	5
+	jr	c,updwn
+	jr	z,sup
+	ld	a,1
+	ld	(topnum),a
+	ld	a,15
+	ld	(relnum),a
+	jp	shokys
+;
+sup:
+	ld	a,1
+	ld	(topnum),a
+	ld	a,0
+	ld	(relnum),a
+	jp	shokys
+;
+updwn:
+	ld	hl,shoky2			;ret adr
+	push	hl
+	cp	3
+	jr	z,keyup
+keydwn:
+	ld	a,(topnum)
+	ld	b,a
+	ld	a,(relnum)
+	add	a,b
+	cp	no_of_fkeys
+	push	af
+	call	z,rngbel
+	pop	af
+	jr	z,kydwn1
+	call	crlf
+	ld	a,(relnum)
+	inc	a
+	ld	(relnum),a
+	cp	16
+	jr	nz,kydwn1
+	ld	a,15
+	ld	(relnum),a
+	call	top
+	call	crlf
+	call	dellin
+	call	bot
+	call	rvcrlf
+	ld	a,(topnum)
+	inc	a
+	ld	(topnum),a
+	add	a,15
+	ld	(fkynum),a
+	call	shokey
+kydwn1:
+	call	insmrk
+	ret
+;
+keyup:
+	ld	a,(topnum)
+	ld	b,a
+	ld	a,(relnum)
+	add	a,b
+	cp	1
+	push	af
+	call	z,rngbel
+	pop	af
+	jr	z,keyup1
+	call	rvcrlf
+	ld	a,(relnum)
+	sub	1
+	ld	(relnum),a
+	jr	nc,keyup1
+	call	top
+	call	crlf
+	call	inslin
+	call	bot
+	call	crlf
+	call	dellin
+	call	top
+	ld	a,0
+	ld	(relnum),a
+	ld	a,(topnum)
+	dec	a
+	ld	(topnum),a
+	ld	(fkynum),a
+	call	shokey
+keyup1:
+	call	insmrk
+	ret		
+;
+; Test for control-keys
+;
+tstkey:
+	call	swtchi
+	ld	hl,3840h
+	bit	1,(hl)
+	ld	a,0
+	jp	nz,swtcho			;CLEAR -> ret with 00
+	ld	a,(hl)
+	and	01h
+	jp	nz,swtcho			;ENT -> ret with 01
+	ld	a,(hl)
+	bit	2,a
+	ld	a,2
+	jp	nz,swtcho			;BRK -> ret with 02
+	ld	a,(hl)
+	and	18h				;up/down ?
+	ld	b,a
+	jp	z,tstkey			;N: wait for key
+	ld	a,(3880h)
+	and	01h				;shift ?
+	jr	z,noshft			;N: jp
+	ld	a,b
+	bit	3,a
+	ld	a,5
+	jp	nz,swtcho
+	ld	a,b
+	bit	4,a
+	ld	a,6
+	jp	nz,swtcho
+	jp	tstkey	
+;
+noshft:
+	ld	a,(last)
+	cp	b
+	jr	z,repeat
+	ld	a,b
+	ld	(last),a
+	ld	hl,3000
+	ld	(rptcnt),hl
+	bit	3,a
+	jr	z,dwnkey
+	ld	a,3
+	jr	studky
+
+dwnkey:
+	ld	a,4
+studky:
+	ld	(lastvl),a			;set up/down key
+	jp	swtcho
+;
+repeat:
+	ld	hl,(rptcnt)
+	dec	hl
+	ld	(rptcnt),hl
+	ld	a,h
+	or	l
+	jp	nz,tstkey
+	ld	hl,1000
+	ld	(rptcnt),hl
+	ld	a,(lastvl)
+	jp	swtcho
+;
+; Ask for Action & Set fkynum, kystrt, kyend and pointr
+;
+whatky:
+	xor	a
+	ld	(fkynum),a
+	call	shokys
+	or	a
+	jp	nz,whtky1
+	ld	de,quitxt
+	call	prttxt
+	ld	bc,0
+esc$loop:
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,esc$loop
+	jp	exit				;wboot if ESC
+;
+whtky1:
+	cp	1
+	jr	z,ysfkey
+	xor	a
+	ld	(fkynum),a
+ysfkey:
+	call	clrlen
+	ld	a,(fkynum)
+	or	a
+	ret	z
+	ld	d,a
+	xor	a
+	ld	hl,(tabsta)
+	ld	bc,fkey_length
+whtky4:
+	cpir
+	dec	d
+	jr	nz,whtky4
+	ld	(kystrt),hl
+	ld	(pointr),hl
+	cpir
+	dec	hl
+	ld	(kyend),hl
+	ret
+;
+shofre:
+	call	clrlen
+	ld	hl,(tabsta)
+	ld	bc,fkey_length
+	ld	d,no_of_fkeys+1
+	xor	a
+shofr1:
+	cpir
+	dec	d
+	jr	nz,shofr1
+	ex	de,hl
+	ld	hl,(tabend)
+	or	a
+	sbc	hl,de
+	inc	hl
+	ld	(frenum),hl
+	ld	bc,numfre
+	ld	de,1000
+	call	getdgt
+	ld	de,100
+	call	getdgt
+	ld	de,10
+	call	getdgt
+	ld	de,1
+	call	getdgt
+	ld	de,text3
+	jp	prttxt
+;
+getdgt:
+	ld	a,2fh
+getdg1:
+	inc	a
+	or	a
+	sbc	hl,de
+	jr	nc,getdg1
+	add	hl,de
+	ld	(bc),a
+	inc	bc
+	ret
+;
+prttxt:
+	ld	c,prtstr
+	call	?bdos
+	ret
+;
+putchr:
+	ld	e,a
+	ld	c,prtchr
+	call	?bdos
+	ret
+;
+getkey:
+	call	clrlen
+	ld	c,getchr
+	call	?bdos
+	ld	(newkey),a
+	ret
+;
+clrlen:
+	ld	c,drctio
+	ld	e,0feh				;get status
+	call	?bdos
+	or	a				;char waiting ?
+	jr	z,no_more_chars			;N: jp
+	ld	c,drctio
+	ld	e,0ffh
+	call	?bdos				;Y: get char
+	jr	clrlen
+no_more_chars:
+	xor	a
+	ld	(newkey),a
+	ret
+;
+;
+gettab:
+	ld	hl,fkybuf
+	ld	(tabsta),hl
+	ld	a,fkey_length/256
+	add	a,h
+	ld	h,a
+	dec	hl
+	ld	(tabend),hl
+	ret
+;
+swtchi:
+	di
+	push	af
+	ld	a,71h
+	out	(0fah),a
+	pop	af
+	ret
+;
+swtcho:
+	push	af
+	ld	a,7fh
+	out	(0fah),a
+	pop	af
+	ret
+;
+error1:
+	ld	c,prtstr
+	call	?bdos
+	jp	exit
+;
+rvcrlf:
+	ld	de,t1
+	jp	prttxt
+crlf:
+	ld	de,t2
+	jp	prttxt
+top:
+	ld	de,t3
+	jp	prttxt
+bot:
+	ld	de,t4
+	jp	prttxt
+insmrk:
+	ld	de,t5
+	jp	prttxt
+delmrk:
+	ld	de,t6
+	jp	prttxt
+dellin:
+	ld	de,t7
+	jp	prttxt
+inslin:
+	ld	de,t8
+	jp	prttxt
+;
+no$config:
+	defb	cr,lf,bell
+	defm	'Fehler: File CONFIG.SYS nicht gefunden'
+	defb	cr,lf,'$'
+;
+;
+;
+tabsta:	defw	0		;1. char of Table (Points to 0 !)
+tabend:	defw	0		;last char of Table (Points to 0 !)
+fkynum:	defb	0		;# of Fkey or 0 for quit
+frenum:	defw	0		;# of free Chars
+kystrt:	defw	0		;1. char of selected fkey
+kyend:	defw	0		;last char of selected fkey (Points to 0 !)
+pointr:	defw	0		;Pointer to char
+				;Min value = kystrt
+				;Max value = kyend
+newkey:	defb	0		;New Char to insert
+;
+topnum:	defb	0		;# of first key on screen
+relnum:	defb	0		;rel # of selected key on screen
+;
+last:	defb	0		;last keymask
+lastvl:	defb	0		;last keyvalue
+rptcnt:	defw	0		;repeat counter
+;
+jmptab:	defw	enter
+	defw	clear
+	defw	break
+	defw	insert
+	defw	delete
+	defw	curlft
+	defw	currgt
+	defw	space
+;
+t1:	defb	cr,11,'$'
+t2:	defb	cr,lf,'$'
+t3:	defb	esc,'=',37,32,'$'
+t4:	defb	esc,'=',53,32,'$'
+t5:	defb	cr,esc,'O',esc,'Q>$'
+t6:	defb	cr,esc,'O',esc,'W$'
+t7:	defb	esc,'N',esc,'R$'
+t8:	defb	esc,'N',esc,'E$'
+;
+;
+text1:	defb	esc,'+'
+	defm	'FKEY Funktionstastenprogrammierung'
+	defm	' (c),(p) Klaus K{mpf 1984,1985,1986'
+	defb	cr,lf,cr,lf
+	defm	'Funktionstastenauswahl mit Pfeiltasten und <ENTER>'
+	defb	cr,lf
+	defm	'<CLEAR>: Abbruch, <BREAK>: Beenden und Abspeichern'
+	defb	cr,lf,cr,lf,'$'
+text2:	defb	esc,'.0',cr,lf,esc,'T'
+text21:	defm	'Fxxx :$'
+text3:	defb	esc,'=',55,32			;Set to 24,0
+	defm	'Es sind noch '
+numfre:	defm	'0000'
+	defm	' Zeichen frei$'
+text4:	defb	esc,'.0',esc,'=',53,40
+	defm	'Dr}cke die zu {ndernde Taste oder <BREAK>'
+	defb	esc,'=',54,40
+	defm	'zum Abspeichern und Beenden des Programms$'
+text5:	defb	esc,'+'
+	defb	cr,lf,lf,esc,'.4',esc,'_4'
+	defm	'Neue Belegung aktivieren (J/N) ? $'
+text6:	defb	esc,'+'
+	defm	'FKEY Funktionstastenprogrammierung'
+	defm	' (c),(p) Klaus K{mpf 1984,1985,1986'
+	defb	esc,'=',49,40
+	defm	'Rechtspfeil: Cursor rechts     Linkspfeil: Cursor links'
+	defb	esc,'=',50,40
+	defm	'Hochpfeil: Einf}gen ein/aus    Tiefpfeil: Zeichen l|schen'
+	defb	esc,'=',51,40
+	defm	'Break: Editierung beenden      Clear: Text l|schen'
+text7:	defb	esc,'.0',esc,'=',35,32,'$'
+text9:	defb	esc,'.1',esc,'=',35,32,lf,'$'
+inson:	defb	esc,'=',55,82
+	defm	'Einf}gen EIN$'
+insoff:	defb	esc,'=',55,82
+	defm	'Einf}gen AUS$'
+monon:	defb	esc,')$'
+monoff:	defb	esc,'($'
+enttxt:	defb	esc,'_5$'			;Deutsch,fkey spcl
+
+quitxt:	defb	esc,'+',esc,'.4',esc,'_4',cr,lf
+	defm	'Bearbeitung abgebrochen'
+	defb	cr,lf,'$'
+;
+curbuf:	defb	3
+	defb	0	;# of chars
+	defb	0	;Row
+	defb	0	;Column
+	defb	0	;<CR>
+;
+fkybuf:
+	defs	fkey_length,0
+;
+	defs	128
+stack:
+;
+	end

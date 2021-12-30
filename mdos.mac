@@ -1,0 +1,735 @@
+	.printl Including MDOS
+;
+; Mini CP/M compatible Disk Operating System
+; Supports only:
+;  Console_Output
+;  Print_String
+;  Reset_Disk_System
+;  Select_Disk
+;  Open_File
+;  Read_Sequential
+;  Set_DMA
+;
+;
+default_dma	equ	80h
+;
+offset_ex		equ	12
+offset_s1		equ	13
+offset_fcb_opened	equ	14
+offset_rc		equ	15
+offset_dx		equ	16
+offset_cr		equ	32
+offset_r0		equ	33
+offset_rc_cr		equ	17
+;
+mdos:
+	ld	(?@fcb),de
+	xor	a
+	LD	(@exit_value),a
+	LD	HL,?bdos_func_ret
+	PUSH	HL
+	LD	A,C
+	LD	C,E
+	ld	e,a
+	ld	d,0
+	LD	HL,bdos_loc_table
+	add	hl,de
+	add	hl,de
+	LD	a,(HL)
+	INC	HL
+	LD	h,(HL)
+	ld	l,a
+	LD	de,(?@fcb)
+	jp	(HL)
+bdos_loc_table:
+	defw	mbios+03h		;b_conout
+	defw	?print_string
+	defw	?select_disk
+	defw	?open_file
+	defw	?read_sequ
+	defw	?set_dma
+;
+?print_string:
+	LD	A,(de)
+	or	a
+	RET	Z
+	INC	de
+	PUSH	de
+	LD	C,A
+	CALL	mbios+03h		;b_conout
+	POP	de
+	jr	?print_string
+;
+;
+;----------------------------------------------------------
+physical_select:
+	LD	A,(@current_disk)
+	LD	C,A
+	CALL	mbios+06h
+
+	INC	HL
+	INC	HL
+	LD	(?@next_free_entry),HL
+	INC	HL
+	INC	HL
+	LD	(?@track_#),HL
+	INC	HL
+	INC	HL
+	LD	(?@record_offset),HL
+	INC	HL
+	INC	HL
+
+	LD	de,?@dirbuf
+	LD	BC,8
+	ldir
+
+	LD	HL,(?@dpb)
+	LD	de,@spt
+	LD	BC,15
+	ldir
+
+	LD	A,(@dsm+1)
+	or	a
+	ld	a,0ffh
+	jr	z,its_small
+	inc	a
+its_small:
+	ld	(@large_dsm?),a
+	LD	A,0FFH
+	OR	A
+	RET
+;
+home_drive:
+	XOR	A
+	LD	HL,(?@track_#)
+	LD	(HL),A
+	INC	HL
+	LD	(HL),A
+	LD	HL,(?@record_offset)
+	LD	(HL),A
+	INC	HL
+	LD	(HL),A
+	RET
+;
+set_dir_trk_sec:
+	LD	HL,(@dir_entry_#)
+	srl	h
+	rr	l
+	srl	h
+	rr	l
+	LD	(@block_#),HL
+	LD	(@dir_record_#),HL
+set_dsk_trk_sec:
+	LD	HL,@block_#
+	LD	C,(HL)
+	INC	HL
+	LD	B,(HL)
+	LD	HL,(?@record_offset)
+	LD	E,(HL)
+	INC	HL
+	LD	D,(HL)
+	LD	HL,(?@track_#)
+	LD	A,(HL)
+	INC	HL
+	LD	H,(HL)
+	LD	L,A
+dec_track:
+	LD	A,C
+	SUB	E
+	LD	A,B
+	SBC	A,D
+	jr	NC,inc_track
+	PUSH	HL
+	LD	HL,(@spt)
+	or	a
+	ex	de,hl
+	sbc	hl,de
+	ex	de,hl
+	POP	HL
+	DEC	HL
+	jr	dec_track
+;
+inc_track:
+	PUSH	HL
+	LD	HL,(@spt)
+	ADD	HL,DE
+	jr	C,right_track
+	LD	A,C
+	SUB	L
+	LD	A,B
+	SBC	A,H
+	jr	C,right_track
+	EX	DE,HL
+	POP	HL
+	INC	HL
+	jr	inc_track
+;
+right_track:
+	POP	HL
+	PUSH	BC
+	PUSH	DE
+	PUSH	HL
+	LD	bc,(@off)
+	ADD	HL,bc
+	LD	B,H
+	LD	C,L
+	CALL	mbios+09h
+	POP	DE
+	LD	HL,(?@track_#)
+	LD	(HL),E
+	INC	HL
+	LD	(HL),D
+	POP	DE
+	LD	HL,(?@record_offset)
+	LD	(HL),E
+	INC	HL
+	LD	(HL),D
+	POP	hl
+	or	a
+	sbc	hl,de
+	LD	C,L
+	LD	B,H
+	jp	mbios+0ch
+;
+get_block_offset:
+	LD	HL,@bsh
+	LD	B,(HL)			;2^c = #of records per block
+	LD	A,(@current_sequ_rec)
+block_1_loop:
+	OR	A			;cy=0
+	RRA
+	djnz	block_1_loop
+	LD	B,A			;C = block # of current sequ rec.
+	LD	A,008H
+	SUB	(HL)
+	LD	C,A			;2^c = # of blocks per extend
+	LD	A,(@current_extend_#)
+block_2_loop:
+	DEC	C
+	jr	Z,add_a_b
+	OR	A			;cy=0
+	RLA
+	jr	block_2_loop
+;
+add_a_b:
+	ADD	A,B
+	RET
+;
+get_block_#:
+	LD	HL,(?@fcb)
+	LD	DE,offset_dx
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	A,(@large_dsm?)
+	OR	A
+	jr	Z,get_block_word
+	LD	L,(HL)
+	LD	H,0
+	ret
+;
+get_block_word:
+	ADD	HL,BC
+	LD	E,(HL)
+	INC	HL
+	LD	D,(HL)
+	EX	DE,HL
+	RET
+;
+get_extend_pointer:
+	LD	HL,(?@fcb)
+	LD	DE,offset_ex
+	ADD	HL,DE
+	RET
+;
+get_rc_cr_pointer:
+	LD	HL,(?@fcb)
+	LD	DE,offset_rc
+	ADD	HL,DE
+	EX	DE,HL
+	LD	HL,offset_rc_cr
+	ADD	HL,DE
+	RET
+;
+get_record_#s:
+	CALL	get_rc_cr_pointer
+	LD	A,(HL)
+	LD	(@current_sequ_rec),A
+	EX	DE,HL
+	LD	A,(HL)
+	LD	(@ext_record_count),A
+	CALL	get_extend_pointer
+	LD	A,(@exm)
+	AND	(HL)
+	LD	(@current_extend_#),A
+	RET
+;
+get_entry_pointer:
+	LD	HL,(?@dirbuf)
+	LD	A,(@dir_offset)
+add_hl_a:
+	ADD	A,L
+	LD	L,A
+	RET	NC
+	INC	H
+	RET
+;
+get_expansion_#:
+	LD	HL,(?@fcb)
+	LD	DE,offset_fcb_opened
+	ADD	HL,DE
+	LD	A,(HL)
+	RET
+;
+dir_read:
+	CALL	set_dirbuf_dma
+	CALL	read_record
+restore_dma:
+	LD	HL,@dma_address
+	jr	set_hl_dma
+;
+?set_dma:
+	LD	(@dma_address),de
+	jr	restore_dma
+;
+set_dirbuf_dma:
+	LD	HL,?@dirbuf
+set_hl_dma:
+	LD	C,(HL)
+	INC	HL
+	LD	B,(HL)
+	jp	mbios+0fh
+;
+all_entries_compared?:
+	LD	HL,@dir_entry_#
+	LD	A,(HL)
+	INC	HL
+	CP	(HL)
+	RET	NZ
+	INC	A
+	RET
+;
+reset_entry_#:
+	LD	HL,0FFFFH
+	LD	(@dir_entry_#),HL
+	RET
+;
+checksum_dir_record:
+	LD	de,(@drm)
+	LD	HL,(@dir_entry_#)
+	INC	HL
+	LD	(@dir_entry_#),HL
+	ex	de,hl
+	or	a
+	sbc	hl,de
+	jr	NC,check_dir_offset
+	jr	reset_entry_#
+;
+check_dir_offset:
+	LD	A,(@dir_entry_#)
+	AND	003H
+	LD	B,5
+dir_offset_loop:
+	ADD	A,A
+	djnz	dir_offset_loop
+	LD	(@dir_offset),A
+	OR	A
+	RET	NZ
+	PUSH	BC
+	CALL	set_dir_trk_sec
+	CALL	dir_read
+	POP	BC
+	ret
+;
+?select_disk:
+	LD	A,(?@fcb)
+	LD	HL,@current_disk
+	CP	(HL)
+	RET	Z
+	LD	(HL),A
+login_new_disk:
+	CALL	physical_select
+logical_select:
+	CALL	home_drive
+	LD	HL,(@drm)
+	INC	HL
+	EX	DE,HL
+	LD	HL,(?@next_free_entry)
+	LD	(HL),E
+	INC	HL
+	LD	(HL),D
+	jp	reset_entry_#
+;
+check_extend_#:
+	PUSH	BC
+	PUSH	AF
+	LD	A,(@exm)
+	CPL
+	LD	B,A
+	LD	A,C
+	AND	B
+	LD	C,A
+	POP	AF
+	AND	B
+	SUB	C
+	AND	01FH
+	POP	BC
+	RET
+;
+search_dir_first:
+	LD	A,0FFH
+	LD	(@succesfull_open?),A
+	LD	HL,(?@fcb)
+	LD	(?@search_fcb),HL
+	CALL	reset_entry_#
+	CALL	home_drive
+search_dir_next:
+	CALL	checksum_dir_record
+	CALL	all_entries_compared?
+	jr	Z,entry_not_found
+					;entry_#_free?
+	LD	de,(@dir_entry_#)
+	LD	HL,(?@next_free_entry)
+	LD	A,E
+	SUB	(HL)
+	INC	HL
+	LD	A,D
+	SBC	A,(HL)
+	jr	NC,entry_not_found	;Y: not found
+
+	LD	de,(?@search_fcb)
+	CALL	get_entry_pointer
+	LD	C,15
+	LD	B,0
+compare_next_loop:
+	LD	A,C
+	OR	A
+	jr	Z,return_dir_code
+	LD	A,B
+	CP	13
+	jr	Z,compare_next_char
+	CP	12
+	LD	A,(DE)
+	jr	Z,compare_extend
+	SUB	(HL)
+	AND	07FH
+	jr	NZ,search_dir_next
+	jr	compare_next_char
+;
+compare_extend:
+	PUSH	BC
+	LD	C,(HL)
+	CALL	check_extend_#
+	POP	BC
+	jr	NZ,search_dir_next
+
+compare_next_char:
+	INC	DE
+	INC	HL
+	INC	B
+	DEC	C
+	jr	compare_next_loop
+;
+return_dir_code:
+	LD	HL,@succesfull_open?
+	LD	A,(HL)
+	RLA
+	RET	NC
+	XOR	A
+	LD	(HL),A
+	RET
+;
+entry_not_found:
+	CALL	reset_entry_#
+	LD	A,01h
+	jp	return_byte
+;
+?open_file:
+	CALL	get_expansion_#
+	LD	(HL),0
+.open_file:
+	CALL	search_dir_first
+	CALL	all_entries_compared?
+	RET	Z
+open_current_entry:
+	CALL	get_extend_pointer
+	LD	A,(HL)
+	PUSH	AF			;save extension #
+	PUSH	HL
+	CALL	get_entry_pointer
+	push	hl
+	LD	de,(?@fcb)
+	LD	bc,32
+	ldir
+
+set_fcb_opened:
+	CALL	get_expansion_#
+	OR	080H
+	LD	(HL),A
+
+	POP	DE
+	LD	HL,offset_ex
+	ADD	HL,DE
+	LD	C,(HL)			;C = extension #
+	LD	HL,offset_rc
+	ADD	HL,DE
+	LD	B,(HL)			;B = record count
+	POP	HL
+	POP	AF
+	LD	(HL),A
+	LD	A,C
+	CP	(HL)
+	LD	A,B
+	jr	Z,set_record_count
+	LD	A,0
+	jr	C,set_record_count
+	LD	A,80h
+set_record_count:
+	LD	HL,(?@fcb)
+	LD	DE,offset_rc
+	ADD	HL,DE
+	LD	(HL),A
+	RET
+;
+close_word_block:
+	LD	A,(HL)
+	INC	HL
+	OR	(HL)
+	DEC	HL
+	RET	NZ
+	LD	A,(DE)
+	LD	(HL),A
+	INC	DE
+	INC	HL
+	LD	A,(DE)
+	LD	(HL),A
+	DEC	DE
+	DEC	HL
+	RET
+;
+cant_close:
+	LD	HL,@exit_value
+	DEC	(HL)
+	RET
+;
+open_to_next_extend:
+	XOR	A
+	LD	(@current_entry_new?),A
+.close_file:
+	XOR	A
+	ld	(@exit_value),a
+	LD	(@dir_entry_#),A
+	ld	(@dir_entry_#+1),a
+	CALL	get_expansion_#
+	AND	080H			;file opened set ?
+	jr	NZ,close_end		;N: cant close
+	CALL	search_dir_first
+	CALL	all_entries_compared?
+	jr	Z,close_end
+	LD	BC,offset_dx
+	CALL	get_entry_pointer
+	ADD	HL,BC
+	EX	DE,HL			;de=entry pointer
+	LD	HL,(?@fcb)
+	ADD	HL,BC			;hl=fcb pointer
+	LD	C,16			;16 block #s in entry
+close_block_loop:
+	LD	A,(@large_dsm?)
+	OR	A
+	jr	Z,word_block_close	;Y: jp
+byte_block_close:
+	LD	A,(HL)
+	OR	A
+	LD	A,(DE)
+	jr	NZ,close_byte_block
+	LD	(HL),A
+close_byte_block:
+	OR	A
+	jr	NZ,same_byte_block
+	LD	A,(HL)
+	LD	(DE),A
+same_byte_block:
+	CP	(HL)
+	jr	NZ,cant_close
+	jr	close_next_block
+;
+word_block_close:
+	CALL	close_word_block
+	EX	DE,HL
+	CALL	close_word_block
+	EX	DE,HL
+	LD	A,(DE)
+	CP	(HL)
+	jr	NZ,cant_close
+	INC	DE
+	INC	HL
+	LD	A,(DE)
+	CP	(HL)
+	jr	NZ,cant_close
+	DEC	C
+close_next_block:
+	INC	DE
+	INC	HL
+	DEC	C
+	jr	NZ,close_block_loop
+	ld	a,0ffh
+	ld	(@current_entry_new?),a
+;
+close_end:
+	CALL	all_entries_compared?
+	RET	Z				;ret if extend not found
+	LD	HL,(?@fcb)
+	LD	BC,offset_ex
+	ADD	HL,BC
+	LD	A,(HL)
+	INC	A				;inc current extend #
+	AND	01FH
+	LD	(HL),A				;set new extend #
+	jr	Z,new_ext_too_big		;jp if extend # too large
+
+	LD	B,A
+	LD	A,(@exm)
+	AND	B				;Mask new extend #
+	LD	HL,@current_entry_new?
+	AND	(HL)
+	jr	Z,search_next_entry
+	jr	next_entry_found
+;
+new_ext_too_big:
+	LD	BC,2
+	ADD	HL,BC				;(hl) = expansion_#
+	INC	(HL)				;increment expansion #
+	LD	A,(HL)				;get expansion_#
+	AND	00FH				;too large ?
+	jr	Z,cant_extend_file 		;Y: jp
+search_next_entry:
+	CALL	search_dir_first
+	CALL	all_entries_compared?		;next extend found ?
+	jr	NZ,next_entry_found		;Y: ok
+	jr	cant_extend_file		;Y: error
+;
+next_entry_found:
+	CALL	open_current_entry
+new_extend_opened:
+	CALL	get_record_#s
+	XOR	A
+	jr	return_byte
+;
+read_record:
+	jp	mbios+12h
+;
+cant_extend_file:
+	ld	a,2
+	jr	return_byte
+no_more_extend:
+	ld	a,3
+	jr	return_byte
+cant_open_extend:
+	ld	a,4
+	jr	return_byte
+no_more_blocks:
+	ld	a,5
+	jr	return_byte
+;
+return_byte:
+	LD	(@exit_value),A
+	RET
+;
+?read_sequ:
+	CALL	get_record_#s
+	LD	A,(@current_sequ_rec)
+	LD	HL,@ext_record_count
+	CP	(HL)				;in current extend ?
+	jr	C,read_next_record		;Y: jp
+	CP	080H				;more extend ?
+	jr	NZ,no_more_extend		;N: error
+	CALL	open_to_next_extend
+	XOR	A
+	LD	(@current_sequ_rec),A
+	LD	A,(@exit_value)
+	OR	A				;succesfull next extend ?
+	jr	NZ,cant_open_extend		;N: error
+
+read_next_record:
+
+set_block_#:
+	CALL	get_block_offset
+	LD	C,A
+	LD	B,0
+	CALL	get_block_#
+	LD	(@block_#),HL
+
+check_block_#:
+	LD	HL,(@block_#)
+	LD	A,L
+	OR	H
+
+	jp	Z,no_more_blocks
+set_record_offset:
+	LD	A,(@bsh)
+	ld	b,a
+	LD	HL,(@block_#)
+rec_offset_loop:
+	ADD	HL,HL
+	djnz	rec_offset_loop
+	LD	(@record_offset),HL
+	LD	A,(@blm)
+	LD	C,A
+	LD	A,(@current_sequ_rec)
+	AND	C
+	OR	L
+	LD	L,A
+	LD	(@block_#),HL
+	CALL	set_dsk_trk_sec
+	CALL	read_record
+update_record_#s:
+	CALL	get_rc_cr_pointer
+	LD	A,1
+	LD	C,A
+	LD	A,(@current_sequ_rec)
+	ADD	A,C
+	LD	(HL),A				;set new sequ rec to fcb
+	EX	DE,HL
+	LD	A,(@ext_record_count)
+	LD	(HL),A				;set new ext rec cnt to fcb
+	ret
+;
+?bdos_func_ret:
+ret_to_user:
+	LD	a,(@exit_value)
+	RET
+;
+@dma_address:		defw	80h
+?@next_free_entry:	defw	0
+?@track_#:		defw	0
+?@record_offset:	defw	0
+?@dirbuf:		defw	0
+?@dpb:			defw	0
+?@csv:			defw	0
+?@alv:			defw	0
+@spt:			defw	0
+@bsh:			defb	0
+@blm:			defb	0
+@exm:			defb	0
+@dsm:			defw	0
+@drm:			defw	0
+@al0_al1:		defw	0
+@cks:			defw	0
+@off:			defw	0
+@current_entry_new?:	defb	0
+@succesfull_open?:	defb	0
+@block_offset:		defb	0
+?@search_fcb:		defw	0
+@large_dsm?:		defb	0
+@default_disk:		defb	0
+@ext_record_count:	defb	0
+@current_extend_#:	defb	0
+@current_sequ_rec:	defw	0
+@block_#:		defw	0
+@record_offset:		defw	0
+@dir_offset:		defb	0
+@dir_entry_#:		defw	0
+@dir_record_#:		defw	0
+@current_disk:		defb	0ffh
+?@fcb:			defw	0
+@exit_value:		defb	0
+

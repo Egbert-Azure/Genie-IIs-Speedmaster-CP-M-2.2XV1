@@ -1,0 +1,535 @@
+;********************************************************
+;*							*
+;*	KEY.MAC  Keyboard Input Module			*
+;*	Genie III  CP/M 2.2X3  Version 1.5  18.5.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1984,1985,1986	*
+;*	Modification History				*
+;*	1.1  21.02.86  Original Version			*
+;*	1.2  23.03.86  Added Switch in/out Key/vid	*
+;*	1.3  19.04.86  Removed Switch in/out Key/vid	*
+;*		       Changed getadr			*
+;*		       Added mask_table for lock suppr.	*
+;*		       masked bit 7 on fkyput		*
+;*	1.4   4.05.86  Corrected Alpha-Lock error	*
+;*	1.5  18.05.86  Added old_iobyte after getadr	*
+;*		       Added savstk to handler		*
+;*							*
+;********************************************************
+	.printl Including KEY.MAC
+
+;	public		?const,?conin
+;	public		keyst,keyin
+;	public		shobuf
+;	public		intkbd
+;	public		pxtab
+;	public		chkkbd,fkyput
+;	public		click,break,repeat
+;
+;	external	savstk
+;	external	v24ist,v24in
+;	external	?rdrst,?reader
+;	external	fkytab,kbdbuf
+;	external	@inlen
+;	external	bell,clock,print,monit,error
+;	external	getadr
+;	external	flgtx0,flgtx1,flgtx2,flgtx3
+;	external	flgtx4,flgtx5,flgtx6,flgtx7
+;	external	@k1dly,@k2dly,@dbnc1,@dbnc2
+;	external	txtis,txton,txtoff
+;	external	save25,load25,rest25
+;
+; Get console status
+;
+?const:
+	call	savstk
+const:
+	call	getadr
+	defw	<?@const: dw keyst>
+	defb	0
+	defb	1
+	defw	v24ist
+	defw	keyst
+	defw	rdrst
+	defw	keyst
+;
+; Console input
+;
+?conin:
+	call	savstk
+conin:
+	call	getadr
+	defw	<?@conin: dw keyin>
+	defb	0
+	defb	1
+	defw	v24in
+	defw	keyin
+	defw	reader
+	defw	keyin
+;
+;----------------------------------------------------------
+; ** Get keyboard status
+;
+keyst:
+	jp	<kbstat: dw nikbds>	;or: nikbds
+;
+; Non Interrupt key status
+;
+nikbds:
+	call	kbchek			;key pressed ?
+	ld	a,<scount: 2>
+	dec	a
+	ld	(scount),a
+	jr	z,no_incrpt
+	ld	hl,(rptcnt)
+	inc	hl			;-> No repeat
+	ld	(rptcnt),hl
+no_incrpt:
+	ld	a,2
+	ld	(scount),a
+	jr	test_buffer
+;
+; Interrupt key status
+;
+inkbds:
+	call	kbchek
+;
+; Anything in buffer ?
+;
+test_buffer:
+	call	clock
+	ld	a,(@inlen)
+	or	a
+	ret	z
+	or	0ffh
+	ret
+;
+; ** Keyboard Input
+;
+keyin:
+	call	test_buffer		;anything in buffer ?
+	call	z,kbchek		;N: check keyboard/repeat
+	call	getbuf			;Any Key ?
+	ret	nz			;Y: ret
+	jr	keyin			;N: wait for char
+;
+; Interrupt driven Keyboard intercept
+;
+intkbd:
+	call	inch1			;Key pressed ?
+	or	a
+	ret	z			;N: ret
+	jr	set_repeat		;Y: set as new repeat & in buffer
+;
+;----------------------------------------------------------
+;
+; Check for new key or repeat key
+;
+kbchek:
+	call	inch1			;New key pressed ?
+	or	a
+	jr	z,repeat		;N: test repeat
+;					;Y: set in buffer
+; Set new repeat char in Buffer
+;
+set_repeat:
+	ld	c,a
+	ld	(rptchr),a
+	ld	hl,(@k1dly)
+;
+; Set new char in buffer
+;
+set_in_buffer:
+	ld	(rptcnt),hl
+	call	click
+	ld	hl,@inlen
+	ld	a,(hl)
+	cp	64			;Max buflen for single keys
+	jr	c,inclen
+	call	bell
+	xor	a
+	ret
+inclen:
+	inc	(hl)
+	ld	hl,kbdbuf
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	(hl),c
+	ld	a,c
+	or	a
+	jr	shobuf
+;
+; Get char from buffer & shobuf
+;
+getbuf:
+	call	test_buffer
+	ret	z
+	ld	hl,kbdbuf+1
+	ld	de,kbdbuf
+	ld	bc,buflen-1
+	ld	a,(de)
+	ldir
+	ld	hl,@inlen
+	dec	(hl)
+	or	a
+	jr	shobuf
+;
+; Repeat char ?
+;
+repeat:
+	nop				;Repeat Flag
+	ld	hl,<rptcnt: dw 0>
+	dec	hl
+	ld	(rptcnt),hl
+	ld	a,h
+	or	l
+	jr	z,chkrpt
+	xor	a
+	ret
+chkrpt:
+	ld	a,<rptmsk: 0>
+	ld	hl,<rptrow: defw 0>
+	and	(hl)			;still same key ?
+	jr	nz,rptkey
+	xor	a
+	ld	(rptchr),a		;Clear rptchr !!
+	ld	c,a
+	ret
+rptkey:
+	ld	hl,(@k2dly)
+	ld	a,<rptchr: 0>
+	ld	c,a
+	jr	set_in_buffer
+;
+; Show current Keyboardbuffer at Statusline
+;
+shobuf:
+	ret					;Showflag
+	push	af
+	ld	hl,kbdbuf
+	ld	de,4380h
+	ld	bc,80
+	ldir
+	pop	af
+	ret
+;
+;----------------------------------------------------------
+;
+; New key pressed ?
+;
+inch1:
+	ld	a,(3880h)			;ctrl or shift ?
+	and	03h
+	ld	c,a
+	jr	z,check_keyboard		;N: jp
+	ld	a,(3840h)
+	sub	02h				;clear ?
+	jr	nz,not_clear
+	bit	0,c				;shift ? Y: jp
+	jr	nz,not_clear			;only ctrl-clear
+	ld	(@inlen),a			;sets inlen to 0
+ctrl_end:
+	jp	no_key
+;
+not_clear:
+	ld	a,(38e0h)
+	and	0000_0100b			;'00'?
+	or	c
+	cp	0000_0110b
+	jp	z,print
+;
+;----------------------------------------------------------
+;
+; Test keyboard matrix
+;
+chkkbd:
+check_keyboard:
+	push	ix
+	ld	ix,mask_table
+	ld	bc,3801h
+	ld	hl,row_buffer
+	ld	d,0
+key_loop:
+	ld	a,(bc)
+	and	(ix)
+	ld	e,a
+	xor	(hl)
+	ld	(hl),e
+	and	e
+	jr	nz,new_key
+next_row:
+	inc	ix
+	inc	hl
+	inc	d
+	ld	a,d
+	cp	8
+	jr	nc,key_pad
+	sla	c
+	jr	key_loop
+key_pad:
+	sub	0bh
+	jr	z,no_new_key
+	ld	a,20h
+	add	a,c
+	ld	c,a
+	jr	key_loop
+new_key:
+	ld	e,a
+	push	bc
+	ld	bc,(@dbnc1)
+	call	delay
+	pop	bc
+	ld	a,(bc)
+	and	e
+no_new_key:
+	pop	ix
+	ret	z
+
+	ld	(rptrow),bc
+	ld	(rptmsk),a
+
+	ld	b,-1
+which_column:
+	inc	b
+	rrca
+	jr	nc,which_column
+
+	ld	a,d
+      3:rlca
+	add	a,b
+	ld	hl,search_table
+	ld	bc,9
+	cpir
+	jr	nz,no_xlate
+	ld	hl,convert_table
+	add	hl,bc
+	ld	a,(hl)
+no_xlate:
+	ld	hl,3880h
+	ld	c,(hl)				;c=(3880h)
+	ld	b,a				;a,b=key#
+	cp	48h
+	jp	nc,numeric_keys			;-> numeric keypad
+	cp	40h
+	jp	nc,function_keys		;-> function keys
+	cp	30h
+	jp	nc,ctrl_keys			;-> control keys
+
+	ld	hl,add_offset
+	push	hl
+
+	cp	20h
+	jr	nc,not_alfa			;-> numeric & misc
+;
+;----------------------------------------------------------
+;
+; keycode: 00h - 1fh
+;
+	xor	a				;offset = 0
+	bit	1,c				;ctrl ?
+	ret	nz				;Y: no offset
+	ld	a,b
+	or	a
+	jr	nz,not_at
+	ld	a,40h				;offset = 40h
+	bit	0,c				;shift ?
+	ret	z
+	ld	a,60h				;Y: offset = 60h
+	ret
+not_at:
+	ld	a,(38e0h)
+	bit	3,a				;lock ?
+	ld	a,40h
+	ret	nz				;Y: offset = 40h
+	bit	0,c				;shift ?
+	ret	nz				;Y: offset = 40h
+	ld	a,60h
+	ret
+;
+;----------------------------------------------------------
+;
+; keycode: 20h - 2fh
+;
+not_alfa:
+	cp	2ch
+	jr	nc,shift_flip
+	xor	a
+	bit	0,c
+	ret	nz
+	ld	a,10h
+	ret
+shift_flip:
+	xor	a
+	bit	0,c
+	ret	z
+	ld	a,10h
+	ret
+;
+;----------------------------------------------------------
+;
+no_key:
+	xor	a
+	ret
+add_offset:
+	add	a,b
+	jr	return_key
+;
+;----------------------------------------------------------
+;
+; numeric keypad
+;
+numeric_keys:
+	ld	a,c
+	or	a
+	jr	nz,no_key			;shift or ctrl -> no key
+	ld	c,b
+	ld	hl,3801h			;any key in LOCK Column ?
+	xor	a
+	ld	b,7
+lock_loop:
+	or	(hl)
+	sla	l
+	djnz	lock_loop
+	ld	hl,38e0h
+	and	(hl)				;lock AND key in lock column ?
+	bit	3,a
+	jr	nz,no_key			;Y: no key
+
+	ld	a,c
+	cp	52h
+	jr	nc,special_keypad		;misc on keypad
+	sub	48h
+	add	a,'0'
+	jr	return_key
+
+special_keypad:
+	jr	z,double_zero			;'00'
+	sub	54h
+	jr	c,no_key
+	add	a,2ch
+	jr	return_key
+
+double_zero:
+	ld	hl,zerotx
+	jr	fkey_found
+
+ctrl_keys:				;I: A = 30H - 37H
+	ld	hl,key_ctrl_table-60h
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
+	bit	0,c				;SHIFT ?
+	jr	z,unshifted
+	inc	hl				;Y: get next table value
+unshifted:
+	ld	a,(hl)
+	or	a
+return_key:
+	ld	bc,(@dbnc2)
+	jp	delay
+;
+; Fx pressed
+; A = 40h - 47h
+;
+function_keys:
+	sub	40h
+	bit	0,c				;shift ?
+	jr	z,f1_f8
+	add	a,8				;Y: F9 - F16
+f1_f8:
+	ld	b,a				;B = 0 .. 15
+	ld	a,(@fxact)
+	or	a				;fkey active ?
+	jr	z,fkeys_are_active
+	ld	a,b
+	add	a,80h				;N: A = 80h - 8fh
+	jr	return_key
+;
+fkeys_are_active:
+	ld	d,b
+	inc	d
+	xor	a
+	ld	hl,fkytab
+	ld	bc,256			;256 chars fkey buffer
+fkey_loop:
+	cpir
+	dec	d
+	jr	nz,fkey_loop
+
+fkey_found:
+	call	click
+fkyput:
+	ld	c,l
+	ld	b,h				;BC -> Fkey text
+	ld	de,(@inlen)
+	ld	d,0
+	ld	hl,kbdbuf
+	add	hl,de
+	ex	de,hl				;DE -> KBDBUF
+	ld	hl,@inlen			;HL -> @inlen
+fkey_put_loop:
+	ld	a,(hl)
+	cp	buflen
+	jp	nc,no_key
+	ld	a,(bc)				;get char
+	and	7fh				;mask, end of text ?
+	jp	z,no_key			;Y: exit
+	ld	(de),a				;N: set char in kbdbuf
+	inc	bc				;inc text pointer
+	inc	de				;inc buf pointer
+	inc	(hl)				;inc @inlen
+	jr	fkey_put_loop
+
+delay:
+	push	af
+delay_loop:
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,delay_loop
+	pop	af
+	ret
+;
+click:
+	nop		    			;Clickflag
+	push	af
+	push	bc
+	ld	bc,02028h
+click_loop1:
+	ld	a,(3860h)
+	push	bc
+click_loop2:
+	dec	c
+	jr	nz,click_loop2
+	pop	bc
+	djnz	click_loop1
+	pop	bc
+	pop	af
+	ret
+;
+break:
+	ld	a,(3840h)
+	cp	4
+	ret
+;
+;----------------------------------------------------------
+;
+search_table:	defb	00h,19h,1ah,1bh,1ch,1dh,1eh,2ah,2bh	
+convert_table:	defb	1ch,1eh,00h,2ah,1bh,2bh,19h,1ah,1dh
+zerotx:		defb	'00',0
+;
+key_ctrl_table:	defs	16,0
+row_buffer:	defs	11,0
+mask_table:	defb	1111_1111b		;G - @
+		defb	1111_1111b		;O - H
+		defb	1111_1111b		;W - P
+		defb	1111_1111b		;<del> - X
+		defb	1111_1111b		;7 - 0
+		defb	1111_1111b		;/ - 8
+		defb	1111_1111b		;<spc> - <newline>
+		defb	0000_0000b		;<ctrl>,<shift>
+		defb	1111_1111b		;F8 - F1
+		defb	1111_1111b		;7 - 0
+		defb	0111_0111b		;. - 8, no <lock>

@@ -1,0 +1,114 @@
+;********************************************************
+;*							*
+;*	SYSBOOTX.MAC  Boot Sector Module		*
+;*	GENIE III  CP/M 2.2XV3 Version 0.1  11/10/85	*
+;*	Copyright (c),(p) Klaus K{mpf 1984,1985		*
+;*							*
+;********************************************************
+;
+loader		equ	0d200h		;Loader address
+max_error	equ	5		;Max # of retries
+
+	.z80
+	.com
+	org	0100h			;Just for the assembler
+	.phase  4200h			;Boot address (by EPROM)
+
+entry:
+	di
+	ld	sp,stack
+	xor	a
+	ld	bc,10f7h			;Init CRTC
+	ld	hl,crtc_table
+crtc_loop:
+	out	(0f6h),a
+	inc	a
+	outi
+	jr	nz,crtc_loop
+
+	ld	a,1			;Invers
+	out	(0f5h),a
+	ld	a,75h			;swtchi
+	out	(0fah),a
+
+	ld	a,'B'			;'BOOTER'
+	ld	(3c00h),a
+
+	ld	hl,37ech
+	ld	de,loader		;Loader-Start
+	push	de			;set as return adr
+;
+	ld	a,01h			;Front, drive 0
+	ld	bc,0901h		;9 Sectors from 1 up
+	call	read
+	ld	a,11h			;Back, drive 0
+	ld	bc,0700h		;7 Sectors from 0 up
+					;fall through to read
+					;return to loader
+;----------------------------------------------------------
+read:
+	ld	(selcod),a
+read1:
+	call	resel
+	ld	a,c
+	ld	(37eeh),a	 		;Set sector
+	push	bc
+	ld	bc,37efh			;BC -> data
+	call	resel
+	ld	(hl),88h
+	ld	a,10
+wait:
+	dec	a
+	jr	nz,wait
+	bit	0,(hl)
+	jr	z,nobusy
+nodrq:
+	bit	1,(hl)
+	jr	nz,drq
+	bit	1,(hl)
+	jr	nz,drq
+	bit	0,(hl)
+	jr	z,nobusy
+	bit	1,(hl)
+	jr	z,nodrq
+drq:
+	ld	a,(bc)	 			;Get data
+	ld	(de),a
+	inc	de
+	jp	nodrq
+nobusy:
+	ld	a,(hl)
+	pop	bc
+	ld	(hl),0d0h
+	and	0001_1100b
+	jr	nz,error
+	inc	c
+	djnz	read1
+	ret
+;
+error:
+	rrca
+	rrca
+	add	a,'0'
+	ld	(3c01h),a
+	ld	a,'E'
+	ld	(3c00h),a
+	jr	$
+;
+resel:
+	LD	A,<selcod: 01h>
+	ld	(37e1h),a
+	ret
+;
+crtc_table:
+	defb 66h,50h,56h,34h,1ah,00h,19h,1ah
+	defb 00h,0bh,0bh,0bh,00h,00h,00h,00h
+stack:
+zzzz    equ  $
+	.printn zzzz
+
+	defs	4300h-$,0
+
+	.dephase
+
+	end

@@ -1,0 +1,93 @@
+;****************************************************************
+;*								*
+;*	IOBYTE.MAC  Shows decimal IOBYTE-Value			*
+;*	Genie III/IIIs CP/M 2.2 Version 1.0 vom 7.3.86		*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung 1986	*
+;*								*
+;****************************************************************
+;
+	.z80
+	.com
+	org	100h
+;
+?boot	equ	0
+@iobyte	equ	3
+?bdos	equ	5
+;
+bell	equ	7
+back	equ	8
+tab	equ	9
+lf	equ	10
+cr	equ	13
+ctrlz	equ	26
+esc	equ	27
+space	equ	' '
+;
+entry:
+	jp	start
+
+	defb	cr
+	defm	'IOBYTE.COM Genie III/IIIs Version 1.0 vom 7.3.86'
+	defb	cr,lf
+	defm	'Copyright (c) 1986 by Klaus K{mpf Softwareentwicklung'
+	defb	cr,lf,ctrlz
+;
+start:
+	ld	iy,flag
+	ld	hl,(@iobyte)
+	ld	h,0
+	ld	de,number
+	call	dez_out
+	ld	de,text
+	ld	c,9
+	jp	?bdos
+;
+flag:	defb	0
+;
+dez_out:
+	ld	bc,100
+	call	div
+	call	asctst
+	ld	bc,10
+	call	div
+	call	asctst
+	ld	bc,1
+	call	div
+	call	asct2
+	ret
+;
+div:				; teilt hl/bc und gibt Erg als Dez-Zahl
+	xor	a
+div1:
+	or	a
+	sbc	hl,bc
+	jr	c,div2
+	inc	a
+	jr	div1
+div2:
+	add	hl,bc
+	ret
+;
+asctst:
+	or	a
+	jr	nz,asct1
+	bit	0,(iy+0)
+	jr	nz,asct2
+	ld	a,'0'-space
+	jr	asct2
+asct1:
+	set	0,(iy+0)
+asct2:
+	add	a,'0'
+	ld	(de),a
+	inc	de
+	ret
+
+text:
+	defb	cr,lf
+	defm	'Der Wert des IOBYTE ist: '
+number:
+	defm	'   '
+	defb	cr,lf,'$'
+
+	end

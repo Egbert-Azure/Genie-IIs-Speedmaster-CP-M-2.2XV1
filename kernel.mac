@@ -1,0 +1,528 @@
+if1
+	.printl KERNEL.MAC  CP/M 2.2XV3, 1.7
+	.printl
+endif
+;********************************************************
+;*							*
+;*	KERNEL.MAC  CBIOS Kernel Module			*
+;*	Genie III  CP/M 2.2X3 Version 1.7  29.07.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1984,1985,1986	*
+;*	Modification History				*
+;*	1.0  24.02.86  Original Version			*
+;*	1.1  13.03.86  Deleted shobuf from Interrupt	*
+;*	1.2  23.03.86  Added @v24mcr			*
+;*	1.3  23.03.86  Added swtchi to print for KEY	*
+;*	1.4  23.03.86  Made new Stack handling		*
+;*	1.5  19.04.86  Removed @cursor			*
+;*		       Phase E600 -> E500		*
+;*		       Removed swtchv			*
+;*		       Changed getadr			*
+;*		       Moved idtext from tables to here	*
+;*	1.6  18.05.86  moved old_iobyte from getadr	*
+;*		       to appr. tables			*
+;*		       moved savstk from getadr to	*
+;*		       device handler			*
+;*	1.7  29.07.86  removed ?flush from ?wboot	*
+;*							*
+;********************************************************
+
+	.z80
+	.com
+	org 0100h
+
+stack	equ	0fff0h			;upper 16 bytes for wboot !!
+buflen	equ	128			;Length of keyboard buffer
+
+?io_byte	equ	3
+
+;	public		swtchi,swtcho
+;	public		bios,table
+;	public		savstk
+;	public		getadr
+;	public		bell,clock
+;	public		table,?@dpb,?@clktab
+;	public		@k1dly,@k2dly,@dbnc1,@dbnc2
+;	public		@inlen,@line25,@crtlf,@wrap
+;	public		@fxact,@retries,@lstlf,@insrt
+;	public		@plmod,@filin
+;	public		newsta
+;	public		print
+;	public		load25,save25,rest25
+;	public		stptab,v24_table
+;
+;	external	?const,?conin,?conout
+;	external	?list,?punch,?reader,?listst
+;	external	?seldsk,?read,?write,?close
+;	external	?home,?settrk,?setsec,?setdma
+;	external	?sectrn,?flush
+;	external	intkbd
+;	external	statxt,usrtxt
+;	external	usrnum,datum,zeit
+;	external	cenout
+;	external	pxtab
+;	external	dpb
+;	external	error_flag
+;	external	fkytab,dpb,kbdbuf
+;	external	click,repeat,error,shobuf
+;	external	monit
+;
+config_table:
+	defw	bios			;00H  0
+	defw	systab			;02H  2
+	defw	fkytab			;04H  4
+	defw	dpb			;06H  6
+	defw	kbdbuf			;08H  8
+	defw	click			;0AH 10
+	defw	repeat			;0CH 12
+	defw	error			;0EH 14
+	defw	shobuf			;10H 16
+	defw	monit			;12H 18
+	defw	clock			;14H 20
+	defw	bell			;16H 22
+	defw	cursor			;18H 24
+	defw	int_on_off		;1AH 26
+	defw	systab_length		;1CH 28
+	defw	datum			;1EH 30
+	defw	statxt+52		;20H 32
+	defw	kbstat			;22H 34
+	defw	inkbds			;24H 36
+	defw	key_ctrl_table		;26H 38
+	defw	search_table		;28H 40
+
+	defs	128-($-config_table),0
+
+	.phase 0e500h
+
+ccp	equ	$-22*256
+bdos	equ	$-14*256
+bios	equ	$
+	if2
+	.printl CCP
+	.printn ccp
+	.printl BDOS
+	.printn bdos
+	.printl BIOS
+	.printn bios
+	endif
+
+	jp	?wboot		;00h  0		No Cboot !
+	jp	?wboot		;03h  3
+	jp	?const		;06h  6
+	jp	?conin		;09h  9
+	jp	?conout		;0ch 12
+	jp	?list		;0fh 15
+	jp	?punch		;12h 18
+	jp	?reader		;15h 21
+	jp	?home		;18h 24
+	jp	?seldsk		;1bh 27
+	jp	?settrk		;1eh 30
+	jp	?setsec		;21h 33
+	jp	?setdma		;24h 36
+	jp	?read		;27h 39
+	jp	?write		;2ah 42
+	jp	?listst		;2dh 45
+	jp	?sectrn		;30h 48
+	jp	?close		;33h 51		Close File extension
+	jp	?setusr		;36h 54
+	jp	?setprt		;39h 57
+	jp	?reboot		;3ch 60
+	ret!nop!nop		;3fh 63		Print Error
+	jp	?dskrst		;42h 66
+	ret!nop!nop		;45h 69
+	ret!nop!nop		;48h 72
+	ret!nop!nop		;4bh 75
+table:
+
+?@clktab:	defw	clktab	;4eh 78		Clock table for PEEK/POKE
+?@dpb:		defw	dpb	;50h 80		DPB table for PDRIVE
+?@fkytab:	defw	fkytab	;52h 82		FKEY table for FKEY
+?@systab:	defw	systab	;54h 84		SYSTAB table for Utilities
+
+systab:					;Start marker
+
+@k1dly:		defw	0200h		;Time until 1st repeat
+@k2dly:		defw	0080h		;Time for following repeats
+@dbnc1:		defw	500		;Debounce 1
+@dbnc2:		defw	4000		;Debounce 2
+@inlen:		defb	0		;# of chars in Keyboard buffer
+@line25:	defb	0		;0=Status, 1=User, 2=Showbuf
+@crtlf:		defb	0		;Auto Linefeed on CRT ?
+@wrap:		defb	0		;Wrap-around ?
+@fxact:		defb	0		;FKeys active ?
+@retries:	defb	2		;# of retries on Disk I/O
+@lstlf:		defb	0		;Linefeed to List Device ?
+@insrt:		defb	0		;Insert mode ?
+@plmod:		defb	0		;Page or Line
+@filin:		defb	0		;fill space ?
+		defb	0		;free
+@v24hsk:	defb	0		;V24 Handshake
+@v24chr:	defb	0		;V24 last received
+@errdsk:	defb	0		;Disk to select after error
+@v24msk:	defb	0		;Received Char Mask
+@v24mcr:	defb	0		;Modem Control (DTR/RTS)
+		defs	8,0
+stptab:		defb	3,3,3,3		;Steprates
+trktab:		defb	80,80,40,77	;# of tracks
+
+systab_length	equ	$-systab
+
+idtext:		defb	'3,1.7',0
+;
+;----------------------------------------------------------
+;
+?setusr:
+	call	savstk
+	ld	(bdos+0341h),a
+	ld	l,02fh+80h
+setusr_loop:
+	inc	l
+	sub	10
+	jr	nc,setusr_loop
+	add	a,10+'0'+80h
+	ld	h,a
+	ld	(usrnum),hl
+	jp	newsta
+;
+?setprt:
+	ld	(@hah_ell),hl
+	call	savstk
+	push	de
+	push	bc
+	ld	hl,ctrlp
+	jr	nz,set_print
+	ld	hl,free
+set_print:
+	ld	de,statxt+45
+	ld	bc,5
+	ldir
+	call	newsta
+	call	swtcho
+	pop	bc
+	pop	de
+	ld	sp,(usrstk)
+	ld	hl,<@hah_ell: dw 0>
+	jp	bdos+01efh
+ctrlp:	defh	'PRINT'
+free:	defh	'     '
+;
+?dskrst:
+	ld	a,(4)				;reset on current disk
+	and	0fh
+	ld	(bdos+0342h),a
+	ret
+;----------------------------------------------------------
+; Switch I/O Bank in & out
+;
+swtchi:
+	di
+	push	af
+	ld	a,71h
+	jr	switch
+swtcho:
+	push	af
+	ld	a,7fh
+switch:
+	out	(0fah),a
+	pop	af
+	ret
+;
+; Get Address for I/O
+;
+getadr:
+	pop	hl				;no return from getadr
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	inc	hl				;hl -> old_iobyte
+	ld	a,(?io_byte)
+	cp	(hl)				;same iobyte ?
+	ex	de,hl				;hl = old vector
+	jr	z,getadr_exit			;Y: same vector
+	ex	de,hl
+	ld	(hl),a				;N: save new iobyte
+	push	hl
+	dec	hl
+	dec	hl
+	ld	(@?old_vector),hl		;save address for new vector
+	pop	hl
+	inc	hl
+	ld	b,(hl)
+	inc	hl
+getadr_loop:
+	dec	b
+	jr	z,getadr_getit
+      2:rrca
+	jr	getadr_loop
+getadr_getit:
+	and	03h
+	rlca
+	ld	e,a
+	ld	d,b
+	add	hl,de
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ld	(<@?old_vector: dw 0>),hl		;save new vector for next time
+getadr_exit:
+	jp	(hl)
+;
+; Show new status
+;
+newsta:
+	ld	a,(@line25)
+	or	a
+	ret	nz
+	call	swtchi
+	ld	hl,statxt
+;
+; Load line 25 from hl
+;
+load25:
+	ld	de,4380h
+	ld	bc,80
+	ldir
+	ret
+;
+; Save userstack
+;
+savstk:
+	di
+	ex	(sp),hl
+	ld	(retjmp),hl
+	pop	hl
+	ld	(usrstk),sp
+	ld	sp,stack
+	push	hl
+	ld	hl,getstk
+	ex	(sp),hl
+	call	swtchi
+	jp	<retjmp: dw 0>
+
+getstk:
+	call	swtcho
+	ld	sp,<usrstk: dw 0>
+int_on_off:
+	di			;or ei		;<*> !!!
+	ret					;<*> !!!
+;
+; Interrupt Vector
+;
+interrupt:
+	ld	(intret),sp
+	ld	sp,stack-4			;-4, so leave usr/int ret adr
+						;alone if int happens at <*>
+	push	af,bc,de,hl
+	call	swtchi
+	ld	a,(37ech)
+	ld	a,(37e1h)
+	call	clock
+	call	intkbd
+	call	swtcho
+	pop	hl,de,bc,af
+	ld	sp,<intret: dw 0>
+	ei
+	reti
+;
+; Ring bell
+;
+bell:
+	nop		    ;Bell Flag
+	push	bc
+	ld	bc,0a080h
+bell1:
+	ld	a,(3860h)
+	push	bc
+bell2:
+	dec	c
+	jr	nz,bell2
+	pop	bc
+	djnz	bell1
+	pop	bc
+	xor	a
+	ret
+
+clock:
+	nop				;Clock Flag
+	ld	a,<clkcnt: 40>
+	dec	a
+	jr	nz,clock_end
+
+wait_clock:
+	ld	hl,37e0h
+wait_clock1:
+	ld	a,(hl)
+	rlca
+	jr	c,wait_clock1
+wait_clock2:
+	ld	a,(hl)
+	rlca
+	jr	nc,wait_clock2
+	ld	a,40h
+	out	(0e1h),a
+
+	ld	hl,clktab
+	ld	de,0100fh
+	ld	bc,006e0h
+clock_loop:
+	bit	0,b
+	jr	nz,no_dot
+	ld	(hl),0ah
+	inc	hl
+no_dot:
+	ld	a,e
+	out	(c),a
+	add	a,d
+	ld	e,a
+	ini                                     ; read (c) port, write to (HL), dec B
+	jr	nz,clock_loop
+
+	dec	hl
+	res	2,(hl)
+	res	3,(hl)
+	ex	de,hl
+	inc	de				;DE -> clktab+9
+	ld	hl,zeit-1
+	ld	b,8
+clklo4:
+	inc	hl
+	dec	de
+	ld	a,(de)
+	and	0fh
+	or	30h + 80h
+	ld	c,(hl)				;C = old
+	ld	(hl),a				;A = new
+	djnz	clklo4
+	cp	c				;old = new ?
+	call	nz,newsta			;N: show new time
+	ld	a,40
+clock_end:
+	ld	(clkcnt),a
+	ret
+;
+;
+;
+print:
+	call	swtchi
+	ld	hl,3c00h
+	ld	de,0780h
+print1:
+	ld	b,80	      ;80 Char/Line
+print2:
+	ld	c,(hl)
+	res	7,c
+	call	cenout
+	inc	hl
+	dec	de
+	djnz	print2
+	ld	c,0dh
+	call	cenout
+	ld	c,0ah
+	call	cenout
+	ld	a,d
+	or	e
+	jr	nz,print1
+	ret
+;----------------------------------------------------------
+;
+; Reboot after Error
+;
+?reboot:
+	ld	a,(@errdsk)
+	ld	(4),a
+;
+; Warm start
+;
+?wboot:
+	ld	hl,int_on_off
+	ld	a,(hl)
+	ld	(@wboot_int),a
+	ld	(hl),<di>
+	ld	sp,0
+	xor	a
+	ld	(write_flag),a		;forget buffer
+	ld	(error_flag),a
+	call	swap_dpb		;set wboot dpb
+wboot_slct:
+	xor	a
+	ld	c,a			;drive A:
+	ld	e,a
+	call	?seldsk			;select drive A:
+	ld	a,1
+	ld	(new_track),a
+;
+	ld	sp,stack
+	call	swtchi
+	ld	bc,11*256+0		;read 10 physical sectors on front
+	ld	de,ccp			;to ccp
+wboot_loop:
+	push	bc
+	push	de
+	ld	a,c
+	cp	10
+	jr	c,not_backside
+	sub	128+10
+not_backside:
+	ld	(new_sector),a
+	call	read_disk
+	pop	de
+	ld	bc,512
+	ld	hl,secbuf
+	ldir
+	pop	bc
+	inc	c
+	djnz	wboot_loop
+	call	swtcho
+	call	swap_dpb			;reset dpb
+wboot1:
+	ld	hl,free				;clear ctrl-p
+	ld	de,statxt+45
+	ld	bc,5
+	ldir
+	call	newsta
+
+	ld	hl,bios+3
+	ld	a,<jp>
+	ld	(0),a
+	ld	(1),hl
+	ld	hl,bdos+6
+	ld	(5),a
+	ld	(6),hl
+	ld	hl,interrupt
+	ld	(38h),a
+	ld	(39h),hl
+	ld	a,<@wboot_int: 0>
+	ld	(int_on_off),a
+	ld	a,(4)
+	ld	c,a
+	jp	ccp
+;
+;----------------------------------------------------------
+;
+swap_dpb:
+	ld	de,(dph+0ah)			;de = dpb addr of 1st drive
+	ld	hl,<dph_save: dw wboot_dpb>	;hl = dpb addr of wboot drive
+	ld	(dph+0ah),hl
+	ld	(dph_save),de
+	ret
+wboot_dpb:
+	defw	80
+	defs	13,0
+	defb	2,3,5,10,80,0,0			;512 Bytes/Sector
+clktab:
+	defs	9,0
+
+	include KEY.MAC
+	include SCREEN.MAC
+	include SCREEN.INC
+	include MISCIO.MAC
+	include DISK.MAC
+	include TABLES.MAC
+
+	defs	128,0				;make room for stack
+
+	.printn $
+
+	.dephase
+	end

@@ -1,0 +1,1175 @@
+	.z80
+	.com
+	org	100h
+	.phase	0cf00h
+	.printl CCP for CP/M 2.2XV3
+;
+; CCP Source Listing
+;
+; Label naming convenience:
+; @ Absolute Data
+; ? Address of Data, Routines
+;
+bell	equ	07h
+back	equ	08h
+tab	equ	09h
+lf	equ	0ah
+cr	equ	0dh
+ctrlp	equ	10h
+eof	equ	1ah
+space	equ	20h
+prompt	equ	'>'
+del	equ	7fh
+
+?boot			equ	0
+@io_byte		equ	3
+@current_default_drive	equ	4
+?bdos			equ	5
+?default_fcb		equ	5ch
+?disk_buffer		equ	80h
+?tpa_start		equ	100h
+
+b_console_input		equ	1
+b_console_output	equ	2
+b_read_buffer		equ	10
+b_console_status	equ	11
+b_reset_system		equ	13
+b_select_disk		equ	14
+b_open_file		equ	15
+b_close_file		equ	16
+b_search_first		equ	17
+b_search_next		equ	18
+b_delete_file		equ	19
+b_read_sequ		equ	20
+b_write_sequ		equ	21
+b_make_file		equ	22
+b_rename_file		equ	23
+b_return_login		equ	24
+b_return_disk		equ	25
+b_set_dma		equ	26
+b_set_get_user		equ	32
+b_reset_drive		equ	37
+
+ccp:
+	JP	start_drive_c
+	JP	start_no_command
+
+buffer:
+	defb	127		;max # of chars in buffer
+	defb	0		;# of chars currently in buffer
+
+	defm	'                '
+	defm	'COPYRIGHT (C) 1979, DIGITAL RESEARCH  '
+	defs	74,0
+
+?buffer_adress:
+	defw	buffer+2
+?first_char:
+	defw	0
+;
+;--------------------------------------
+;
+conout:
+	LD	E,A
+	LD	C,b_console_output
+	JP	?bdos
+;
+conout_bc:
+	PUSH	BC
+	CALL	conout
+	POP	BC
+	RET
+;
+print_crlf:
+	LD	A,cr
+	CALL	conout_bc
+	LD	A,lf
+	JP	conout_bc
+;
+print_space:
+	LD	A,space
+	JP	conout_bc
+;
+print_text:
+	PUSH	BC
+	CALL	print_crlf
+	POP	HL
+print_loop:
+	LD	A,(HL)
+	OR	A
+	RET	Z
+	INC	HL
+	PUSH	HL
+	CALL	conout
+	POP	HL
+	JP	print_loop
+;
+reset_disk:
+	LD	C,b_reset_system
+	JP	?bdos
+;
+select_disk:
+	LD	E,A
+	LD	C,b_select_disk
+	JP	?bdos
+;
+bdos_call:
+	CALL	?bdos
+	LD	(return_code),A
+	INC	A
+	RET
+;
+open_file:
+	LD	C,b_open_file
+	JP	bdos_call
+;
+open_fcb:
+	XOR	A
+	LD	(internal_record_#),A
+	LD	DE,internal_fcb
+	JP	open_file
+;
+close_file:
+	LD	C,b_close_file
+	JP	bdos_call
+;
+search_first:
+	LD	C,b_search_first
+	JP	bdos_call
+;
+search_next:
+	LD	C,b_search_next
+	JP	bdos_call
+;
+search_fcb:
+	LD	DE,internal_fcb
+	JP	search_first
+;
+delete_file:
+	LD	C,b_delete_file
+	JP	?bdos
+;
+bdos_diskio:
+	CALL	?bdos
+	OR	A
+	RET
+;
+read_sequ:
+	LD	C,b_read_sequ
+	JP	bdos_diskio
+;
+read_fcb:
+	LD	DE,internal_fcb
+	JP	read_sequ
+;
+write_sequ:
+	LD	C,b_write_sequ
+	JP	bdos_diskio
+;
+make_file:
+	LD	C,b_make_file
+	JP	bdos_call
+;
+rename_file:
+	LD	C,b_rename_file
+	JP	?bdos
+;
+get_user:
+	LD	E,0FFH
+set_user:
+	LD	C,b_set_get_user
+	JP	?bdos
+;
+set_drv_usr:
+	CALL	get_user
+	ADD	A,A
+	ADD	A,A
+	ADD	A,A
+	ADD	A,A
+	LD	HL,current_disk
+	OR	(HL)
+	LD	(@current_default_drive),A
+	RET
+;
+set_drive:
+	LD	A,(current_disk)
+	LD	(@current_default_drive),A
+	RET
+;
+make_upper:
+	CP	'a'
+	RET	C
+	CP	'{'
+	RET	NC
+	AND	05FH
+	RET
+;
+get_command_line:
+	LD	A,(submit_flag)
+	OR	A
+	JP	Z,no_submit
+	LD	A,(current_disk)
+	OR	A
+	LD	A,0
+	nop
+	nop
+	nop				;CALL	NZ,select_disk
+	LD	DE,submit_fcb
+	CALL	open_file
+	JP	Z,no_submit
+	LD	A,(submit_rec_count)
+	DEC	A
+	LD	(current_submit_rec),A
+	LD	DE,submit_fcb
+	CALL	read_sequ
+	JP	NZ,no_submit
+	LD	DE,buffer+1
+	LD	HL,?disk_buffer
+	LD	B,080H
+	CALL	move_b_bytes
+	LD	HL,submit_rec_no
+	LD	(HL),0
+	INC	HL
+	DEC	(HL)
+	LD	DE,submit_fcb
+	CALL	close_file
+	JP	Z,no_submit
+	LD	A,(current_disk)
+	OR	A
+	CALL	NZ,select_disk
+	LD	HL,buffer+2
+	CALL	print_loop
+	CALL	check_console
+	JP	Z,set_command
+	CALL	delete_submit
+	JP	ccp_prompt
+;
+no_submit:
+	CALL	delete_submit
+	CALL	set_drv_usr
+	LD	C,b_read_buffer
+	LD	DE,buffer
+	CALL	?bdos
+	CALL	set_drive
+set_command:
+	LD	HL,buffer+1
+	LD	B,(HL)
+convert_loop:
+	INC	HL
+	LD	A,B
+	OR	A
+	JP	Z,reset_buffer
+	LD	A,(HL)
+	CALL	make_upper
+	LD	(HL),A
+	DEC	B
+	JP	convert_loop
+;
+reset_buffer:
+	LD	(HL),A
+	LD	HL,buffer+2
+	LD	(?buffer_adress),HL
+	RET
+;
+check_console:
+	LD	C,b_console_status
+	CALL	?bdos
+	OR	A
+	RET	Z
+	LD	C,b_console_input
+	CALL	?bdos
+	OR	A
+	RET
+;
+get_drive_code:
+	LD	C,b_return_disk
+	JP	?bdos
+;
+set_default_dma:
+	LD	DE,?disk_buffer
+set_dma:
+	LD	C,b_set_dma
+	JP	?bdos
+;
+delete_submit:
+	LD	HL,submit_flag
+	LD	A,(HL)
+	OR	A
+	RET	Z
+	LD	(HL),0
+	XOR	A
+	nop
+	nop
+	nop				;CALL	select_disk
+	LD	DE,submit_fcb
+	CALL	delete_file
+	LD	A,(current_disk)
+	JP	select_disk
+;
+compare_serial:
+	LD	DE,serial_number
+	LD	HL,bdos_serial_#
+	LD	B,6
+compare_loop:
+	LD	A,(DE)
+	CP	(HL)
+	JP	NZ,wrong_serial
+	INC	DE
+	INC	HL
+	DEC	B
+	JP	NZ,compare_loop
+	RET
+;
+command_error:
+	CALL	print_crlf
+	LD	HL,(?first_char)
+print_next_char:
+	LD	A,(HL)
+	CP	space
+	JP	Z,print_question_mark
+	OR	A
+	JP	Z,print_question_mark
+	PUSH	HL
+	CALL	conout
+	POP	HL
+	INC	HL
+	JP	print_next_char
+;
+print_question_mark:
+	LD	A,'?'
+	CALL	conout
+	CALL	print_crlf
+	CALL	delete_submit
+	JP	ccp_prompt
+;
+get_check_char:
+	LD	A,(DE)
+	OR	A
+	RET	Z
+	CP	space
+	JP	C,command_error
+	RET	Z
+	CP	'='
+	RET	Z
+	CP	'_'
+	RET	Z
+	CP	'.'
+	RET	Z
+	CP	':'
+	RET	Z
+	CP	';'
+	RET	Z
+	CP	'<'
+	RET	Z
+	CP	'>'
+	RET	Z
+	RET
+;
+get_next_char:
+	LD	A,(DE)
+	OR	A
+	RET	Z
+	CP	space
+	RET	NZ
+	INC	DE
+	JP	get_next_char
+;
+add_hl_a:
+	ADD	A,L
+	LD	L,A
+	RET	NC
+	INC	H
+	RET
+;
+setup_fcb:
+	LD	A,0
+setup_fcb_offset:
+	LD	HL,internal_fcb
+	CALL	add_hl_a
+	PUSH	HL
+	PUSH	HL
+	XOR	A
+	LD	(file_drive_no),A
+	LD	HL,(?buffer_adress)
+	EX	DE,HL
+	CALL	get_next_char
+	EX	DE,HL
+	LD	(?first_char),HL
+	EX	DE,HL
+	POP	HL
+	LD	A,(DE)
+	OR	A
+	JP	Z,no_new_drive
+	SBC	A,'@'
+	LD	B,A
+	INC	DE
+	LD	A,(DE)
+	CP	':'
+	JP	Z,set_new_drive
+	DEC	DE
+no_new_drive:
+	LD	A,(current_disk)
+	LD	(HL),A
+	JP	setup_filename
+;
+set_new_drive:
+	LD	A,B
+	LD	(file_drive_no),A
+	LD	(HL),B
+	INC	DE
+setup_filename:
+	LD	B,8
+setup_filename_loop:
+	CALL	get_check_char
+	JP	Z,fill_fcb_space
+	INC	HL
+	CP	'*'
+	JP	NZ,set_char_to_fcb
+	LD	(HL),'?'
+	JP	next_filename_char
+;
+set_char_to_fcb:
+	LD	(HL),A
+	INC	DE
+next_filename_char:
+	DEC	B
+	JP	NZ,setup_filename_loop
+search_end_of_filename:
+	CALL	get_check_char
+	JP	Z,setup_extension
+	INC	DE
+	JP	search_end_of_filename
+;
+fill_fcb_space:
+	INC	HL
+	LD	(HL),space
+	DEC	B
+	JP	NZ,fill_fcb_space
+setup_extension:
+	LD	B,3
+	CP	'.'
+	JP	NZ,fill_ext_space
+	INC	DE
+setup_extension_loop:
+	CALL	get_check_char
+	JP	Z,fill_ext_space
+	INC	HL
+	CP	'*'
+	JP	NZ,set_char_to_ext
+	LD	(HL),'?'
+	JP	next_extension_char
+;
+set_char_to_ext:
+	LD	(HL),A
+	INC	DE
+next_extension_char:
+	DEC	B
+	JP	NZ,setup_extension_loop
+search_end_of_extension:
+	CALL	get_check_char
+	JP	Z,clear_rec_no
+	INC	DE
+	JP	search_end_of_extension
+;
+fill_ext_space:
+	INC	HL
+	LD	(HL),space
+	DEC	B
+	JP	NZ,fill_ext_space
+clear_rec_no:
+	LD	B,3
+clear_rec_no_loop:
+	INC	HL
+	LD	(HL),0
+	DEC	B
+	JP	NZ,clear_rec_no_loop
+	EX	DE,HL
+	LD	(?buffer_adress),HL
+	POP	HL
+	LD	BC,11
+check_wildcard:
+	INC	HL
+	LD	A,(HL)
+	CP	'?'
+	JP	NZ,no_wildcard
+	INC	B
+no_wildcard:
+	DEC	C
+	JP	NZ,check_wildcard
+	LD	A,B
+	OR	A
+	RET
+;
+cmd_table:
+	defm	'DIR '
+	defm	'ERA '
+	defm	'TYPE'
+	defm	'SAVE'
+	defm	'REN '
+	defm	'USER'
+;
+serial_number:
+	defs	6,0
+;
+;
+search_ccp_cmd:
+	LD	HL,cmd_table
+	LD	C,0
+compare_next_cmd:
+	LD	A,C
+	CP	6
+	RET	NC
+	LD	DE,internal_filename
+	LD	B,4
+compare_next_char:
+	LD	A,(DE)
+	CP	(HL)
+	JP	NZ,inc_to_next_cmd
+	INC	DE
+	INC	HL
+	DEC	B
+	JP	NZ,compare_next_char
+	LD	A,(DE)
+	CP	space
+	JP	NZ,inc_cmd_counter
+	LD	A,C
+	RET
+;
+inc_to_next_cmd:
+	INC	HL
+	DEC	B
+	JP	NZ,inc_to_next_cmd
+inc_cmd_counter:
+	INC	C
+	JP	compare_next_cmd
+;
+start_no_command:
+	XOR	A
+	LD	(buffer+1),A
+start_drive_c:
+	LD	SP,stack_area
+	PUSH	BC
+	LD	A,C
+	RRA
+	RRA
+	RRA
+	RRA
+	AND	0FH
+	LD	E,A
+	CALL	set_user
+	CALL	reset_disk
+	LD	(submit_flag),A
+	POP	BC
+	LD	A,C
+	AND	0FH
+	LD	(current_disk),A
+	CALL	select_disk
+	LD	A,(buffer+1)
+	OR	A
+	JP	NZ,execute_cmd
+ccp_prompt:
+	LD	SP,stack_area
+	CALL	print_crlf
+	CALL	get_drive_code
+	ADD	A,'A'
+	CALL	conout
+	LD	A,'>'
+	CALL	conout
+	CALL	get_command_line
+execute_cmd:
+	LD	DE,?disk_buffer
+	CALL	set_dma
+	CALL	get_drive_code
+	LD	(current_disk),A
+	CALL	setup_fcb
+	CALL	NZ,command_error
+	LD	A,(file_drive_no)
+	OR	A
+	JP	NZ,execute_program
+	CALL	search_ccp_cmd
+	LD	HL,cmd_adresses
+	LD	E,A
+	LD	D,0
+	ADD	HL,DE
+	ADD	HL,DE
+	LD	A,(HL)
+	INC	HL
+	LD	H,(HL)
+	LD	L,A
+	JP	(HL)
+cmd_adresses:
+	defw	dir
+	defw	era
+	defw	type
+	defw	save
+	defw	ren
+	defw	user
+	defw	execute_program
+;
+wrong_serial:
+	defb	21h		;'LD HL,'
+	DI
+	HALT
+	LD	(ccp),HL
+	LD	HL,ccp
+	JP	(HL)
+;
+read_error:
+	LD	BC,txt_read_error
+	JP	print_text
+;
+txt_read_error:
+	defm	'READ ERROR'
+	defb	0
+;
+no_file:
+	LD	BC,txt_no_file
+	JP	print_text
+;
+txt_no_file:
+	defm	'NO FILE'
+	defb	0
+;
+get_number:
+	CALL	setup_fcb
+	LD	A,(file_drive_no)
+	OR	A
+	JP	NZ,command_error
+	LD	HL,internal_filename
+	LD	BC,11
+get_number_loop:
+	LD	A,(HL)
+	CP	space
+	JP	Z,get_number_exit
+	INC	HL
+	SUB	'0'
+	CP	0AH
+	JP	NC,command_error
+	LD	D,A
+	LD	A,B
+	AND	0E0H
+	JP	NZ,command_error
+	LD	A,B
+	RLCA
+	RLCA
+	RLCA
+	ADD	A,B
+	JP	C,command_error
+	ADD	A,B
+	JP	C,command_error
+	ADD	A,D
+	JP	C,command_error
+	LD	B,A
+	DEC	C
+	JP	NZ,get_number_loop
+	RET
+;
+get_number_exit:
+	LD	A,(HL)
+	CP	space
+	JP	NZ,command_error
+	INC	HL
+	DEC	C
+	JP	NZ,get_number_exit
+	LD	A,B
+	RET
+;
+move_3_bytes:
+	LD	B,3
+move_b_bytes:
+	LD	A,(HL)
+	LD	(DE),A
+	INC	HL
+	INC	DE
+	DEC	B
+	JP	NZ,move_b_bytes
+	RET
+;
+get_byte_from_buffer:
+	LD	HL,?disk_buffer
+	ADD	A,C
+	CALL	add_hl_a
+	LD	A,(HL)
+	RET
+;
+select_new_disk:
+	XOR	A
+	LD	(internal_fcb),A
+	LD	A,(file_drive_no)
+	OR	A
+	RET	Z
+	DEC	A
+	LD	HL,current_disk
+	CP	(HL)
+	RET	Z
+	JP	select_disk
+;
+select_old_disk:
+	LD	A,(file_drive_no)
+	OR	A
+	RET	Z
+	DEC	A
+	LD	HL,current_disk
+	CP	(HL)
+	RET	Z
+	LD	A,(current_disk)
+	JP	select_disk
+;
+dir:
+	CALL	setup_fcb
+	CALL	select_new_disk
+	LD	HL,internal_filename
+	LD	A,(HL)
+	CP	space
+	JP	NZ,dir_file
+	LD	B,11
+set_wildcard_loop:
+	LD	(HL),'?'
+	INC	HL
+	DEC	B
+	JP	NZ,set_wildcard_loop
+dir_file:
+	LD	E,0
+	PUSH	DE
+	CALL	search_fcb
+	CALL	Z,no_file
+dir_loop:
+	JP	Z,dir_exit
+	LD	A,(return_code)
+	RRCA
+	RRCA
+	RRCA
+	AND	060H
+	LD	C,A
+	LD	A,0AH
+	CALL	get_byte_from_buffer
+	RLA
+	JP	C,entry_not_used
+	POP	DE
+	LD	A,E
+	INC	E
+	PUSH	DE
+	AND	3
+	PUSH	AF
+	JP	NZ,dir_next_in_line
+	CALL	print_crlf
+	PUSH	BC
+	CALL	get_drive_code
+	POP	BC
+	ADD	A,'A'
+	CALL	conout_bc
+	LD	A,':'
+	CALL	conout_bc
+	JP	show_file
+;
+dir_next_in_line:
+	CALL	print_space
+	LD	A,':'
+	CALL	conout_bc
+show_file:
+	CALL	print_space
+	LD	B,01H
+dir_next_char:
+	LD	A,B
+	CALL	get_byte_from_buffer
+	AND	07FH
+	CP	space
+	JP	NZ,dir_print_char
+	POP	AF
+	PUSH	AF
+	CP	3
+	JP	NZ,dir_print_space
+	LD	A,09H
+	CALL	get_byte_from_buffer
+	AND	07FH
+	CP	space
+	JP	Z,get_next_dir_entry
+dir_print_space:
+	LD	A,space
+dir_print_char:
+	CALL	conout_bc
+	INC	B
+	LD	A,B
+	CP	0CH
+	JP	NC,get_next_dir_entry
+	CP	09H
+	JP	NZ,dir_next_char
+	CALL	print_space
+	JP	dir_next_char
+;
+get_next_dir_entry:
+	POP	AF
+entry_not_used:
+	CALL	check_console
+	JP	NZ,dir_exit
+	CALL	search_next
+	JP	dir_loop
+;
+dir_exit:
+	POP	DE
+	JP	reenter_ccp
+;
+era:
+	CALL	setup_fcb
+	CP	0BH
+	JP	NZ,era_single_file
+	LD	BC,txt_all_yn
+	CALL	print_text
+	CALL	get_command_line
+	LD	HL,buffer+1
+	DEC	(HL)
+	JP	NZ,ccp_prompt
+	INC	HL
+	LD	A,(HL)
+	CP	'Y'
+	JP	NZ,ccp_prompt
+	INC	HL
+	LD	(?buffer_adress),HL
+era_single_file:
+	CALL	select_new_disk
+	LD	DE,internal_fcb
+	CALL	delete_file
+	INC	A
+	CALL	Z,no_file
+	JP	reenter_ccp
+;
+txt_all_yn:
+	defm	'ALL (Y/N)?'
+	defb	0
+;
+type:
+	CALL	setup_fcb
+	JP	NZ,command_error
+	CALL	select_new_disk
+	CALL	open_fcb
+	JP	Z,type_error
+	CALL	print_crlf
+	LD	HL,type_char_counter
+	LD	(HL),0FFH
+type_loop:
+	LD	HL,type_char_counter
+	LD	A,(HL)
+	CP	080H
+	JP	C,type_char
+	PUSH	HL
+	CALL	read_fcb
+	POP	HL
+	JP	NZ,type_exit
+	XOR	A
+	LD	(HL),A
+type_char:
+	INC	(HL)
+	LD	HL,?disk_buffer
+	CALL	add_hl_a
+	LD	A,(HL)
+	CP	01AH
+	JP	Z,reenter_ccp
+	CALL	conout
+	CALL	check_console
+	JP	NZ,reenter_ccp
+	JP	type_loop
+;
+type_exit:
+	DEC	A
+	JP	Z,reenter_ccp
+	CALL	read_error
+type_error:
+	CALL	select_old_disk
+	JP	command_error
+;
+save:
+	CALL	get_number
+	PUSH	AF
+	CALL	setup_fcb
+	JP	NZ,command_error
+	CALL	select_new_disk
+	LD	DE,internal_fcb
+	PUSH	DE
+	CALL	delete_file
+	POP	DE
+	CALL	make_file
+	JP	Z,no_space
+	XOR	A
+	LD	(internal_record_#),A
+	POP	AF
+	LD	L,A
+	LD	H,0
+	ADD	HL,HL
+	LD	DE,0100H
+save_loop:
+	LD	A,H
+	OR	L
+	JP	Z,close_save_file
+	DEC	HL
+	PUSH	HL
+	LD	HL,?disk_buffer
+	ADD	HL,DE
+	PUSH	HL
+	CALL	set_dma
+	LD	DE,internal_fcb
+	CALL	write_sequ
+	POP	DE
+	POP	HL
+	JP	NZ,no_space
+	JP	save_loop
+;
+close_save_file:
+	LD	DE,internal_fcb
+	CALL	close_file
+	INC	A
+	JP	NZ,save_exit
+no_space:
+	LD	BC,txt_no_space
+	CALL	print_text
+save_exit:
+	CALL	set_default_dma
+	JP	reenter_ccp
+;
+txt_no_space:
+	defm	'NO SPACE'
+	defb	0
+;
+ren:
+	CALL	setup_fcb
+	JP	NZ,command_error
+	LD	A,(file_drive_no)
+	PUSH	AF
+	CALL	select_new_disk
+	CALL	search_fcb
+	JP	NZ,file_exists
+	LD	HL,internal_fcb
+	LD	DE,rename_fcb
+	LD	B,010H
+	CALL	move_b_bytes
+	LD	HL,(?buffer_adress)
+	EX	DE,HL
+	CALL	get_next_char
+	CP	'='
+	JP	Z,ren_delimiter_ok
+	CP	'_'			;left arrow
+	JP	NZ,ren_file_not_found
+ren_delimiter_ok:
+	EX	DE,HL
+	INC	HL
+	LD	(?buffer_adress),HL
+	CALL	setup_fcb
+	JP	NZ,ren_file_not_found
+	POP	AF
+	LD	B,A
+	LD	HL,file_drive_no
+	LD	A,(HL)
+	OR	A
+	JP	Z,ren_disk_ok
+	CP	B
+	LD	(HL),B
+	JP	NZ,ren_file_not_found
+ren_disk_ok:
+	LD	(HL),B
+	XOR	A
+	LD	(internal_fcb),A
+	CALL	search_fcb
+	JP	Z,ren_no_file
+	LD	DE,internal_fcb
+	CALL	rename_file
+	JP	reenter_ccp
+;
+ren_no_file:
+	CALL	no_file
+	JP	reenter_ccp
+;
+ren_file_not_found:
+	CALL	select_old_disk
+	JP	command_error
+;
+file_exists:
+	LD	BC,txt_file_exists
+	CALL	print_text
+	JP	reenter_ccp
+;
+txt_file_exists:
+	defm	'FILE EXISTS'
+	defb	0
+;
+user:
+	CALL	get_number
+	CP	010H
+	JP	NC,command_error
+	LD	E,A
+	LD	A,(internal_filename)
+	CP	space
+	JP	Z,command_error
+	CALL	set_user
+	JP	reenter_new_disk
+;
+execute_program:
+	CALL	compare_serial
+	LD	A,(internal_filename)
+	CP	space
+	JP	NZ,load_and_execute
+	LD	A,(file_drive_no)
+	OR	A
+	JP	Z,reenter_new_disk
+	DEC	A
+	LD	(current_disk),A
+	CALL	set_drive
+	CALL	select_disk
+	JP	reenter_new_disk
+;
+load_and_execute:
+	LD	DE,internal_extension
+	LD	A,(DE)
+	CP	space
+	JP	NZ,command_error
+	PUSH	DE
+	CALL	select_new_disk
+	POP	DE
+	LD	HL,default_ext
+	CALL	move_3_bytes
+	CALL	open_fcb
+	JP	Z,transient_not_found
+	LD	HL,0100H
+load_next_record:
+	PUSH	HL
+	EX	DE,HL
+	CALL	set_dma
+	LD	DE,internal_fcb
+	CALL	read_sequ
+	JP	NZ,setup_parameters
+	POP	HL
+	LD	DE,?disk_buffer
+	ADD	HL,DE
+	LD	DE,ccp
+	LD	A,L
+	SUB	E
+	LD	A,H
+	SBC	A,D
+	JP	NC,bad_load
+	JP	load_next_record
+;
+setup_parameters:
+	POP	HL
+	DEC	A
+	JP	NZ,bad_load
+	CALL	select_old_disk
+	CALL	setup_fcb
+	LD	HL,file_drive_no
+	PUSH	HL
+	LD	A,(HL)
+	LD	(internal_fcb),A
+	LD	A,010H
+	CALL	setup_fcb_offset
+	POP	HL
+	LD	A,(HL)
+	LD	(rename_fcb),A
+	XOR	A
+	LD	(internal_record_#),A
+	LD	DE,?default_fcb
+	LD	HL,internal_fcb
+	LD	B,021H
+	CALL	move_b_bytes
+	LD	HL,buffer+2
+search_parameters:
+	LD	A,(HL)
+	OR	A
+	JP	Z,setup_cmd_buffer
+	CP	space
+	JP	Z,setup_cmd_buffer
+	INC	HL
+	JP	search_parameters
+;
+setup_cmd_buffer:
+	LD	B,0
+	LD	DE,?disk_buffer+1
+setup_cmd_buffer_loop:
+	LD	A,(HL)
+	LD	(DE),A
+	OR	A
+	JP	Z,run_transient
+	INC	B
+	INC	HL
+	INC	DE
+	JP	setup_cmd_buffer_loop
+;
+run_transient:
+	LD	A,B
+	LD	(?disk_buffer),A
+	CALL	print_crlf
+	CALL	set_default_dma
+	CALL	set_drv_usr
+	CALL	?tpa_start
+	LD	SP,stack_area
+	CALL	set_drive
+	CALL	select_disk
+	JP	ccp_prompt
+;
+transient_not_found:
+	CALL	select_old_disk
+	JP	command_error
+;
+bad_load:
+	LD	BC,txt_bad_load
+	CALL	print_text
+	JP	reenter_ccp
+;
+txt_bad_load:
+	defm	'BAD LOAD'
+	defb	0
+
+default_ext:
+	defm	'COM'
+
+reenter_ccp:
+	CALL	select_old_disk
+reenter_new_disk:
+	CALL	setup_fcb
+	LD	A,(internal_filename)
+	SUB	space
+	LD	HL,file_drive_no
+	OR	(HL)
+	JP	NZ,command_error
+	JP	ccp_prompt
+;
+;
+	defs	16,0			;8 level stack
+stack_area:
+submit_flag:
+	defb	0
+submit_fcb:
+	defb	0
+	defm	'$$$     '
+	defm	'SUB'
+	defb	0
+	defb	0
+submit_rec_no:
+	defb	0
+submit_rec_count:
+	defb	0
+	defs	16,0
+current_submit_rec:
+	defb	0
+;
+internal_fcb:
+	defb	0
+internal_filename:
+	defs	8,0
+internal_extension:
+	defs	3,0
+	defs	4,0
+rename_fcb:
+	defs	16,0
+;
+internal_record_#:
+	defb	0
+return_code:
+	defb	0
+current_disk:
+	defb	0
+file_drive_no:
+	defb	0
+type_char_counter:
+	defb	0
+	defs	14,0
+
+	include BDOS.INC
+
+	end
