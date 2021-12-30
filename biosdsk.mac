@@ -1,4 +1,4 @@
-page
+        page
 ; ** Extended CLOSE FILE request
 
 close:  push bc
@@ -138,9 +138,7 @@ initio: ex   (sp),hl
         push hl
         xor  a
         ld   (errflg+1),a
-        call samsec
-        jp   nz,readsk
-        ret
+        jp   samsec
 
 ; Common return
 
@@ -153,30 +151,9 @@ errflg: ld   a,0
 
 ; Check if same physical sector (Y -> Z)
 ; and set newsec
-
-samsec: call secno             ;calc & set newsec
-        ld   a,(cursec)
-        cp   c                 ;new sec ?
-        ret  nz
-        ld   a,(curtrk)
-        ld   b,a
-        ld   a,(newtrk)
-        cp   b                 ;new trk ?
-        ret  nz
-        ld   a,(cursid)
-        ld   b,a
-        ld   a,(newsid)
-        cp   b                 ;new side ?
-        ret  nz
-        ld   a,(curdrv)
-        ld   b,a
-        ld   a,(newdrv)
-        cp   b                 ;new drive ?
-        ret
-
 ; Translate logical -> physical & select side
 
-secno:  ld   hl,newbin
+samsec: ld   hl,newbin
         ld   bc,(newblk)
         res  4,(hl)
         xor  a
@@ -184,21 +161,27 @@ secno:  ld   hl,newbin
         jr   z,setsid
         set  4,(hl)
         inc  a
-setsid: ld   (newsid),a
-        ld   a,7fh
-        and  c
-        ld   c,a
-        ld   a,(newpdb)
+setsid: dec  hl                ;(hl)=newpdb
+        ld   (newsid),a
+        res  7,c
+        ld   a,(hl)            ;a=newpdb
         rrca
         rrca
         and  3
-        inc  a
-seclop: dec  a
-        jr   z,secno1
+seclop: jr   z,secno1
         srl  c
+        dec  a
         jr   seclop
-secno1: ld   a,c
-        ld   (newsec),a
+secno1: ld   hl,newsec
+        ld   de,cursec
+        ld   (hl),c            ;Save new sector
+        ld   b,4
+cploop: ld   a,(de)
+        cp   (hl)
+        jp   nz,readsk
+        dec  hl
+        dec  de
+        djnz cploop
         ret
 
 ; read record from memory
@@ -250,7 +233,9 @@ getbl1: scf
         and  c
         ld   l,a
         ld   h,0
-      7:add  hl,hl
+        ld   b,7
+adloop: add  hl,hl
+        djnz adloop
         ld   bc,secbuf
         add  hl,bc
         ld   de,(destin)
@@ -276,7 +261,7 @@ wrtdsk: ld   a,0a8h
         jp   z,clrwrt
         ret
 
-; set density & size
+; Set density & size
 
 select: ld   a,(curpdb)
         ld   b,a
@@ -285,16 +270,13 @@ select: ld   a,(curpdb)
         or   0feh
         ld   (hl),a            ;Select density
         ld   (hl),0d0h
-        inc  hl
-        inc  hl
         ld   a,b
         and  40h
         or   80h
-        ld   (hl),a            ;Select size
-        ld   a,0d0h
-        ld   (37ech),a
+        ld   (37eeh),a         ;Select size
+        ld   (hl),0d0h
 
-; reselect drive
+; Reselect drive
 
 resel:  ld   a,(curbin)
         ld   (37e1h),a
@@ -490,7 +472,8 @@ error3: add  hl,bc
         ld   bc,51
         ldir
 
-error4: ld   a,(3840h)
+error4: call inch1             ;inch1 for Flags
+        ld   a,(3840h)
         and  06h               ;brk or clr ?
         jr   z,error4
         call load25
@@ -556,7 +539,7 @@ boot:   ld   hl,pdtab
         ld   de,pdrive
         ld   bc,16
         ldir
-        ld   sp,cpmstk
+        ld   sp,0
         ld   a,0c3h
         ld   hl,intkbd
         ld   (38h),a
@@ -583,12 +566,12 @@ boot1:  ld   a,(hl)
 
 ; Warm start
 
-wboot:  ld   sp,cpmstk
+wboot:  ld   sp,0
         call flush             ;Flush buffer
         ld   a,(pdtab+15)      ;A = pd-byte for drive a:
         ld   (curpdb),a        ;for next read operation
         ld   a,1
-        ld   (curbin),a
+        ld   (curtrk),a
         call swtchi
         ld   a,0ffh            ;dden
         ld   (37ech),a
@@ -597,14 +580,17 @@ wboot:  ld   sp,cpmstk
         ld   a,0d0h
         ld   (37ech),a
         ld   de,3400h+offset
-        ld   bc,18*256+1
+        ld   bc,0501h          ;5 Sectors on Drv1,F
         call wbread
-        ld   bc,4*256+2
+        ld   bc,0111h          ;1 Sector on Drv1,B
         call wbread
         jr   wboot1
 
-wbread: ld   a,c               ;read b secs on trk c
-        ld   (curtrk),a
+; Read b sectors on track 1
+; c = Selectflag
+
+wbread: ld   a,c
+        ld   (curbin),a
         xor  a
 wbrd1:  ld   (cursec),a
         push bc
@@ -615,7 +601,7 @@ wbrd2:  ld   a,88h
         jr   nz,wbrd2
         pop  de
         ld   hl,secbuf
-        ld   bc,100h
+        ld   bc,400h
         ldir
         pop  bc
         ld   a,(cursec)
@@ -685,27 +671,27 @@ dph:    defw cvtab1
         defw csv4
         defw alv4
 
-pdtab:  defw 36                ;S80 DD
-        defb 4
-        defb 15
-        defb 1
-        defw 170
-        defw 63
-        defw 0080h
-        defw 16
-        defw 4
-        defb 05h
-
-        defw 72                ;GENIE III DSDD
+pdtab:  defw 80                ;S80 DSDD
         defb 5
         defb 31
         defb 3
-        defw 172
-        defw 127
-        defw 0080h
-        defw 32
-        defw 3
-        defb 05h
+        defw 195
+        defw 255
+        defw 00c0h
+        defw 64
+        defw 2
+        defb 0dh
+
+        defw 80                ;D80 DSDD
+        defb 5
+        defb 31
+        defb 3
+        defw 199
+        defw 255
+        defw 00c0h
+        defw 64
+        defw 0
+        defb 0dh
 
         defw 36                ;S40 DD
         defb 4
@@ -734,22 +720,22 @@ cvtab1: defb 00,01,02,03,04,05,06,07
         defb 16,17,18,19,20,21,22,23
         defb 24,25,26,27,28,29,30,31
         defb 32,33,34,35,36,37,38,39
-        defb 40,41,42,43,44,45,46,47
-        defb 48,49,50,51,52,53,54,55
-        defb 56,57,58,59,60,61,62,63
-        defb 64,65,66,67,68,69,70,71
-        defb 72,73,74,75,76,77,78,79
+        defb 128,129,130,131,132,133,134,135
+        defb 136,137,138,139,140,141,142,143
+        defb 144,145,146,147,148,149,150,151
+        defb 152,153,154,155,156,157,158,159
+        defb 160,161,162,163,164,165,166,167
 
 cvtab2: defb 00,01,02,03,04,05,06,07
         defb 08,09,10,11,12,13,14,15
         defb 16,17,18,19,20,21,22,23
         defb 24,25,26,27,28,29,30,31
-        defb 32,33,34,35,164,165,166,167
-        defb 168,169,170,171,172,173,174,175
-        defb 176,177,178,179,180,181,182,183
-        defb 184,185,186,187,188,189,190,191
-        defb 192,193,194,195,196,197,198,199
-        defb 200,201,202,203,204,205,206,207
+        defb 32,33,34,35,36,37,38,39
+        defb 128,129,130,131,132,133,134,135
+        defb 136,137,138,139,140,141,142,143
+        defb 144,145,146,147,148,149,150,151
+        defb 152,153,154,155,156,157,158,159
+        defb 160,161,162,163,164,165,166,167
 
 cvtab3: defb 00,01,02,03,04,05,06,07
         defb 08,09,10,11,12,13,14,15
@@ -775,7 +761,7 @@ cvtab4: defb 00,01,02,03,04,05,06,07
 
 ; Pdrive info table for pd.com
 
-rdtab:  defb 0ah,0bh,00h,00h
+rdtab:  defb 5,8,0,0
         page
 fkytab: defb 0
         defm 'DIR'                     ; F1
@@ -786,14 +772,14 @@ fkytab: defb 0
         defb 0
         defm 'DDT'                     ; F4
         defb 0dh,0
-        defm 'PD B:S80 DD'             ; F5
+        defm 'PD B:D80 DSDD'           ; F5
         defb 0dh,0
-        defm 'PD B:GENIE III DSDD'     ; F6
+        defm 'PD B:S80 DSDD'           ; F6
         defb 0dh,0
-        defm 'PD B:CPM3 1024'          ; F7
+        defm 'PD B:GENIE III DSDD'     ; F7
         defb 0dh,0
-        defm 'PD B:80 DSDD'            ; F8
-        defb 0dh,0
+        defm 'PD B:ECMA 70 '           ; F8
+        defb 0
         defm 'BASIC'                   ; F9
         defb 0dh,0
         defm 'AUTO '                   ; F10
@@ -822,7 +808,7 @@ info:   defb 195,208,175,205,160,178,174,178,160,211
         defb 214,229,242,243,233,239,238,160,179,174
         defb 176,160,160,160,160,160,160,160,160,160
         defb 160,160,160,168,227,169,172,168,240,169
-        defb 160,182,174,184,180,160,226,249,160,203
+        defb 160,183,174,184,180,160,226,249,160,203
         defb 236,225,245,243,160,203,251,237,240,230
         defb 160,160,160,160,160,160,160,160,160,160
 
@@ -832,7 +818,7 @@ vertxt: defb 194,201,207,211,160,214,229,242,243,233
         defb 183,177,182,179,173,203,203,173,184,180
         defb 160,160,196,225,244,229,160,239,230,160
         defb 225,243,243,229,237,226,236,249,186,160
-        defb 178,185,174,176,182,174,184,180,160,160
+        defb 177,179,174,176,183,174,184,180,160,160
         defb 160,160,160,160,160,160,160,160,160,160
 
 flgtx0: defm 'Keyclick'

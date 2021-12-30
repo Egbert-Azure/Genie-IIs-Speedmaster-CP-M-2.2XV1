@@ -229,10 +229,7 @@ kyprsd: ld   a,(rptcn2)
         ld   c,(hl)
         jr   inkbd2
         page
-inch1:  push hl
-        push de
-        push bc
-        ld   a,(3840h)
+inch1:  ld   a,(3840h)
         ld   b,a
         cp   0e0h              ;spc,<-,->
         jr   z,showit
@@ -394,7 +391,7 @@ newkey: ld   e,a
         pop  bc
         ld   a,(bc)
         and  e
-        jp   z,inchex
+        ret  z
 
         ld   b,-1
 inch13: inc  b
@@ -463,7 +460,7 @@ inch99: ld   a,10h
 inch18: cp   38h
         jr   c,inch19
 nokey:  xor  a
-        jr   inchex
+        ret
 
 numkey: ld   a,c
         or   a
@@ -495,11 +492,7 @@ inch19: ld   hl,ctltab
         inc  hl
 inch20: ld   a,(hl)
 inched: ld   bc,2000h
-        call delay
-inchex: pop  bc
-        pop  de
-        pop  hl
-        ret
+        jp   delay
 
 fkeys:  ld   hl,fkytab
         sub  40h
@@ -570,19 +563,18 @@ zerotx: defb '0','0',0
 ; Paramter Table 2
 
 clkcnt: defb 40                ;40 ints per sec
-clktab: defs 9
-curchr: defb 0
-rptchr: defb 0
-rptcnt: defb 0
-rptcn1: defb 020
-rptcn2: defb 003
-inlen:  defb 0
+clktab: defs 9                 ;9 Bytes for TIME$
+rptchr: defb 0                 ;Repeat char
+rptcnt: defb 0                 ;Repeat count
+rptcn1: defb 020               ;Time until 1st rpt
+rptcn2: defb 003               ;Repeat interval
+inlen:  defb 0                 ;Buffer lenght
         page
 ; Parameter Table 3
 
-newrow: defb 0
-invers: defb 0
-cursor: defw 3c00h
+newrow: defb 0                 ;New row for ESC =
+invers: defb 0                 ;Invers flag
+cursor: defw 3c00h             ;Current cursor adress
 scrtop: defw 3c00h             ;first unprot. pos.
 scrlst: defw 4330h             ;start of last line
 scrbot: defw 437fh             ;last unprot. pos.
@@ -623,8 +615,10 @@ esctab: defb '.'               ;Cursor Definition
         defb '<'               ;Scroll protect top
         defb '>'               ;Scroll protect bottom
         defb 'Z'               ;Line 25
+        defb '*'               ;Clear screen
 
-jmptab: defw line25
+jmptab: defw clscrn
+        defw line25
         defw scprbo
         defw scprto
         defw invoff
@@ -1126,6 +1120,10 @@ lintxt: cp   03h
         cp   80
         jr   nc,linset
         jr   setoff
+
+clscrn: pop  hl                ;pop cursor
+        call cls
+        jp   escend
 
 scroll: ld   hl,(scrlst)
         push hl
