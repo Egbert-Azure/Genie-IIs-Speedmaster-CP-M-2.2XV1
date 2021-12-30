@@ -4,7 +4,7 @@
 
         aseg
 
-offset  equ  09e00h
+offset  equ  09e00h            ; 61 k
         org  4a00h+offset
 
         page 66
@@ -14,10 +14,10 @@ bios:   jp   boot
         jp   conin
         jp   conout
         jp   list
-        ret                    ; PUNCH
+        ret
         nop
         nop
-        xor  a                 ; READER
+        xor  a
         ret
         nop
         jp   home
@@ -29,14 +29,7 @@ bios:   jp   boot
         jp   write
         jp   listst
         jp   sectrn
-        ret
-        nop
-        nop
-        ret
-        nop
-        nop
 
-; Save Userstack
 
 savstk: di
         ex   (sp),hl
@@ -60,7 +53,6 @@ swtcho: ld   a,7fh
         jr   switch
 
         page
-; Console Status
 
 const:  ld   a,(inlen)
         or   a
@@ -68,7 +60,6 @@ const:  ld   a,(inlen)
         ld   a,0ffh
         ret
 
-; Console Input
 
 conin:  ld   a,(inlen)
         or   a
@@ -78,7 +69,7 @@ conin:  ld   a,(inlen)
         push bc
         ld   hl,kbdbuf+1
         ld   de,kbdbuf
-        ld   bc,63
+        ld   bc,64
         ld   a,(de)
         ldir
         ld   hl,inlen
@@ -99,8 +90,9 @@ intkbd: ld   (intret),sp
         call swtchi
         ld   a,(37ech)
         ld   a,(37e1h)
-        call swtcho
+        call clock
         call inkbd1
+        call swtcho
         pop  bc
         pop  de
         pop  hl
@@ -120,7 +112,7 @@ inkbd1: call inch1
 inkbd2: ld   hl,inlen
         ld   a,(hl)
         cp   63
-        jp   nc,bell
+        jp   nc,pieps
         inc  (hl)
         ld   hl,kbdbuf
         ld   e,a
@@ -132,7 +124,6 @@ inkbd2: ld   hl,inlen
 inkbd3: ld   hl,rptcnt
         dec  (hl)
         ret  nz
-        call swtchi
         ld   a,(381fh)
         or   a
         jr   nz,kyprsd
@@ -141,16 +132,64 @@ inkbd3: ld   hl,rptcnt
         jr   nz,kyprsd
         ld   a,(3840h)
         or   a
-kyprsd: call swtcho
-        ret  z
+        ld   a,(38c0h)
+        or   a
+        jr   nz,kyprsd
+        ld   a,(38e0h)
+        or   a
+kyprsd: ret  z
         ld   a,(rptcn2)
         ld   (hl),a
         dec  hl
         ld   c,(hl)
         jr   inkbd2
 
+
+clock:  ld   a,(clkcnt)
+        dec  a
+        jp   nz,clkend
+        ld   hl,37e0h
+clklo1: ld   a,(hl)
+        rlca
+        jr   c,clklo1
+clklo2: ld   a,(hl)
+        rlca
+        jr   nc,clklo2
+        ld   a,40h
+        out  (0e1h),a
+        ld   hl,clktab
+        ld   de,0100fh
+        ld   bc,006e0h
+clklo3: bit  0,b
+        jr   nz,nodot
+        ld   (hl),0ah
+        inc  hl
+nodot:  ld   a,e
+        out  (c),a
+        add  d
+        ld   e,a
+        ini
+        jr   nz,clklo3
+
+        ld   de,437fh
+        ld   b,8
+clklo4: dec  hl
+        ld   a,(hl)
+        and  0fh
+        or   30h + 80h
+        ld   (de),a
+        inc  de
+        djnz clklo4
+        ld   a,40
+
+clkend: ld   (clkcnt),a
+        ret
+
+
 ; Paramter Table 1
 
+clkcnt: defb 40
+clktab: defs 9
 curchr: defb 0
 rptchr: defb 0
 rptcnt: defb 0
@@ -177,8 +216,10 @@ esctab: defb '.'
         defb 'T'
         defb 'W'
         defb 'Y'
+        defb 'Z'
 
-jmptab: defw eraeof
+jmptab: defw line25
+        defw eraeof
         defw delchr
         defw eraeol
         defw dellin
@@ -207,6 +248,7 @@ bell2:  dec  c
         pop  bc
         djnz bell1
         pop  bc
+        xor  a
         ret
 
         page
@@ -219,7 +261,6 @@ toobig: ld   a,h
         cp   80h
         ret
 
-; Put Cusor adress to CRTC
 
 putcur: ld   de,3c00h
         ld   (cursor),hl
@@ -249,7 +290,6 @@ line1:  sbc  hl,de
         jr   nz,line1
         ret
 
-; Console Output
 
 conout: ld   a,(3)
         and  3
@@ -269,7 +309,6 @@ conout: ld   a,(3)
         ld   a,c
         jp   <escjmp: dw chrout>
 
-; print character
 
 chrout: pop  de                ;de = cursor
         cp   27
@@ -281,7 +320,6 @@ grendx: push de                ; (sp) = cursor
         cp   20h
         jr   c,ctrl
 
-; normal char output
 
         pop  hl
         ld   a,(invers)
@@ -316,9 +354,10 @@ ctrl:   add  a,a
         ld   l,a
         ex   (sp),hl
         ret
-                               ; hl = cursor
-                               ;(sp)= grend0 if NOT esc
-                               ;(sp)= grend2 if esc
+
+; hl = cursor
+;(sp)= grend0 if NOT esc
+;(sp)= grend2 if esc
 
         page
 ; Control Character Table
@@ -451,8 +490,29 @@ curdef: ld   hl,curdf1
 invert: ld   hl,invrt1
         jr   escng1
 
-inslin: jr escen1
-dellin: jr escen1
+line25: ld   hl,linoff
+        jr   escng1
+
+linoff: cp   80
+        jp   nc,escen1
+setoff: ld   (offset),a
+linset: ld   hl,lintxt
+        jr   escng1
+
+lintxt: or   a
+        jp   z,escen1
+        or   80h
+        ld   c,a
+        ld   hl,4330h
+        ld   a,(offset)
+        ld   e,a
+        ld   d,0
+        add  hl,de
+        ld   (hl),c
+        inc  a
+        cp   80
+        jr   nc,linset
+        jr   setoff
 
 ; new row
 
@@ -478,6 +538,44 @@ curpos: pop  hl
         ld   e,a
         jp   escend
 
+inslin: push hl
+        ex   de,hl
+        ld   hl,432fh
+        or   a
+        sbc  hl,de
+        jp   c,eraeol
+        dec  hl
+        ld   c,l
+        ld   b,h
+        ld   hl,432fh
+        ld   de,437fh
+        lddr
+noins:  pop  de
+noins1: ld   bc,79
+        jp   filsp1
+
+dellin: push hl
+        ld   de,80
+        add  hl,de
+        ex   de,hl
+        ld   hl,437fh
+        or   a
+        sbc  hl,de
+        dec  hl
+        ld   c,l
+        ld   b,h
+        ex   de,hl
+        pop  de
+        ld   a,b
+        or   a
+        jr   nz,delok
+        ld   a,c
+        cp   79
+        jp   c,nodone
+delok:  ldir
+        ld   de,4330h
+        jp   noins1
+
 eraeol: pop  hl
         push hl
         call crnext
@@ -490,7 +588,7 @@ filspc: or   a
         sbc  hl,de
         ld   b,h
         ld   c,l
-        ld   h,d
+filsp1: ld   h,d
         ld   l,e
         inc  de
         ld   (hl),20h
@@ -617,7 +715,6 @@ cls:    ld   hl,3c00h
 inch1:  push hl
         push de
         push bc
-        call swtchi
         ld   a,(3840h)         ;clear ?
         ld   b,a
         ld   a,(3880h)         ;ctrl ?
@@ -626,24 +723,32 @@ inch1:  push hl
         jr   z,inchgo
         xor  a
         ld   (inlen),a
-        jr   inchno
+        jp   nokey
 
 inchgo: ld   bc,3801h
         ld   hl,keybuf
         ld   d,0
-inch11: ld   a,(bc)
+keylop: ld   a,(bc)
         ld   e,a
         xor  (hl)
         and  e
         ld   (hl),e
-        jr   nz,inch12
-inchrd: inc  hl
+        jr   nz,newkey
+        inc  hl
         inc  d
+        ld   a,d
+        cp   8
+        jr   nc,keypad
         rlc  c
-        jr   nc,inch11
-inchno: jp   nokey
+        jr   keylop
+keypad: cp   0bh
+        jp   z,nokey
+        ld   a,20h
+        add  c
+        ld   c,a
+        jr   keylop
 
-inch12: ld   e,a
+newkey: ld   e,a
         push bc
         ld   bc,500h
         call delay
@@ -668,10 +773,14 @@ inch13: inc  b
         ld   hl,kytab2
         add  hl,bc
         ld   a,(hl)
-nofoun: cp   20h
-        ld   hl,3880h
+nofoun: ld   hl,3880h
         ld   c,(hl)
         ld   b,a
+        cp   48h
+        jr   nc,numkey
+        cp   40h
+        jp   nc,fkeys
+        cp   20h
         jr   nc,inch16
 
         xor  a
@@ -707,6 +816,20 @@ inch18: cp   38h
 nokey:  xor  a
         jr   inchex
 
+numkey: cp   52h
+        jr   nc,numky1
+        sub  48h
+        add  30h
+        jr   inched
+
+numky1: jr   z,zero2
+        sub  54h
+        add  2ch
+        jr   inched
+
+zero2:  ld   hl,zerotx
+        jp   fkyfou
+
 inch19: ld   hl,ctltab
         sub  30h
         ld   c,a
@@ -728,6 +851,36 @@ inchex: ld   b,a
         pop  hl
         ret
 
+fkeys:  ld   hl,fkytab
+        ld   bc,0100h
+        sub  40h
+        ld   d,a
+        jr   z,fkyfou
+        xor  a
+fkylo1: cpir
+        dec  d
+        jr   nz,fkylo1
+
+fkyfou: ld   c,l
+        ld   b,h
+        ld   a,(inlen)
+        ld   e,a               ; d is zero !
+        ld   hl,kbdbuf
+        add  hl,de
+        ex   de,hl
+        ld   hl,inlen
+fkylo2: ld   a,(hl)
+        cp   63
+        jp   nc,inched
+        ld   a,(bc)
+        or   a
+        jp   z,inched
+        ld   (de),a
+        inc  bc
+        inc  de
+        inc  (hl)
+        jr   fkylo2
+
 delay:  push af
 delay1: dec  bc
         ld   a,b
@@ -738,11 +891,13 @@ delay1: dec  bc
 
 ; Paramter Table 2
 
+keybuf: defb 0,0,0,0,0,0,0,0,0,0,0
 kytab1: defb 00h,19h,1ah,1bh,1ch,1dh,1eh,2ah,2bh
 kytab2: defb 1ch,1eh,00h,2ah,1bh,2bh,19h,1ah,1dh
 ctltab: defb 13,95,27,31,3,127,05,18
         defb 24,3,8,01,04,6,32,32
-keybuf: defb 0,0,0,0,0,0,0,0
+zerotx: defb '0','0',0
+fkytab: defs 256
 
         page
 ; List output
