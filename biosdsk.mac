@@ -21,8 +21,10 @@ seldsk: call savstk
 seld1:  rlc  b
         dec  a
         jr   nz,seld1
+
         bit  0,e
         jr   nz,seld4
+
         ld   a,b
         ld   (37e1h),a
         ld   a,0d0h
@@ -39,27 +41,15 @@ seld11: ld   a,(37ech)
         ld   a,h
         or   l
         jr   nz,seld11
+
 seld2:  ld   hl,0
 seld3:  jp   swtcho
 
 seld4:  ld   a,b
         ld   (newbin),a
-        ld   a,(curdrv)
-        ld   hl,trktab
-        ld   e,a
-        ld   d,0
-        add  hl,de
-        ld   a,(hedpos)        ;Get current phys hd pos
-        ld   (hl),a            ;Save it in Table
         ld   a,c
         ld   (newdrv),a
-        ld   hl,trktab
-        ld   e,a
-        ld   d,0
-        add  hl,de
-        ld   a,(hl)            ;Get last Head Pos value
-        ld   (hedpos),a        ;Set it
-        ld   l,c
+        ld   l,a
         ld   h,0
       4:add  hl,hl
         push hl
@@ -72,7 +62,8 @@ seld4:  ld   a,b
         ld   de,dph
         add  hl,de
         jr   seld3
-
+;
+;
 ; ** Set new track
 
 settrk: ld   a,c
@@ -232,6 +223,9 @@ adloop: add  hl,hl
 ; & set curxxx = newxxx
 
 readsk: call flush
+	ld	a,(curbin)
+	ld	(@old_bin),a
+	call	set_head
         ld   hl,newpdb
         ld   de,curpdb
         ld   bc,6
@@ -256,7 +250,18 @@ wrtdsk: ld   a,0a8h
 
 ; Set density & size
 
-select: ld   a,(curpdb)
+select:
+	call	force_int
+	ld	a,(37ech)
+	ld	b,a
+	ld	a,(newbin)
+	ld	(@old_bin),a
+	call	force_int
+	call	force1_int
+	bit	7,b		;not ready (before) ?
+	call	nz,wait_speed
+
+	ld   a,(curpdb)
         ld   b,a
         ld   hl,37ech
         and  1
@@ -279,6 +284,55 @@ setinv: ld   (invert),a
 resel:  ld   a,(curbin)
         ld   (37e1h),a
         ret
+
+; Set Head
+
+set_head:
+        ld   a,(curdrv)
+	ld	c,a
+	ld	a,(newdrv)
+	cp	c
+	ret	z
+        ld   de,trktab
+        ld   l,a
+        ld   h,0
+        add  hl,de
+        ld   a,(hedpos)        ;Get current phys hd pos
+        ld   (hl),a            ;Save it in Table
+        ld   l,c
+        ld   h,0
+        add  hl,de
+        ld   a,(hl)            ;Get last Head Pos value
+        ld   (hedpos),a        ;Set it
+	ret
+
+; Force Int
+
+force_int:
+	ld	a,0d0h
+	ld	(37ech),a
+	call	wait
+	bit	0,a		;busy ?
+	ret	z
+	rlca
+	jr	c,force_int
+force1_int:
+	ld	a,<@old_bin: 0>
+	ld	(37e1h),a
+	jr	force_int
+
+; Wait Speed
+
+wait_speed:
+	ld	hl,0
+wait_speed1:
+	dec	hl
+	ld	a,h
+	or	l
+	jr	nz,wait_speed1
+	ret
+
+
 
 ; Restore drivehead
 
@@ -427,7 +481,7 @@ reperr: ld   hl,errflg         ;Report error condition
 
 ; Wait and get status
 
-wait:   ld   a,20
+wait:   ld   a,10
 wait1:  dec  a
         jr   nz,wait1
         ld   a,(37ech)
@@ -705,15 +759,15 @@ pdtab:  defw 80                ;S80 DSDD
         defw 2
         defb 0dh
 
-        defw 80                ;D80 DSDD
+        defw 80                ;S80 DSDD
         defb 5
         defb 31
         defb 3
-        defw 199
+        defw 194
         defw 255
         defw 00c0h
         defw 64
-        defw 0
+        defw 2
         defb 0dh
 
         defw 36                ;S40 DD
@@ -820,7 +874,7 @@ fkytab: defb 0
         defm 'SYSTEM'                  ; F16
         defb 0dh,0
 
-        org  fkytab + 512
+        defs	(fkytab+512-$),0
 
 info:   defb 195,208,175,205,160,178,174,178,216,160
         defb 160,160,160,160,160,160,160,199,197,206
@@ -833,7 +887,7 @@ info:   defb 195,208,175,205,160,178,174,178,216,160
 
 vertxt: defb 195,208,175,205,160,178,174,178,216,160
         defb 160,160,160,195,194,201,207,211,160,214
-        defb 229,242,243,233,239,238,160,178,174,177
+        defb 229,242,243,233,239,238,160,178,174,178
         defb 160,246,239,237,160,177,183,174,177,176
         defb 174,184,180,160,160,160,160,160,160,211
         defb 229,242,233,229,238,238,245,237,237,229
@@ -945,4 +999,4 @@ csv3:   defs 64
 csv4:   defs 64
 dirbuf: defs 128
 zzzzzz  equ  $
-        end
+	.printn	zzzzzz

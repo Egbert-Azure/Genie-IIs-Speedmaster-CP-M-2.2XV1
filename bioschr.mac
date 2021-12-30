@@ -1,16 +1,19 @@
+	.z80
+	org	100h
+;
 ; Version 2.1 vom 17.10.84
+; Version 2.12 vom 24.01.86 (Select)
 
 true    equ  0ffh
 false   equ  000h
 
-oldkbd  equ  FALSE             ;True if old Keyboard
+oldkbd  equ  true		;True if old Keyboard
 
-buflen  equ  64                ;Lenght of Keyboard Buffer
+buflen  equ  64			;Lenght of Keyboard Buffer
 
-        aseg
 
 offset  equ  09d00h            ; 61 k (?)
-        org  4a00h+offset
+        .phase	4a00h+offset
 ;
 ; Bios for CP/M 2.2
 ; Skeletal BIOS (c) Kalle Braun
@@ -603,25 +606,39 @@ scrbot: defw 437fh             ;last unprot. pos.
 
 ; Control Character Table
 
-gtab:   32:defw grnix
-gtabed  equ  $
-gcode   macro x,adr
-        org   gtab+2*x
-        defw  adr
-        endm
-        gcode 7,bell
-        gcode 8,back
-        gcode 9,tab
-        gcode 10,lf
-        gcode 11,curup
-        gcode 12,currgt
-        gcode 13,cr
-        gcode 22,curdo
-        gcode 26,cls
-        gcode 27,escape
-        gcode 30,chome
-        gcode 31,crlf
-        org  gtabed
+gtab:
+	defw grnix	;0
+	defw grnix
+	defw grnix
+	defw grnix
+	defw grnix
+	defw grnix	;5
+	defw grnix
+        defw	bell
+        defw	back
+        defw	tab
+        defw	lf	;10
+        defw	curup
+        defw	currgt
+        defw	cr
+	defw grnix
+	defw grnix	;15
+	defw grnix
+	defw grnix
+	defw grnix
+	defw grnix
+	defw grnix	;20
+	defw grnix
+        defw	curdo
+	defw grnix
+	defw grnix
+	defw grnix	;25
+        defw	cls
+        defw	escape
+	defw grnix
+	defw grnix
+        defw	chome	;30
+        defw	crlf
 grnix:  xor  a
         ret
 
@@ -1256,3 +1273,6 @@ lists1: or   a
         ret
 
         INCLUDE BIOSDSK/MAC
+
+	.dephase
+	end
