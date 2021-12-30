@@ -1,16 +1,23 @@
+; Bios for CP/M 2.2
+; (c) '84 Kalle Braun & Klaus K{mpf
+; Source only for Z80-Macroassembler
+
         aseg
-offset  equ  09c00h
+
+offset  equ  09e00h
         org  4a00h+offset
+
+        page 66
 bios:   jp   boot
         jp   wboot
         jp   const
         jp   conin
         jp   conout
         jp   list
-        ret                        ; PUNCH
+        ret                    ; PUNCH
         nop
         nop
-        xor  a                     ; READER
+        xor  a                 ; READER
         ret
         nop
         jp   home
@@ -28,6 +35,9 @@ bios:   jp   boot
         ret
         nop
         nop
+
+; Save Userstack
+
 savstk: di
         ex   (sp),hl
         ld   (retjmp),hl
@@ -41,23 +51,25 @@ savstk: di
 getstk: ld   sp,<usrstk: dw 0>
         ei
         ret
-diskio: di
-        in   a,(0feh)
-        and  70h
-        or   4
-        out  (0feh),a
+
+swtchi: di
+        ld   a,71h
+switch: out  (0fah),a
         ret
-cpmio:  in   a,(0feh)
-        and  70h
-        or   5
-        out  (0feh),a
-        ret
-cursor: defw 0
+swtcho: ld   a,7fh
+        jr   switch
+
+        page
+; Console Status
+
 const:  ld   a,(inlen)
         or   a
         ret  z
         ld   a,0ffh
         ret
+
+; Console Input
+
 conin:  ld   a,(inlen)
         or   a
         jr   z,conin
@@ -66,7 +78,7 @@ conin:  ld   a,(inlen)
         push bc
         ld   hl,kbdbuf+1
         ld   de,kbdbuf
-        ld   bc,60
+        ld   bc,63
         ld   a,(de)
         ldir
         ld   hl,inlen
@@ -75,15 +87,19 @@ conin:  ld   a,(inlen)
         pop  de
         pop  hl
         ret
+
+; Interrupt Vector
+
 intkbd: ld   (intret),sp
         ld   sp,intstk
         push af
         push hl
         push de
         push bc
-        call diskio
+        call swtchi
         ld   a,(37ech)
         ld   a,(37e1h)
+        call swtcho
         call inkbd1
         pop  bc
         pop  de
@@ -92,22 +108,9 @@ intkbd: ld   (intret),sp
         ld   sp,<intret: dw 0>
         ei
         reti
-inkbd1: ld   a,(curflg)
-        or   a
-        jr   nz,inkbdx
-        ld   hl,curcnt
-        dec  (hl)
-        jr   nz,inkbdx
-        ld   a,10
-        ld   (hl),a
-        ld   hl,(cursor)
-        ld   a,(hl)
-        cp   176
-        ld   a,(curchr)
-        jr   z,inkbdy
-        ld   a,176
-inkbdy: ld   (hl),a
-inkbdx: call inch1
+
+
+inkbd1: call inch1
         or   a
         jr   z,inkbd3
         ld   c,a
@@ -116,7 +119,7 @@ inkbdx: call inch1
         ld   (rptcnt),a
 inkbd2: ld   hl,inlen
         ld   a,(hl)
-        cp   32
+        cp   63
         jp   nc,bell
         inc  (hl)
         ld   hl,kbdbuf
@@ -125,85 +128,186 @@ inkbd2: ld   hl,inlen
         add  hl,de
         ld   (hl),c
         ret
+
 inkbd3: ld   hl,rptcnt
         dec  (hl)
         ret  nz
-        call diskio
-        ld   a,(387fh)
+        call swtchi
+        ld   a,(381fh)
         or   a
-        push af
-        call cpmio
-        pop  af
+        jr   nz,kyprsd
+        ld   a,(3820h)
+        or   a
+        jr   nz,kyprsd
+        ld   a,(3840h)
+        or   a
+kyprsd: call swtcho
         ret  z
         ld   a,(rptcn2)
         ld   (hl),a
         dec  hl
         ld   c,(hl)
         jr   inkbd2
-curcnt: defb 10
+
+; Paramter Table 1
+
 curchr: defb 0
 rptchr: defb 0
 rptcnt: defb 0
 rptcn1: defb 013
 rptcn2: defb 002
 inlen:  defb 0
-curon:  defb 0
-curflg: defb 0
-newcur: defb 0
-bell:   ld   b,0
-bell1:  push bc
-        ld   a,2
-        out  (0ffh),a
-        ld   b,64
-        djnz $
-        ld   a,0
-        out  (0ffh),a
-        ld   b,64
-        djnz $
-        pop  bc
-        djnz bell1
+newrow: defb 0
+cursor: defw 3c00h
+invers: defb 0
+
+cdeftb: defb 2bh
+        defb 60h
+        defb 00h
+        defb 6bh
+        defb 0bh
+
+esctab: defb '.'
+        defb '='
+        defb '?'
+        defb 'E'
+        defb 'G'
+        defb 'Q'
+        defb 'R'
+        defb 'T'
+        defb 'W'
+        defb 'Y'
+
+jmptab: defw eraeof
+        defw delchr
+        defw eraeol
+        defw dellin
+        defw inschr
+        defw invert
+        defw inslin
+        defw curpos
+        defw curadr
+        defw curdef
+
+; Ring the bell
+
+bell:   call savstk
+        call swtchi
+        call pieps
+        call swtcho
         xor  a
         ret
+
+pieps:  push bc
+        ld   bc,0b080h
+bell1:  ld   a,(3860h)
+        push bc
+bell2:  dec  c
+        jr   nz,bell2
+        pop  bc
+        djnz bell1
+        pop  bc
+        ret
+
+        page
+; Cursor > 437fh ?  Y->NC
+
+toobig: ld   a,h
+        cp   43h
+        ret  c
+        ld   a,l
+        cp   80h
+        ret
+
+; Put Cusor adress to CRTC
+
+putcur: ld   de,3c00h
+        ld   (cursor),hl
+        or   a
+        sbc  hl,de
+        ld   c,0f6h
+        ld   a,0eh
+        out  (c),a
+        inc  c
+        out  (c),h
+        dec  c
+        inc  a
+        out  (c),a
+        inc  c
+        out  (c),l
+        ret
+
+; compute line# in b
+
+lineno: ld   de,0050h
+        ld   b,0
+        or   a
+line1:  sbc  hl,de
+        inc  b
+        ld   a,h
+        cp   3bh
+        jr   nz,line1
+        ret
+
+; Console Output
+
 conout: ld   a,(3)
         and  3
         cp   2
         jp   z,list
         cp   1
         ret  nz
-z8024:  jp   <escjmp: dw z80241>
-z80241: call savstk
-        call diskio
+        call savstk
+        call swtchi
         push hl
         push de
         push bc
+        ld   hl,<retadr: dw grend2>
+        push hl
         ld   hl,(cursor)
-        ld   a,(curchr)
-        ld   (hl),a
+        push hl
         ld   a,c
+        jp   <escjmp: dw chrout>
+
+; print character
+
+chrout: pop  de                ;de = cursor
+        cp   27
+        jr   z,grendx
+        ld   hl,grend0         ; change if NOT esc
+        ex   (sp),hl
+
+grendx: push de                ; (sp) = cursor
         cp   20h
         jr   c,ctrl
+
+; normal char output
+
+        pop  hl
+        ld   a,(invers)
+        or   c
         ld   (hl),a
         inc  hl
-grend0: bit  6,h
-        jr   z,grend2
-        ld   hl,3fc0h
+        ret                    ; to grend0
+
+; common return
+
+grend0: call toobig
+        jr   c,grend2
+        ld   hl,4330h
         call scroll
-grend2: ld   a,(hl)
-        ld   (curchr),a
-        ld   (cursor),hl
-        call cpmio
-        ld   a,c
+
+grend2: call swtcho
+        call putcur
         pop  bc
+        ld   a,c
         pop  de
         pop  hl
         ret
-ctrl:   ld   de,grend0
-        push de
-        ld   a,c
-        add  a,a
+
+ctrl:   add  a,a
         ld   e,a
         ld   d,0
-        push hl
         ld   hl,gtab
         add  hl,de
         ld   a,(hl)
@@ -212,187 +316,319 @@ ctrl:   ld   de,grend0
         ld   l,a
         ex   (sp),hl
         ret
-gtab:                                                            32:defw grnix
+                               ; hl = cursor
+                               ;(sp)= grend0 if NOT esc
+                               ;(sp)= grend2 if esc
+
+        page
+; Control Character Table
+
+gtab:   32:defw grnix
 gtabed  equ  $
 gcode   macro x,adr
         org   gtab+2*x
         defw  adr
         endm
-        gcode 7,bell
+        gcode 7,pieps
         gcode 8,back
         gcode 9,tab
         gcode 10,lf
-        gcode 11,chome
-        gcode 12,cls
+        gcode 11,curup
+        gcode 12,currgt
         gcode 13,cr
-        gcode 14,curson
-        gcode 15,cursof
+        gcode 14,curlft
+        gcode 26,cls
         gcode 27,escape
-        gcode 28,currg
-        gcode 29,curlf
-        gcode 30,curup
-        gcode 31,curdw
+        gcode 30,chome
         org  gtabed
 grnix:  xor  a
         ret
+
 back:   dec  hl
-        bit  2,h
+        ld   a,h
+        cp   3bh
         jr   nz,back1
         inc  hl
         ret
+
 back1:  ld   (hl),20h
         ret
-cr:     ld   a,0c0h
-        and  l
-        ld   l,a
+
+cr:     call lineno
+cr1:    ld   hl,3bb0h
+cr2:    add  hl,de
+        djnz cr2
         ret
-lf:     ld   de,40h
+
+crnext: call cr
+        ld   de,79
         add  hl,de
         ret
+
+lf:     ld   de,50h
+        add  hl,de
+        ret
+
 tab:    ld   a,20h
         ld   (hl),a
         inc  hl
-        bit  6,h
-        jr   z,tab1
+        call toobig
+        jr   c,tab1
         call scroll
-        ld   hl,3fc0h
+        ld   hl,4330h
 tab1:   ld   a,l
         and  7
         jr   nz,tab
         ret
-curup:  ld   de,0ffc0h
+
+curup:  ld   de,0ffb0h
         add  hl,de
-        bit  2,h
+        ld   a,h
+        cp   3bh
         ret  nz
-        ld   de,40h
+        ld   de,50h
         add  hl,de
         ret
-currg:  inc  hl
+
+currgt: inc  hl
+        call toobig
+        ret  c
+        dec  hl
         ret
-curlf:  dec  hl
-        bit  2,h
+
+curlft: dec  hl
+        ld   a,h
+        cp   3bh
         ret  nz
         inc  hl
         ret
-curdw:  ld   de,40h
-        add  hl,de
-        ret
+
 chome:  ld   hl,3c00h
         ret
-curson: xor  a
-curso1: ld   (curflg),a
-        ret
-cursof: ld   a,1
-        jr   curso1
+
+        page
+; a = 27 (esc)
+
 escape: push hl
-        ld   hl,esc1
-        ld   (escjmp),hl
+        ld   hl,escap1
+eschng: ld   (escjmp),hl
         pop  hl
         ret
-esc1:   ld   a,c
-        cp   '?'
-        jr   z,esc2
-        cp   '='
-        jr   z,esc3
-esc11:  push hl
-esc12:  xor  a
-        ld   (curon),a
-        ld   hl,z80241
-        ld   (escjmp),hl
+
+escng1: ld   (escjmp),hl
+        ld   hl,grend0
+        ld   (retadr),hl
         pop  hl
         ret
-esc2:   ld   hl,(cursor)
-        ld   de,0c400h
-        add  hl,de
+
+; a = xx (after esc !)
+
+escap1: ld   bc,jmptab-esctab
+        ld   hl,esctab
+        cpir
+        jr   nz,escen1
+        sla  c
+        ld   hl,jmptab
+        add  hl,bc
+        ld   a,(hl)
+        inc  hl
+        ld   h,(hl)
+        ld   l,a
+        jp   (hl)
+
+escend: push hl
+escen1: ld   hl,grend2
+        ld   (retadr),hl
+        ld   hl,chrout
+        jr   eschng
+
+curadr: ld   hl,curad1
+        jr   escng1
+
+curdef: ld   hl,curdf1
+        jr   escng1
+
+invert: ld   hl,invrt1
+        jr   escng1
+
+inslin: jr escen1
+dellin: jr escen1
+
+; new row
+
+curad1: ld   (newrow),a
+        ld   hl,curad2
+        jr   escng1
+
+; report cursor position
+
+curpos: pop  hl
+        push hl
+        call lineno
+        ld   a,b
+        call cr1
+        ex   de,hl
+        pop  hl
+        or   a
+        sbc  hl,de
+        add  a,20h
+        ld   d,a
         ld   a,l
-        and  3fh
         add  a,20h
         ld   e,a
-        srl  h
-        rr   l
-        srl  h
-        rr   l
-        srl  h
-        rr   l
-        srl  h
-        rr   l
-        srl  h
-        rr   l
-        srl  h
-        rr   l
-        ld   a,20h
-        add  a,l
-        ld   d,a
-        jr   esc11
-esc3:   push hl
-        ld   hl,esc31
-esc30:  ld   (escjmp),hl
-        pop  hl
-        ret
-esc31:  ld   a,c
-        ld   (newcur),a
+        jp   escend
+
+eraeol: pop  hl
         push hl
-        ld   hl,esc32
-        jr   esc30
-esc32:  call savstk
+        call crnext
+        pop  de
+        jr   filspc
+
+eraeof: pop  de
+        ld   hl,437fh
+filspc: or   a
+        sbc  hl,de
+        ld   b,h
+        ld   c,l
+        ld   h,d
+        ld   l,e
+        inc  de
+        ld   (hl),20h
+        ldir
+        jp   nodone
+
+inschr: pop  hl
         push hl
-        ld   a,(curchr)
-        ld   hl,(cursor)
-        ld   (hl),a
-        ld   a,(newcur)
+        call crnext
+        pop  de
+        push hl
+        or   a
+        sbc  hl,de
+        pop  de
+        jr   z,nodone
+        ld   b,h
+        ld   c,l
+        ld   h,d
+        ld   l,e
+        dec  hl
+        lddr
+        inc  hl
+        ld   (hl),20h
+        jp   escend
+
+delchr: pop  hl
+        push hl
+        call crnext
+        pop  de
+        or   a
+        sbc  hl,de
+        jr   z,nodone
+        ld   b,h
+        ld   c,l
+        ld   h,d
+        ld   l,e
+        inc  hl
+        ldir
+        dec   hl
+        ld   (hl),20h
+
+nodone: ld   hl,(cursor)
+        jp   escend
+
+; new column
+
+curad2: pop  hl
+        ld   a,(newrow)
         sub  20h
-        cp   16
-        jr   c,esc33
+        cp   24
+        jr   c,curad3
         ld   a,0
-esc33:  ld   l,a
+curad3: ld   l,a
         ld   h,0
+        ld   e,l
+        ld   d,h
         add  hl,hl
         add  hl,hl
+        add  hl,de
         add  hl,hl
         add  hl,hl
         add  hl,hl
         add  hl,hl
         ld   a,c
         sub  20h
-        cp   64
-        jr   c,esc34
+        cp   80
+        jr   c,curad4
         ld   a,0
-esc34:  ld   e,a
+curad4: ld   e,a
         ld   d,3ch
         add  hl,de
-        ld   (cursor),hl
-        ld   a,(hl)
-        ld   (curchr),a
-        jr   esc12
+        jp   escend
+
+invrt1: rrca
+        rrca
+        rrca
+        and  80h
+        ld   (invers),a
+        jp   escen1
+
+curdf1: sub  30h
+        jp   c,escen1
+        cp   5
+        jp   nc,escen1
+        ld   bc,cdeftb
+curdf2: or   a
+        jr   z,curdf3
+        inc  bc
+        dec  a
+        jr   curdf2
+curdf3: ld   a,0ah
+        out  (0f6h),a
+        ld   a,(bc)
+        out  (0f7h),a
+        jp   escen1
+
 scroll: push hl
         push de
         push bc
-        ld   hl,3c40h
+        ld   hl,3c50h
         ld   de,3c00h
-        ld   bc,3c0h
+        ld   bc,730h
         ldir
-        ld   hl,3fc0h
-        ld   de,3fc1h
-        ld   bc,3fh
+        ld   hl,4330h
+        ld   de,4331h
+        ld   bc,4fh
         ld   (hl),20h
         ldir
         pop  bc
         pop  de
         pop  hl
         ret
+
 cls:    ld   hl,3c00h
         push hl
         ld   de,3c01h
-        ld   bc,03ffh
+        ld   bc,077fh
         ld   (hl),20h
         ldir
         pop  hl
         ret
+
+        page
 inch1:  push hl
         push de
         push bc
-        call diskio
-        ld   bc,3801h
+        call swtchi
+        ld   a,(3840h)         ;clear ?
+        ld   b,a
+        ld   a,(3880h)         ;ctrl ?
+        and  b
+        bit  1,a
+        jr   z,inchgo
+        xor  a
+        ld   (inlen),a
+        jr   inchno
+
+inchgo: ld   bc,3801h
         ld   hl,keybuf
         ld   d,0
 inch11: ld   a,(bc)
@@ -405,8 +641,8 @@ inchrd: inc  hl
         inc  d
         rlc  c
         jr   nc,inch11
-        xor  a
-        jp   inchex
+inchno: jp   nokey
+
 inch12: ld   e,a
         push bc
         ld   bc,500h
@@ -415,6 +651,7 @@ inch12: ld   e,a
         ld   a,(bc)
         and  e
         jp   z,inchex
+
         ld   b,-1
 inch13: inc  b
         rrca
@@ -424,54 +661,53 @@ inch13: inc  b
         rlca
         rlca
         add  a,b
-        cp   1fh
+        ld   hl,kytab1
+        ld   bc,9
+        cpir
+        jr   nz,nofoun
+        ld   hl,kytab2
+        add  hl,bc
+        ld   a,(hl)
+nofoun: cp   20h
         ld   hl,3880h
+        ld   c,(hl)
         ld   b,a
         jr   nc,inch16
-        bit  6,(hl)
-        ld   a,0
+
+        xor  a
+        bit  1,c
         jr   nz,inch15
-        bit  0,(hl)
-        ld   a,(chrlok)
+        bit  0,c
+        jr   nz,inch14
+        ld   a,(38e0h)
+        bit  3,a
+        ld   a,60h
         jr   z,inch15
-        xor  20h
+inch14: ld   a,40h
+
 inch15: add  a,b
         jr   inched
-inch16: jr   nz,inch99
-        ld   a,0
-        bit  6,(hl)
-        jr   nz,inch15
-        ld   a,60h
-        bit  0,(hl)
-        jr   z,inch15
-        ld   a,40h
-        jr   inch15
-inch99: cp   2ch
+
+inch16: cp   2ch
         jr   nc,inch17
         xor  a
-        bit  0,(hl)
+        bit  0,c
         jr   nz,inch15
-        ld   a,10h
-        jr   inch15
+        jr   inch99
 inch17: cp   30h
         jr   nc,inch18
         xor  a
-        bit  0,(hl)
+        bit  0,c
         jr   z,inch15
-        ld   a,10h
+inch99: ld   a,10h
         jr   inch15
+
 inch18: cp   38h
-        jr   c,roedl1
-        cp   3eh
-        jr   nz,roedl2
-        bit  0,(hl)
-        jr   z,roedl2
-        ld   a,(chrlok)
-        xor  20h
-        ld   (chrlok),a
-roedl2: xor  a
-        jp   inchex
-roedl1: ld   hl,ctltab
+        jr   c,inch19
+nokey:  xor  a
+        jr   inchex
+
+inch19: ld   hl,ctltab
         sub  30h
         ld   c,a
         ld   b,0
@@ -479,18 +715,19 @@ roedl1: ld   hl,ctltab
         add  hl,bc
         ld   a,(3880h)
         bit  0,a
-        jr   z,inch19
+        jr   z,inch20
         inc  hl
-inch19: ld   a,(hl)
+inch20: ld   a,(hl)
 inched: ld   bc,2000h
         call delay
 inchex: ld   b,a
-        call cpmio
+        call swtcho
         ld   a,b
         pop  bc
         pop  de
         pop  hl
         ret
+
 delay:  push af
 delay1: dec  bc
         ld   a,b
@@ -498,38 +735,55 @@ delay1: dec  bc
         jr   nz,delay1
         pop  af
         ret
-ctltab: defb 13,13,27,27,3,3,05,26,24,23,8,01,04,6,32,32
+
+; Paramter Table 2
+
+kytab1: defb 00h,19h,1ah,1bh,1ch,1dh,1eh,2ah,2bh
+kytab2: defb 1ch,1eh,00h,2ah,1bh,2bh,19h,1ah,1dh
+ctltab: defb 13,95,27,31,3,127,05,18
+        defb 24,3,8,01,04,6,32,32
 keybuf: defb 0,0,0,0,0,0,0,0
-chrlok: defb 40h
+
+        page
+; List output
+
 list:   ld   a,(3)
         and  0c0h
         cp   40h
         jp   z,conout
         cp   80h
         ret  nz
+
 list1:  call listst
         jr   z,list1
-        call savstk
-        call diskio
         ld   a,c
-        ld   (37e8h),a
-        jp   cpmio
-listst: call savstk
-        call diskio
-        ld   a,(37e8h)
+        out  (0fdh),a
+        ret
+
+; List status
+
+listst: in   a,(0fdh)
         and  0f0h
         cp   30h
-        ld   b,0
+        ld   a,0
         jr   nz,lists1
-        dec  b
-lists1: call cpmio
-        ld   a,b
-        or   a
+        dec  a
+lists1: or   a
         ret
+
+        page
+; ** Select Disk
+
 seldsk: call savstk
-        call diskio
+        push de
+        push bc
+        call chkwrt            ;Sector to write ?
+        jr   nz,seld2          ;jp if error
+        pop  bc
+        push bc
+        call swtchi
         ld   a,c
-        cp   7
+        cp   4
         jr   nc,seld2
         and  3
         inc  a
@@ -537,18 +791,8 @@ seldsk: call savstk
 seld1:  rlc  b
         dec  a
         jr   nz,seld1
-        ld   a,c
-        and  4
-        rrca
-        rrca
-        rrca
-        rrca
-        or   80h
-        ld   (37eeh),a
-        ld   a,0d0h
-        ld   (37ech),a
         bit  0,e
-        jr   nz,seld3
+        jr   nz,seld4
         ld   a,b
         ld   (37e1h),a
         ld   a,0d0h
@@ -560,30 +804,35 @@ seld1:  rlc  b
 seld11: ld   a,(37ech)
         and  2
         xor  e
-        jr   nz,seld3
+        jr   nz,seld4
         dec  hl
         ld   a,h
         or   l
         jr   nz,seld11
 seld2:  ld   hl,0
-        call cpmio
+seld3:  call swtcho
+        pop  bc
+        pop  de
         ret
-seld3:  ld   a,(drvbin)
+
+seld4:  ld   a,(drvbin)        ; New drive ?
         xor  b
         ld   (selflg),a
         ld   a,b
         ld   (drvbin),a
         ld   a,(drvasc)
-        ld   hl,trksec
-        add  a,l
-        ld   l,a
+        ld   hl,trktab
+        ld   e,a
+        ld   d,0
+        add  hl,de
         ld   a,(37edh)
         ld   (hl),a
         ld   a,c
         ld   (drvasc),a
-        ld   hl,trksec
-        add  a,l
-        ld   l,a
+        ld   hl,trktab
+        ld   e,a
+        ld   d,0
+        add  hl,de
         ld   a,(hl)
         ld   (37edh),a
         ld   l,c
@@ -599,103 +848,184 @@ seld3:  ld   a,(drvbin)
         ld   bc,16
         ldir
         pop  hl
-        ld   a,(pdrive+15)
-        bit  7,a
-        jr   z,seld2
-        bit  6,a
-        ld   a,<nop>
-        jr   z,seldx
-        ld   a,<cpl>
-seldx:  ld   (inv1),a
         ld   de,dph
         add  hl,de
-        call cpmio
-        ret
-select: ld   a,(pdrive+15)
-        ld   hl,37ech
-        and  1
-        or   0feh
-        ld   (hl),a
-        ld   (hl),0d0h
-        inc  hl
-        inc  hl
-        ld   a,(drvasc)
-        and  4
-        rrca
-        rrca
-        rrca
-        rrca
-        or   80h
-        ld   (hl),a
-        ld   a,0d0h
-        ld   (37ech),a
-resel:  ld   a,(drvbin)
-        ld   (37e1h),a
-        ret
-home:   call savstk
-        call diskio
-        call restor
-        jp   cpmio
-restor: ld   c,50h
-        call isscmd
-        ld   c,0
-isscmd: call resel
-        ld   a,(pdrive+15)
-        and  2
-        or   1
-        or   c
-        ld   (37ech),a
-iss1:   call wait
-        bit  0,a
-        ret  z
-        call resel
-        jr   iss1
+        jr   seld3
+
+; ** Set new track
+
 settrk: ld   a,c
         ld   (newtrk),a
         ret
-sectrn: ld   a,d
-        or   e
-        jr   nz,sectr1
-sectr0: ld   h,b
-        ld   l,c
+
+; ** Set new sector
+
+setsec: ld   (newblk),bc
         ret
-sectr1: ex   de,hl
+
+; ** Set new destination adress
+
+setdma: ld   (destin),bc
+        ret
+
+; ** Read logical record
+
+read:   call savstk
+        push hl
+        push de
+        push bc
+        ld   hl,rwret
+        push hl
+        call samsec
+        jp   z,reamem
+        call chkwrt
+        call readsk
+        jp   reamem
+
+; ** Write logical record
+
+write:  call savstk
+        push hl
+        push de
+        push bc
+        ld   hl,rwret
+        push hl
+        ld   a,c               ; directory sec ?
+        cp   1
+        jr   z,write1
+
+        call samsec
+        jp   z,wrtmem
+        call chkwrt
+        call readsk
+        jp   wrtmem
+
+write1: call chkwrt            ; sec to write ?
+        call samsec            ; comp phys sec & set newsec
+        call nz,readsk         ; Read new phys sec
+        call wrtmem
+        jp   wrtdsk            ; Write sec to disk
+
+; Common return
+
+rwret:  pop  bc
+        pop  de
+        pop  hl
+        xor   a
+        ret
+
+; ** Translate sector number
+;    translates always
+
+sectrn: ex   de,hl
         ld   b,0
         add  hl,bc
         ld   c,(hl)
         ex   de,hl
-        jr   sectr0
-setsec: ld   (newblk),bc
+        ld   h,b
+        ld   l,c
         ret
-setdma: ld   (destin),bc
-        ret
-read:   call savstk
-        call secno
-        call readbg
-        ret  nz
-        call getblk
-        ld   de,(destin)
-        call move
+
+; ** Home diskhead
+
+home:   call savstk
+        call chkwrt
         xor  a
+        ld   (newtrk),a
         ret
-move:   ld   b,80h
-move1:  ld   a,(hl)
-inv1:   nop
-        ld   (de),a
-        inc  hl
-        inc  de
-        djnz move1
+
+; Restore drivehead
+
+restor: ld   c,50h
+        call isscmd
+        ld   c,0
+        jp   isscmd
+
+; Check if same physical sector (Y -> Z)
+; and set newsec
+
+samsec: call secno             ;compute phys sec & set newsec
+        ld   a,(cursec)
+        cp   c                 ;new sec ?
+        ret  nz
+        ld   a,(curtrk)
+        ld   b,a
+        ld   a,(newtrk)
+        cp   b                 ;new trk ?
+        ret  nz
+        ld   a,(cursid)
+        ld   b,a
+        ld   a,(newsid)
+        cp   b                 ;new side ?
+        ret  nz
+        ld   a,(selflg)
+        or   a                 ;new drive ?
         ret
+
+; check if sector to write
+
+chkwrt: ld   a,(wrtflg)
+        or   a
+        ret  z
+        jp   wrtdsk
+
+; set & reset writeflag
+
+setwrt: ld   a,<clrwrt: xor a>
+        ld   (wrtflg),a
+        ret
+
+; read record from memory
+
+reamem: call getblk
+        jp   move
+
+; write record to memory
+
+wrtmem: call getblk
+        ex   de,hl
+        call move
+        jp   setwrt
+
+; Move logical record
+
+move:   ld   bc,0080h
+        ldir
+        ret
+
+; Read physical sector from newtrk, newsec
+; & set curtrk = newtrk, cursec = newsec
+
+readsk: xor  a
+        ld   (selflg),a
+        ld   a,(newsid)
+        ld   (cursid),a
+        ld   a,(newsec)
+        ld   (cursec),a
+        ld   a,(newtrk)
+        ld   (curtrk),a
+        ld   a,88h
+        ld   de,021ah
+        jp   getit
+
+; Write physical sector
+
+wrtdsk: ld   a,0a8h
+        ld   de,0a12h
+        call getit
+        jp   clrwrt
+
+; Translate logical -> physical & select side
+
 secno:  ld   hl,drvbin
-        ld   d,(hl)
-        res  3,(hl)
         ld   bc,(newblk)
-        bit  7,c
-        jr   z,secnox
-        set  3,(hl)
-secnox: ld   a,(hl)
-        xor  d
-        ld   (sidflg),a
+        res  4,(hl)
+        xor  a
+        bit  7,c               ; Backside ?
+        jr   z,setsid
+        set  4,(hl)
+        inc  a
+setsid: ld   (newsid),a
         ld   a,7fh
         and  c
         ld   c,a
@@ -703,21 +1033,17 @@ secnox: ld   a,(hl)
         rrca
         rrca
         and  3
-secno2: or   a
-        ret  z
+        inc  a
+seclop: dec  a
+        jr   z,secno1
         srl  c
-        dec  a
-        jr   secno2
-write:  call savstk
-        call secno
-        call readbg
-        ret  nz
-        call getblk
-        ex   de,hl
-        ld   hl,(destin)
-        call move
-        call wrdisk
+        jr   seclop
+secno1: ld   a,c
+        ld   (newsec),a
         ret
+
+; Compute buffer adress
+
 getblk: ld   bc,(newblk)
         ld   a,(pdrive+15)
         rrca
@@ -742,74 +1068,49 @@ getbl1: scf
         add  hl,hl
         ld   bc,secbuf
         add  hl,bc
+        ld   de,(destin)
         ret
-readbg: ld   a,(cursec)
-        cp   c
-        jr   nz,readb1
-        ld   a,(curtrk)
+
+; set density & size
+
+select: ld   a,(pdrive+15)
         ld   b,a
-        ld   a,(newtrk)
-        cp   b
-        jr   nz,readb1
-        ld   a,(sidflg)
-        or   a
-        jr   nz,readb1
-        ld   a,(selflg)
-        or   a
-readb1: call nz,rddisk
+        ld   hl,37ech
+        and  1
+        or   0feh
+        ld   (hl),a            ;Select density
+        ld   (hl),0d0h
+        inc  hl
+        inc  hl
+        ld   a,b
+        and  40h
+        or   80h
+        ld   (hl),a            ;Select size
+        ld   a,0d0h
+        ld   (37ech),a
+
+; reselect drive
+
+resel:  ld   a,(drvbin)
+        ld   (37e1h),a
         ret
-sidflg: defb 0
-selflg: defb 0
-drvbin: defb 0
-drvasc: defb 0
-trksec: defs 8
-pdrive: defs 16
-newtrk: defb 0
-newblk: defw 0
-destin: defw 0
-curtrk: defb 0
-cursec: defb 0
-wait:   ld   a,18
-wait1:  dec  a
-        jr   nz,wait1
-        ld   a,(37ech)
-        ret
-rddisk: push hl
-        push de
-        push bc
-        xor  a
-        ld   (selflg),a
-        ld   a,c
-        ld   (cursec),a
-        ld   a,(newtrk)
-        ld   (curtrk),a
-        call diskio
-        call select
-        ld   a,88h
-        ld   de,021ah
-        call getit
-        push af
-        call cpmio
-        pop  af
-        pop  bc
-        pop  de
-        pop  hl
-        ret
-wrdisk: push hl
-        push de
-        push bc
-        call diskio
-        ld   a,0a8h
-        ld   de,0a12h
-        call getit
-        push af
-        call cpmio
-        pop  af
-        pop  bc
-        pop  de
-        pop  hl
-        ret
-getit:  ld   (iolab1),a
+
+; Issue head moving cmd
+
+isscmd: call resel
+        ld   a,(pdrive+15)
+        and  2
+        or   c
+        ld   (37ech),a
+iss1:   call wait
+        bit  0,a
+        ret  z
+        call resel
+        jr   iss1
+
+; Perform disk I/O on cursid, curtrk, cursec
+
+getit:  ld   (dskcmd),a
         ld   b,1ch
         bit  5,a
         jr   z,getit0
@@ -817,22 +1118,24 @@ getit:  ld   (iolab1),a
 getit0: ld   a,b
         ld   (dskerr),a
         ld   (getit3),de
-        ld   b,2
+        call swtchi
+        call select
+        ld   b,5               ;No of retries
 getit1: push bc
         ld   a,(cursec)
-        ld   (37eeh),a
+        ld   (37eeh),a         ;Set sector
         ld   hl,pdrive+15
         ld   a,(curtrk)
-        bit  5,(hl)
+        bit  5,(hl)            ;Double track ?
         jr   z,getitq
         sla  a
-getitq: bit  4,(hl)
+getitq: bit  4,(hl)            ;Double sided ?
         jr   z,getitr
         srl  a
         jr   nc,getitr
         ld   hl,drvbin
-        set  3,(hl)
-getitr: ld   (37efh),a
+        set  4,(hl)
+getitr: ld   (37efh),a         ;Set track
         ld   c,18h
         call isscmd
         ld   hl,37ech
@@ -840,16 +1143,19 @@ getitr: ld   (37efh),a
         ld   bc,secbuf
         call resel
         di
-        ld   (hl),<iolab1: 88h>
+        ld   (hl),<dskcmd: 88h>
         call wait
-        bit  0,(hl)
+        bit  0,a
         jr   z,getit5
-        ld   a,(iolab1)
+        ld   a,(dskcmd)
         bit  5,a
-        jr   z,getit2
-getita: ld   a,83h
+        jr   z,getrd
+
+; Write 1st & 2nd Byte
+
+getwrt: ld   a,83h
         and  (hl)
-        jp   po,getita
+        jp   po,getwrt
         ld   a,(bc)
         ld   (de),a
         inc  bc
@@ -868,9 +1174,15 @@ getitb: cp   (hl)
         bit  1,(hl)
         jr   nz,getit3
         jr   getit4
-getit2: ld   a,83h
+
+; Read
+
+getrd:  ld   a,83h
         and  (hl)
-        jp   po,getit2
+        jp   po,getrd
+
+; Move data
+
 getit3: ld   a,(de)
         ld   (bc),a
         inc  bc
@@ -890,14 +1202,75 @@ getit5: ld   a,(hl)
         ld   (hl),0d0h
         pop  bc
         and  <dskerr: 0>
-        ret  z
-        bit  4,a
-        call nz,restor
-        djnz getit6
+        jp   z,swtcho          ;Ok if no error
+        bit  4,a               ;Record not found ?
+        call nz,restor         ;Y-restore
+        dec  b
+        jp   nz,getit1
+
+; Report error condition
+
+        call pieps
+        ld   hl,cursid
+        ld   a,'0'
+        add  a,(hl)
+        ld   (txtsid),a
+        inc  hl
+        ld   a,(hl)
+        add  a,0a0h
+        ld   (txttrk),a
+        inc  hl
+        ld   a,(hl)
+        add  a,0a0h
+        ld   (txtsec),a
+
+        ld   hl,errtxt
+        ld   de,4380h
+        ld   a,(hl)
+errlop: or   80h
+        ld   (de),a
+        inc  hl
+        inc  de
+        ld   a,(hl)
+        or   a
+        jr   nz,errlop
+waitky: ld   a,(3840h)
+        cp   06h               ;clr & brk ?
+        jr   nz,waitky
         xor  a
-        inc  a
+        ld   (4),a
+        jp   0
+
+; Wait and get status
+
+wait:   ld   a,20
+wait1:  dec  a
+        jr   nz,wait1
+        ld   a,(37ech)
         ret
-getit6: jp   getit1
+
+; Parameter table 3
+
+destin: defw 0080h             ;dma adress
+trktab: defb 0,0,0,0           ;track # table
+pdrive: defs 16                ;pdrive specs
+drvbin: defb 0                 ;select code
+drvasc: defb 0                 ;drive #
+wrtflg: defb 0                 ;<> 0 if sector to write
+selflg: defb 0                 ;<> 0 if new drive
+newblk: defw 0                 ;new sec # (logical)
+
+newsid: defb 0                 ;new side  (0=front, 1=back)
+newtrk: defb 0                 ;new trk # (logical & physical)
+newsec: defb 0                 ;new sec # (physical)
+
+cursid: defb 0                 ;sid # to seek (in memory)
+curtrk: defb 0                 ;trk # to seek (in memory)
+cursec: defb 0                 ;sec # to seek (in memory)
+
+        page
+; Cold start
+
 boot:   ld   hl,pdtab
         ld   de,pdrive
         ld   bc,16
@@ -908,69 +1281,83 @@ boot:   ld   hl,pdtab
         ld   (39h),hl
         ld   a,1
         ld   (drvbin),a
-        xor  a
+        call clrwrt
         ld   (drvasc),a
         ld   a,81h
         ld   (3),a
         xor  a
         ld   (4),a
         ld   hl,stmsg
-boot1:  ld   a,(hl)
+        call prttxt
+        jp   wboot
+
+prttxt: ld   a,(hl)
         ld   c,a
         or   a
-        jp   z,wboot
+        ret  z
         call conout
         inc  hl
-        jr   boot1
-stmsg:  defb 0ch
-        defm '64 K Speedmaster CP/M 2.2'
-        defb 13,10,0
+        jr   prttxt
+
+; Warm start
+
 wboot:  ld   sp,0ffffh
+        call chkwrt
         ld   a,(pdtab+15)
-        and  92h
-        or   0dh
+        and  05h
+        or   05h
         ld   (pdrive+15),a
         ld   a,1
+        out  (0f5h),a
         ld   (drvbin),a
-        call diskio
-        ld   a,0ffh
+
+        call swtchi
+        ld   hl,info
+        ld   de,4380h
+info1:  ld   a,(hl)
+        or   a
+        jr   z,infend
+        or   80h
+        ld   (de),a
+        inc  hl
+        inc  de
+        jr   info1
+
+infend: ld   a,0ffh            ;dden
         ld   (37ech),a
-        ld   a,80h
+        ld   a,80h             ;5"
         ld   (37eeh),a
         ld   a,0d0h
         ld   (37ech),a
-        xor  a
-        ld   (curtrk),a
         ld   de,3400h+offset
-        ld   a,4
-        ld   (cursec),a
-        push de
-wbootx: ld   a,88h
-        ld   de,021ah
-        call getit
-        jr   nz,wbootx
-        pop  de
-        ld   hl,secbuf+200h
-        ld   bc,200h
-        ldir
-        ld   a,1
+        ld   bc,18*256+1
+        call wbread
+        ld   bc,4*256+2
+        call wbread
+        call swtcho
+        jp   wboot1
+
+wbread: ld   a,c
         ld   (curtrk),a
         xor  a
-wboot1: ld   (cursec),a
+wbrd1:  ld   (cursec),a
+        push bc
         push de
-wbooty: ld   a,88h
+wbrd2:  ld   a,88h
         ld   de,021ah
         call getit
-        jr   nz,wbooty
+        jr   nz,wbrd2
         pop  de
         ld   hl,secbuf
-        ld   bc,400h
+        ld   bc,100h
         ldir
+        pop  bc
         ld   a,(cursec)
         inc  a
-        cp   5
-        jr   c,wboot1
-wboot2: ld   hl,bios+3
+        djnz wbrd1
+        ret
+
+wboot1: ld   hl,bios+3
         ld   a,0c3h
         ld   (0),a
         ld   (1),hl
@@ -980,275 +1367,181 @@ wboot2: ld   hl,bios+3
         ld   hl,intkbd
         ld   (38h),a
         ld   (39h),hl
+        ld   bc,0080h
+        call setdma
+        xor  a
+        ld   (inlen),a
         ld   c,0
         call seldsk
         ld   a,(4)
         ld   c,a
         jp   3400h+offset
+
+        page
+; Drive paramter headers
+
 dph:    defw cvtab1
         defw 0
         defw 0
         defw 0
         defw dirbuf
         defw pdrive
-        defw chk1
-        defw gat1
-;
+        defw csv1
+        defw alv1
+
         defw cvtab2
         defw 0
         defw 0
         defw 0
         defw dirbuf
         defw pdrive
-        defw chk2
-        defw gat2
-;
+        defw csv2
+        defw alv2
+
         defw cvtab3
         defw 0
         defw 0
         defw 0
         defw dirbuf
         defw pdrive
-        defw chk3
-        defw gat3
-;
+        defw csv3
+        defw alv3
+
         defw cvtab4
         defw 0
         defw 0
         defw 0
         defw dirbuf
         defw pdrive
-        defw chk4
-        defw gat4
-;
-        defw cvtab5
-        defw 0
-        defw 0
-        defw 0
-        defw dirbuf
-        defw pdrive
-        defw chk5
-        defw gat5
-;
-        defw cvtab6
-        defw 0
-        defw 0
-        defw 0
-        defw dirbuf
-        defw pdrive
-        defw chk6
-        defw gat6
-;
-        defw cvtab7
-        defw 0
-        defw 0
-        defw 0
-        defw dirbuf
-        defw pdrive
-        defw chk7
-        defw gat7
-;
-        defw cvtab8
-        defw 0
-        defw 0
-        defw 0
-        defw dirbuf
-        defw pdrive
-        defw chk8
-        defw gat8
-;5.25 Zoll Pdrives
-pdtab:  defw 40
+        defw csv4
+        defw alv4
+
+pdtab:  defw 36
         defb 4
         defb 15
-        defb 0
-        defw 194
+        defb 1
+        defw 82
+        defw 63
+        defw 0080h
+        defw 16
+        defw 3
+        defb 05h
+
+        defw 72
+        defb 5
+        defb 31
+        defb 3
+        defw 172
         defw 127
-        defw 00c0h
+        defw 0080h
         defw 32
-        defw 2
-        defb 8dh
-;
-        defw 40
+        defw 3
+        defb 05h
+
+        defw 36
         defb 4
         defb 15
-        defb 0
-        defw 194
-        defw 127
-        defw 00c0h
-        defw 32
-        defw 2
-        defb 8dh
-;
-        defw 40
+        defb 1
+        defw 82
+        defw 63
+        defw 0080h
+        defw 16
+        defw 3
+        defb 05h
+
+        defw 36
         defb 4
         defb 15
-        defb 0
-        defw 194
-        defw 127
-        defw 00c0h
-        defw 32
-        defw 2
-        defb 8dh
-;
-        defw 40
-        defb 4
-        defb 15
-        defb 0
-        defw 194
-        defw 127
-        defw 00c0h
-        defw 32
-        defw 2
-        defb 8dh
-;8 Zoll Pdrives:
-        defw 26
-        defb 3
-        defb 7
-        defb 0
-        defw 242
+        defb 1
+        defw 82
         defw 63
-        defw 00c0h
+        defw 0080h
         defw 16
-        defw 2
-        defb 80h
-;
-        defw 26
-        defb 3
-        defb 7
-        defb 0
-        defw 242
-        defw 63
-        defw 00c0h
-        defw 16
-        defw 2
-        defb 80h
-;
-        defw 26
-        defb 3
-        defb 7
-        defb 0
-        defw 242
-        defw 63
-        defw 00c0h
-        defw 16
-        defw 2
-        defb 80h
-;
-        defw 26
-        defb 3
-        defb 7
-        defb 0
-        defw 242
-        defw 63
-        defw 00c0h
-        defw 16
-        defw 2
-        defb 80h
-;5.25 Zoll Converttables
+        defw 3
+        defb 05h
+
 cvtab1: defb 00,01,02,03,04,05,06,07
         defb 08,09,10,11,12,13,14,15
         defb 16,17,18,19,20,21,22,23
         defb 24,25,26,27,28,29,30,31
         defb 32,33,34,35,36,37,38,39
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
+        defb 40,41,42,43,44,45,46,47
+        defb 48,49,50,51,52,53,54,55
+        defb 56,57,58,59,60,61,62,63
+        defb 64,65,66,67,68,69,70,71
+        defb 72,73,74,75,76,77,78,79
+
 cvtab2: defb 00,01,02,03,04,05,06,07
         defb 08,09,10,11,12,13,14,15
         defb 16,17,18,19,20,21,22,23
         defb 24,25,26,27,28,29,30,31
-        defb 32,33,34,35,36,37,38,39
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
+        defb 32,33,34,35,164,165,166,167
+        defb 168,169,170,171,172,173,174,175
+        defb 176,177,178,179,180,181,182,183
+        defb 184,185,186,187,188,189,190,191
+        defb 192,193,194,195,196,197,198,199
+        defb 200,201,202,203,204,205,206,207
+
 cvtab3: defb 00,01,02,03,04,05,06,07
         defb 08,09,10,11,12,13,14,15
         defb 16,17,18,19,20,21,22,23
         defb 24,25,26,27,28,29,30,31
         defb 32,33,34,35,36,37,38,39
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
+        defb 40,41,42,43,44,45,46,47
+        defb 48,49,50,51,52,53,54,55
+        defb 56,57,58,59,60,61,62,63
+        defb 64,65,66,67,68,69,70,71
+        defb 72,73,74,75,76,77,78,79
+
 cvtab4: defb 00,01,02,03,04,05,06,07
         defb 08,09,10,11,12,13,14,15
         defb 16,17,18,19,20,21,22,23
         defb 24,25,26,27,28,29,30,31
         defb 32,33,34,35,36,37,38,39
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-;8 Zoll Converttables
-cvtab5: defb 01,07,13,19,25,05,11,17
-        defb 23,03,09,15,21,02,08,14
-        defb 20,26,06,12,18,24,04,10
-        defb 16,22,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-cvtab6: defb 01,07,13,19,25,05,11,17
-        defb 23,03,09,15,21,02,08,14
-        defb 20,26,06,12,18,24,04,10
-        defb 16,22,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-cvtab7: defb 01,07,13,19,25,05,11,17
-        defb 23,03,09,15,21,02,08,14
-        defb 20,26,06,12,18,24,04,10
-        defb 16,22,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-cvtab8: defb 01,07,13,19,25,05,11,17
-        defb 23,03,09,15,21,02,08,14
-        defb 20,26,06,12,18,24,04,10
-        defb 16,22,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-        defb 00,00,00,00,00,00,00,00
-rdtab:  defb 07,07,07,07,09,09,09,09
+        defb 40,41,42,43,44,45,46,47
+        defb 48,49,50,51,52,53,54,55
+        defb 56,57,58,59,60,61,62,63
+        defb 64,65,66,67,68,69,70,71
+        defb 72,73,74,75,76,77,78,79
+
+; Pdrive info table for pd.com
+
+rdtab:  defb 00h,0bh,00h,00h
+
+stmsg:  defb 26
+        defm '64K Genie III CP/M 2.2'
+        defb 07,13,10,0
+
+info:   defm 'CP/M 2.2 Super-BIOS (c) Klaus K{mpf 5.84'
+        defm ' A: S40 DD           B:GENIE III DSDD   '
+        defb 0
+
+errtxt: defm 'DISK ERROR !   Press CLEAR & BREAK      '
+        defm 'Side: '
+txtsid: defm '   '
+        defm 'Track: '
+txttrk: defm '   '
+        defm 'Sector: '
+txtsec: defm '             '
+        defb 0
+
+; Parameter Table 4
+
+zzzzzy  equ  $
         defs 100
 cpmstk  equ  $
         defs 50
 intstk  equ  $
 kbdbuf: defs 64
 secbuf: defs 1024
-gat1:   defs 50
-gat2:   defs 50
-gat3:   defs 50
-gat4:   defs 50
-gat5:   defs 50
-gat6:   defs 50
-gat7:   defs 50
-gat8:   defs 50
-chk1:   defs 128
-chk2:   defs 128
-chk3:   defs 128
-chk4:   defs 128
-chk5:   defs 128
-chk6:   defs 128
-chk7:   defs 128
-chk8:   defs 128
+alv1:   defs 50
+alv2:   defs 50
+alv3:   defs 50
+alv4:   defs 50
+csv1:   defs 128
+csv2:   defs 128
+csv3:   defs 128
+csv4:   defs 128
 dirbuf: defs 128
+zzzzzz  equ  $
         end
-        
