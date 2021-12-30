@@ -1,0 +1,143 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Anhang A                      Systeminterne Informationen"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung           A-#"
+_A. Systeminterne Informationen_
+
+_A.1 Speicheraufteilung unter CP/M 2.2_
+
+Adresse        Nutzung +
+------------------------------------------------------------- +
+0000H-0002H    Sprung zur Warmstart-Routine im BIOS +
+0003H          IOBYTE +
+0004H          Nummer des aktuellen Laufwerks +
+               (00H = A bis 0FH = P) +
+0005H-0007H    Sprung nach BDOS+6H (Software-Schnittstelle +
+               zum CP/M für Anwenderprogramme) +
+0008H-0037H    frei +
+0038H-003AH    RST  38H,  Interruptadresse.  Bei  aktivierten  +
+               Interrupts, löst jeder Interrupt einen Sprung               befehl  zu dieser Adresse aus.  Unbenutzt  bei  +
+               abgeschalteten Interrupts. +
+003BH-005BH    frei +
+005CH-007FH    File Control Block für Anwenderprogramme +
+0080H-00FFH    Arbeitspuffer für den CCP
+
+Die  weitere  Speicheraufteilung  ist bei  den  verschiedenen  +
+Geräten  unterschiedlich.  Auch kann keiner der im  folgenden  +
+angegebenen  Werte  für weiter Versionen  garantiert  werden.  +
+Gültig  für die Größe der TPA ist immer der Start  des  BDOS,  +
+dessen Adresse in den Speicherstellen 0006H, 0007H steht.
+
+
+_A.1.1 Speicheraufteilung beim CP/M 2.2XV3 (Genie III)_
+
+Adresse        Nutzung +
+------------------------------------------------------------- +
+0100H-CEFFH    Freier Anwenderspeicher (TPA) +
+CF00H-D6FFH    CCP +
+D700H-E4FFH    BDOS +
+E500H-FFFFH    BIOS (konstanter Teil)
+
+
+_A.1.2 Speicheraufteilung beim CP/M 2.2XV1 (Genie IIs)_
+
+Adresse        Nutzung +
+------------------------------------------------------------- +
+0100H-CDFFH    Freier Anwenderspeicher (TPA) +
+CE00H-D5FFH    CCP +
+D600H-E3FFH    BDOS +
+E400H-FFFFH    BIOS (konstanter Teil) +
+
+// .pa ""
+
+<<<
+_A.2 Aufteilung der Systemdiskette_
+
+Auf  jeder Systemdiskette sind die ersten beiden Spuren (Spur  +
+Nummer 0 und 1) als Systemspuren genutzt. Daher kann auch nur  +
+von  einem solchen Format gebootet werden,  daß **mindestens  2  +
+Reserved Tracks** hat.
+
+Spur  0  ist beidseitig mit je 10 Sektoren a 256 Bytes  (einfache Dichte) formatiert.  Beim Bootvorgang (Kaltstart)  wird  +
+der Sektor 0 der Spur 0 vom eingebauten Urlader-EPROM auf die  +
+Adressen 4200H bis 42FFH geladen und die weitere Programmausführung dorthin übergeben. +
+Dieser  Bootsektor liest dann 16 weitere Sektoren (9 von  der  +
+Vorderseite,  7 von der Rückseite)  in den Speicher ab 0D300H  +
+(Genie III) bzw. 0D200H (Genie IIs). +
+Der so geladene Programmteil ist der LOADER, auf der Diskette  +
+als  LOADER.SYS  verfügbar.  Dieser LOADER liest  die  beiden  +
+Files CONFIG.SYS und BIOS22X.SYS, konfiguriert das System und  +
+startet das CP/M. +
+Spur  1 ist beiseitig mit je 10 Sektoren a 512 Bytes in  doppelter Dichte formatiert.  Auf dieser Spur steht das CP/M 2.2  +
+Betriebssystem in den beiden Teilen CCP und BDOS. Diese Teile  +
+werden  bei  jedem Warmstart von dieser Spur in den  Speicher  +
+unterhalb des BIOS gebracht.
+
+Die Aufteilung aller weiteren Spuren ist abhängig vom jeweils  +
+benutzten Format.
+
+Die  Aufteilung der ersten beiden Spuren sieht folgendermaßen  +
+aus  (Adressangaben für Genie III,  beim Genie IIs 0100H  abziehen)
+
+Spur Sektor Seite   Adresse         Nutzung +
+ 0     0      V     4200H           Bootsektor +
+ 0     1      V     D300H           LOADER +
+ 0     2      V     D400H           LOADER +
+ 0     3      V     D500H           LOADER +
+ 0     4      V     D600H           LOADER +
+ 0     5      V     D700H           LOADER +
+ 0     6      V     D800H           LOADER +
+ 0     7      V     D900H           LOADER +
+ 0     8      V     DA00H           LOADER +
+ 0     9      V     DB00H           LOADER +
+ 0     0      R     DC00H           LOADER +
+ 0     1      R     DD00H           LOADER +
+ 0     2      R     DE00H           LOADER +
+ 0     3      R     DF00H           LOADER +
+ 0     4      R     E000H           LOADER +
+ 0     5      R     E100H           LOADER +
+ 0     6      R     E200H           LOADER +
+ 0     7      R                     unbenutzt +
+ 0     8      R                     unbenutzt
+
+ 0     9      R                     unbenutzt +
+ 1     0      V     CF00H           CCP +
+ 1     1      V     D100H           CCP +
+ 1     2      V     D300H           CCP +
+ 1     3      V     D500H           CCP +
+ 1     4      V     D700H           BDOS +
+ 1     5      V     D900H           BDOS +
+ 1     6      V     DB00H           BDOS +
+ 1     7      V     DD00H           BDOS +
+ 1     8      V     DF00H           BDOS +
+ 1     9      V     E100H           BDOS +
+ 1     0      R     E300H           BDOS +
+ 1     1      R                     unbenutzt +
+ 1     2      R                     unbenutzt +
+ 1     3      R                     unbenutzt +
+ 1     4      R                     unbenutzt +
+ 1     5      R                     unbenutzt +
+ 1     6      R                     unbenutzt +
+ 1     7      R                     unbenutzt +
+ 1     8      R                     unbenutzt +
+ 1     9      R                     unbenutzt +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<

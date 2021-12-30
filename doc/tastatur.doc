@@ -1,0 +1,354 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 9
+.pn 1
+.hå Kapiteì ³                                        Tastatur
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            3-#
+3. Die Tastatur
+
+3.1 Tastaturbedienung
+
+3.1.± Tastenklick
+
+Dieså  Funktioî  benutzô  deî iî  diå  Tastatuò  integrierteî 
+(Geniå   III©  bzw®   deî  aî  diå  I/O-Kartå  anschlie~bareî 
+Lautsprecheò (Geniå IIs© zuò Erzeugunç eineó kurzeî Klicktonó 
+beé jedeò bet{tigteî Taste®  Insbesonderå beé Ausnutzunç  deò 
+Type-aheaä  M|glichkeiô (siehå unten)¬  isô dieså Tastenquit
+tierunç sehò n}tzlich¬ dá maî direkô h|reî kann¬ oâ diå Tastå 
+erkannô wurdå odeò nicht.
+Diå automatischå Tastenwiederholunç gibô ebenfalló f}ò  jedeó 
+erzeugtå Zeicheî eineî Klicktoî aus® Beé deò Bet{tigunç eineò 
+Funktionstastå  ert|nô nuò eiî Klickton¬  aucè wenî diå Tastå 
+mehò aló eiî Zeicheî erzeugt.
+
+
+3.1.2 Tastenwiederholung
+
+Jedå  Tastå  wird¬  nachdeí  siå einå gewisså  Zeiô  gedr}ckô 
+gehalteî  bleibt¬  automatiscè wiederholt®  Dadurcè kanî  eiî 
+Zeicheî sehò leichô mehrfacè erzeugô werden.
+Dá diå Tastenabfragå unä -wiederholunç }beò Softwarå  gesteu
+erô wird¬ kanî einå gleichbleibendå Wiederholungsfrequenú beé 
+verschiedeneî  Programmeî jedocè nichô immeò eingehalteî wer
+den.
+Dieó  liegô  daran¬  daş diå Wiederholunç  nichô  nacè  eineí 
+bestimmteî  Zeitrhythmuó abl{uft¬  sonderî voî deò Anzahì deò 
+Tastaturabfrageî  bestimmô wird®  Beé aktivierteî  Interruptó 
+isô diå Wiederholungsfrequenú jedocè gleichbleibend¬  dá  beé 
+jedeí  Interrupô  diå Tastatuò abgefragô wirä unä diå  Inter
+ruptfrequenú  (4° Interruptó prï Sekunde©  ziemlicè  konstanô 
+ist.
+Beé Zufrifæ auæ diå Diskettenlaufwerkå werdeî diå  Interruptó 
+abgeschaltet®  Beé  l{ngereî Diskettenzugriffeî isô daheò diå 
+Tastaturabfragå unä diå Uhranzeigå f}ò dieså Zeiô  abgeschal
+tet.
+
+Uí  f}ò jedå Anwendunç einå optimalå Wiederholungsfrequenú zõ 
+erreichen¬  isô diå Zeiô bió zuò ersteî Wiederholunç unä  diå 
+Wiederholungsfrequenú  }beò daó CONFIG-Programí freé  w{hlbaò 
+(siehå Kapitel 7.1).
+
+
+3.1.3 Type-ahead
+
+Einå  Besonderheiô deó CP/Í 2.2Ø stellô diå  Type-aheaä  M|g
+lichkeiô  dar®  Diese¬  etwá miô 'Voraustippen§  }bersetzbarå 
+Bezeichnung¬  erm|glichô  es¬   Tastatureingabeî vorzunehmen¬ 
+bevoò  siå voí Programí abgearbeiteô werden®  Siå k|nneî  daŠdurcè  alsï Zeicheî ií Vorauó eingeben¬  diå automatiscè  ge
+speicherô werdeî unä deí Programí ersô zuò Verf}gunç gestellô 
+werden¬ wenî eó dieså verarbeiteî kann® 
+
+Deò  Type-aheaä kanî abeò nuò beé aktivierteî Interruptó volì 
+genutzô  werden¬  denî nuò iî dieseí Falì wirä  diå  Tastatuò 
+h{ufiç genuç abgefragt.
+
+F}ò  deî Type-aheaä stehô eiî 6´ Zeicheî fassendeò  Tastatur
+puffeò  zuò Verf}gung®  Zuò Kontrolle¬  oâ einå Tastå erkannô 
+wurde¬ dienô iî deî meisteî F{lleî deò Tastenklick.
+Beé  ]berf}llunç  deó Tastaturpufferó wirä keiî Zeicheî  mehò 
+gespeicherô  unä beé jedeí Tastendrucë eiî l{ngereò  Piepstoî 
+}beò deî Lautsprecheò erzeugt® Falló diå eingegebeneî Zeicheî 
+nichô durcè daó Anwenderprogramí abgearbeiteô werden¬ muş deò 
+gesamtå Tastaturpuffeò durcè gleichzeitigeó Dr}ckeî deò  Tas
+teî  CTRÌ (Geniå III© bzw®  P2 (Geniå IIs© unä CLEAÒ gel|schô 
+werdeî (siehå Kapitel 3.3.5).
+
+
+3.2 Funktionstasten
+
+Diå auæ deò Tastatuò ausgezeichneteî Tasteî F± bió F¸ sinä ií 
+Geniå IIÉ CP/Í 2.2XV³ aló Funktionstastå benutzt® F}ò die¬ iî 
+Verbindunç miô deò Shift-Taste¬  1¶ m|glicheî Funktionstasteî 
+steheî  25¶ Byteó aló Zeichenspeicherî zuò  Verf}gung®  Damiô 
+kanî  jedå Funktionstastå ií Mitteì bió zõ 1¶ Zeicheî  erzeu
+gen®  Diå  maximalå L{ngå eineò durcè einå Funktionstastå er
+zeugteî  Zeichenkette¬  isô durcè deî Tastaturpuffeò  auæ  6´ 
+Zeicheî begrenzt.
+F}ò   daó   Geniå  IIó  gilô  daó  gleiche¬   nuò   daş   diå 
+Funktionstasteî  durcè P2-° (gleichzeitigeó Dr}ckeî voî  'P2§ 
+und '0') bis P2-7 dargestellt werden.
+
+Diå Festlegunç deò erzeugteî Zeichenkette¬  geschiehô miô deí 
+Programí FKEÙ (Kapitel 10.5©.
+
+Programmgesteuerô  odeò miô deí CONFIG-Programí kanî diå  Er
+zeugunç  deò Zeichenkettå unterbundeî werden®  Iî dieseí Falì 
+wirä danî beií Dr}ckeî eineò Funktionstastå diå Funktionstas
+tennummeò +12· ausgegeben®  Dadurcè kanî diå Bet{tigunç eineò 
+bestimmteî  Funktionstastå abgefragô werden¬  ohnå diå  durcè 
+siå erzeugô Zeichenkettå zõ kennen.
+
+
+3.3 Speziellå Tasteî
+
+3.3.° Einleitung
+
+Auæ deò Tastatuò deó Geniå IIÉ bzw® IIó befindeî sicè mehrerå 
+Tasten¬  diå  ií  CP/Í 2.2Ø speziellå  Funktioneî  haben®  Ií 
+Hinblicë auæ gewisså Standardprogrammå (z.B® WordStar¬ TurboŠPascal© wurdeî dieså Funktioneî sï gew{hlt¬  daş diå Tastatuò 
+aló  WordStar-kompatibeì  zõ bezeichneî ist®  Dá  aucè  vielå 
+anderå Programmå dieseî då factï Standarä benutzen¬  haô sicè 
+diå gew{hltå Tastenbelegunç aló sinnvolì erwiesen.
+
+
+3.3.± Diå SHIFT-Taste
+
+Diå  SHIFT-Tastå erzeugô selbsô keineî eigeneî Wert¬  siå er
+gibt¬  wiå beé eineò normaleî Schreibmaschinentastatur¬  ersô 
+zusammeî miô eineò weitereî Tastå einå Funktion®  Diå  Alpha
+tasteî  (@,A-Z,[,\,],~© erzeugeî normalerweiså  Kleinbuchsta
+ben¬  wenî  siå zusammeî miô deò Shift-Tastå bet{tigô  werdeî 
+jedocè Gro~buchstaben.
+Aucè  beé  alleî doppelô beschrifteteî Tasteî wirä daó  oberå 
+Zeicheî ersô zusammeî miô deò Shift-Tastå erreicht.
+
+
+3.3.² Diå CTRL-Taste
+
+Diå  CTRL-Tastå  (Control-Taste©  erzeugt¬  genausï  wiå  diå 
+Shift-Taste¬  keineî eigeneî Wert®
+Wiå  deò  Namå schoî zeigt¬  haô dieså Tastå  ebenfalló  einå 
+Kontrollfunktion®    Zusammeî   miô   deî   Alphatasteî   (A-
+Z,[,\,],~,_© werdeî diå Wertå 01È bió 1FÈ (± bió 31© erzeugt¬ 
+diå  iî  deî meisteî Programmeî besonderå  Funktioneî  haben® 
+Ií  Geniå  IIó  gibô eó keinå eigenå  CTRL-Taste¬  f}ò  dieså 
+Funktioî  wurdå  diå  Tastå  'P1§  gew{hlt®   Innerhalâ   deó 
+Handbuchó wirä diå Bezeichnunç 'CTRL§ beibehalten.
+
+
+3.3.3 Die ENTER-Taste
+
+Diå  ENTER-¬   RETURN- odeò  NEWLINE-Tastå  haô  diå  normalå 
+Funktion¬ daó Abschliesseî deò Eingabezeile® Entsprechenä deí 
+CP/M-Standarä wirä deò ASCII-Codå 'Carriagå Returî (0DH¬  13© 
+erzeugt.
+
+
+3.3.4 Diå BREAK-Taste
+
+Eiî  gewisseò Nachteilå ií CP/Í 2.² ist¬  daş eiî  Disketten
+wechseì  nichô automatiscè erkannô wird¬  sonderî deí  Systeí 
+gesonderô  mitgeteilô  werdeî mu~®  Voí Entwickleò  deó  CP/Í 
+wurdå  dazõ diå Tastenkombinatioî CTRL-Ã (Wertº  03H¬  ³ dez© 
+gew{hlt¬ diå aucè aló 'Warmstart§ bezeichneô wird.
+Dá vielå Programmå dieseî Werô ebenfalló benutzen¬  wurdå diå 
+Break-Tastå  damiô belegt®  Aucè allå Kombinationeî deò  Kon
+trolltasteî  CTRÌ  unä SHIFÔ zusammeî miô BREAË  ergebeî  deî 
+Werô 03H.
+Diå  Break-Tastå  wirä interî nocè f}ò  eineî  zweiteî  Zwecë 
+benutzt:ŠBeií Zugrifæ auæ eiî Peripherieger{t¬ testeô daó Betriebssys
+teí zuersô deî Statuó dieseó Ger{tes¬ oâ eó alsï zuò ]bernah
+må  eineó Zeichenó bereiô isô bzw®  eiî Zeicheî sendeî  kann® 
+F{llô  dieså Abfragå negatiö aus¬  warteô daó  Betriebssysteí 
+solangå bió daó Ger{ô einå 'Klarmeldung§ gibt.
+Wirä  nuî eiî nichô vorhandeneó Ger{ô  angesprochen¬  'h{ngt§ 
+sicè daó Betriebssysteí normalerweiså auf®  Uí dieseî System
+absturú zõ verhindern¬ kanî durcè Dr}ckeî deò Breaktastå einå 
+Klarmeldunç erzwungeî werden® Diå Dateî werdeî zwaò iî dieseí 
+Falì  inó  Leerå geschickô odeò eó  kommeî  unsinnigå  Werte¬ 
+danacè  kanî daó Systeí jedocè wiedeò normaì  weiterarbeiten® 
+Wichtiç  dabeé ist¬  daş diå Breaktastå iî eineí solcheî Falì 
+gedr}ckô bleibeî mu~¬ bió diå Ein- odeò Ausgabå beendeô ist.
+
+
+3.3.5 Diå CLEAR-Taste
+
+Diå CLEAR-Tastå wirä ií CP/Í 2.2Ø aló Escape-Tastå (ESC¬ 1BH¬ 
+27© benutzt¬ haô abeò nocè einå weiterå Funktion:
+Iî normaleî CP/M-Systemeî f}hrô eiî Diskettenfehleò meisô zuí 
+Systemabsturú  unä  eó  gibô keineî Hinweió  auæ  diå  genauå 
+Fehlerursache.
+Ií  CP/Í 2.2Ø wirä nacè eineí Diskettenfehleò iî deò  Status
+zeilå diå exaktå Fehlerbeschreibunç unä deò exaktå  Fehlerorô 
+angezeigô (siehå Kapiteì 6.2.² bzw® 6.2.3).
+]beò diå CLEAR-Tastå kanî nuî diå zuletzô ausgef}hrtå Disket
+tenoperatioî  beliebiç  ofô wiederholô werden¬  ohnå daş  deò 
+Programmablauæ gest|rô wird®  SHIFT-CLEAÒ brichô diå  fehler
+haftå  Diskettenoperatioî  aâ  unä meldeô deî Fehleò  aî  daó 
+Betriebssystem¬ daş danî deî Programmablauæ abbricht® 
+
+Beé besch{digteî Disketteî kanî eó vorkommen¬  daş eiî Fehleò 
+aucè nacè mehrereî Wiederholungeî deó Diskettenzugriffó nichô 
+zõ  beseitigeî ist®  Dieó isô besonderó beé  wichtigeî  Dateî 
+{rgerlich¬  dá  iî deî meisteî F{lleî daó gesamtå Filå  nichô 
+mehò lesbaò ist®  Falló alsï z.B®  nuò eiî Sektoò besch{digt¬ 
+deò Resô deó Fileó jedocè einwandfreé lesbaò ist¬ kanî dieseò 
+Resô nocè geretteô werden.
+Dazõ  dienô diå Funktioî CTRL-CLEAÒ (Geniå IIsº  P1-CLEAÒ !)¬ 
+diå  diå fehlerhaftå Diskettenoperatioî  zwaò  abbricht¬  deî 
+Fehleò  jedocè nichô aî daó Betriebssysteí meldet®  Damiô haô 
+maî  nuî diå M|glichkeiô aucè beé  physikaliscè  besch{digteî 
+Disketteî eineî Gro~teiì deò aufgezeichneteî Dateî zõ retten® 
+Diå  fehlerhafteî Sektoreî werdeî jedocè durcè dieså Funktioî 
+nichô repariert¬ sonderî dieseò Teiì deò Dateî isô verloren.
+
+ACHTUNG:  Beií Dr}ckeî voí CTRL-CLEAÒ wirä miô deî fehlerhafô 
+geleseneî Dateî weitergearbeitet® Benutzeî Siå dieså Funktioî 
+alsï  nuò beé defekteî Disketten¬  voî deneî Siå  nocè  Dateî 
+retteî wollen.
+
+Š3.3.¶ Diå LOCË Tastå
+
+3.3.6.1 Beim Genie III
+
+Diå Alpha-Locë Tastå haô f}ò diå sogenannteî Alphazeicheî (A-
+Z,[,\,],~© dieselbå Funktioî wiå diå SHIFT-Tastå unä wirä f}ò 
+dieså  Zeicheî wiå einå gedr}cktå Shifttastå  behandelt®  Diå 
+Alpha-Locë Tastå erzeugô selbeò keineî Wert.
+
+
+3.3.6.2 Beim Geniå IIs
+
+Dá  diå Geniå IIó Tastatuò keinå eigenå LOCK-Tastå hat¬  wirä 
+dorô diå Tastenkombinatioî P1-SHIFÔ benutzt®  Beií Starô  deó 
+Systemó  isô diå Lock-Funktioî ausgeschaltet¬  jedeó  gleich
+zeitigå  Dr}ckeî voî 'P1§ unä 'SHIFT§ schalteô dieså Funktioî 
+eiî  unä wiedeò aus®  Eó gibô leideò keinå einfachå  M|glich
+keit¬  deî  aktuelleî Statuó deò Lock-Funktioî  darzustellen® 
+Deò  Benutzeò  muş sicè daheò immeò merken¬  wiå ofô  eò  diå 
+Funktioî umgeschalteô hat.
+
+
+3.3.· Diå Pfeiltasten
+
+3.3.7.° Einleitung
+
+Allå  vieò Pfeiltasteî wurdeî ií Hinblicë auæ diå  Funktioneî 
+deó  Textverarbeitungsprogrammó WordStaò belegt®  Jedå  Tastå 
+haô zweé verschiedenå Funktionen.
+
+Allå folgendeî Erkl{rungeî deò Pfeiltasteî bezieheî sicè  auæ 
+daó  Programí WordStar®  Einå Zusammenfassunç alleò durcè diå 
+Pfeiltasteî erzeugteî Wertå unä ihrå entsprechendeî  Kombina
+tioneî  deò CTRL-Tastå miô eineò Alpha-Tastå isô ií Anhanç  Ä 
+aufgef}hrt.
+
+
+3.3.7.± Diå Hochpfeil-Taste
+
+Dieså  Tastå alleiî erzeugô deî Codå 05È (µ dez¬  CTRL-E© unä 
+plazierô deî Cursoò einå Zeilå h|her® Shift-Hochpfeiì erzeugô 
+deî Codå 12È (1¸ dez¬ CTRL-R© unä bl{tterô einå Seitå zur}ck.
+
+
+3.3.7.² Diå Tiefpfeil-Taste
+
+Deò Tiefpfeiì setzô deî Cursoò einå Zeilå tiefeò unä  erzeugô 
+deî Codå 18È (2´ dez¬  CTRL-X)®  SHIFT-Tiefpfeiì (03H¬ ³ dez¬ 
+CTRL-C© bl{tterô einå Seitå vor.
+Damiô  habeî diå beideî Tasteî Hochpfeiì unä Tiefpfeiì  genaõ 
+entsprechendå Funktionen.
+Š
+3.3.7.³ Diå Linkspfeil-Taste
+
+Diå  Linkspfeil-Tastå  isô diå Einzigå deò  Pfeiltasten¬  diå 
+aucè  iî andereî Programmeî Verwendunç  findet®  Dieså  Tastå    
+- aucè  BACKSPACÅ  genannô  -  erzeugô deî Codå 08È  (¸  dez¬ 
+CTRL-H© deò iî alleî Programmeî daó zuletzô eingegebenå  Zei
+cheî  l|schô bzw®  deî Cursoò einå Positioî nacè linkó bef|r
+dert.
+SHIFT-Linkspfeiì  setzô ií WordStaò deî Cursoò aî deî  Anfanç 
+deó vorherigeî Worteó (01H¬ ± dez¬ CTRL-A).
+
+
+3.3.7.´ Diå Rechtspfeil-Taste
+
+Deò  Rechtspfeiì bewegô deî Cursoò eiî Zeicheî  nacè  rechts¬ 
+ohnå  daó  dorô befindlichå Zeicheî zõ l|scheî (04H¬  ´  dez¬ 
+CTRL-D)®   SHIFT-Rechtspfeiì  setzô deî Cursoò aî deî  Anfanç 
+deó n{chsteî Worteó (06H¬ ¶ dez¬ CTRL-F).
+Damiô  habeî  diå beideî Tasteî  Linkspfeiì  unä  Rechtspfeiì 
+ebenfalló entsprechendå Funktionen.
+
+
+
+3.3.¸ Diå Leertaste
+
+Obwohì  diå  Leertastå  (aucè SPACÅ  odeò  SPACEBAÒ  genannt© 
+eigentlicè   zuò  normaleî  Schreibmaschinentastatuò  geh|rt¬ 
+wurdeî ihò zweé Sonderfunktioneî zugewiesen.
+Diå  Leertastå alleiî ergibt¬  wiå ihò Namå schoî  sagt¬  daó 
+Leerzeicheî odeò Spacå (20H¬  3² dez)®  ]beò  SHIFT-Leertastå 
+wirä  deò  TAB-Codå (09H¬  ¹ dez¬  CTRL-I© erzeugt¬  deò  deî 
+Cursoò  zuò n{chsteî Tabulatorpositioî  bringt®  Ií  normaleî 
+CP/M-Gebraucè  bringô  dieseò  Codå deî Cursoò  zuò  n{chsteî 
+Spaltenposition¬  diå eiî Vielfacheó voî ¸ darstellt®  Iî deî 
+meisteî Textverarbeitungsprogrammeî sinä dieså Tabulatorposi
+tioneî jedocè freé w{hlbar.
+Beií  Geniå  IIó haô diå Leertastå nocè einå  weiteò  Sonder
+funktion¬ diå Umschaltunç deó Zeichensatzeó (siehå unten).
+
+
+3.3.¹ Diå 00-Tastå                            (nuò Geniå III)
+
+Diå  Tastå  '00§ auæ deí separateî Zehnerblocë  deò  Tastatuò 
+erzeugô diå Zeichenfolgå '00'.
+.paŠ3.4 Besondere Tastaturfunktionen
+
+3.4.± CTRL-0°                               (nuò Geniå III)
+
+Mithilfå  deò Tastenkombinatioî CTRL-0° kanî maî  beií  Geniå 
+IIÉ  deî  aktuelleî Bildschirminhalô }beò deî LST-Kanaì  aus
+drucken.
+Dieseò  Ausgabekanaì gibô normalerweiså diå Dateî auæ deí  aí 
+Centronics-Parallelporô angeschlosseneî Druckeò aus® ]beò deî 
+STAT-Befehì  (siehå Kapiteì 5.1.µ unä 9.2© kanî dieså  Kanal
+zuordnunç jedocè ge{nderô werden.
+Diå Ausgabå deó Bildschirmó erfolgô zeilenweise¬  wobeé  nacè 
+jedeò  Zeilå (8° Zeichen© diå beideî Codeó CÒ (0DH¬  1³  dez© 
+unä LÆ (0AH¬  1° dez© eingef}gô werden® Dieså Codeó bewirken¬ 
+daş  deò angeschlossenå Druckeò deî Ausdrucë auæ deò n{chsteî 
+Zeilå fortsetzt®  Inverså Zeicheî werdeî wiå normalå  Zeicheî 
+behandelt¬  nichô  druckbarå Zeicheî (01È bió 1FH¬  ± bió  3± 
+dez© werdeî aló Punkô ('.'© ausgegeben.
+
+Beé  normaleò Papiergr|~å (7² Zeileî prï Seite© passeî  genaõ 
+dreé Bildschirmseiteî auæ einå Druckerseite.
+
+
+3.4.² P2-Leertastå                            (nuò Geniå IIs)
+
+Diå  Tastenkombinatioî P2-Leertastå schalteô beií  Geniå  IIó 
+zwischeî deî beideî eingebauteî Zeichens{tzeî DEUTSCÈ unä US-
+ASCIÉ  um®  Diå  Umschaltunç betriffô diå folgenden Zeichen:
+
+     Deutsch  US-Ascii
+        @        @
+        [        [
+        \        \
+        ]        ]
+        {        {
+        |        |
+        }        }
+        ~        ~
+
+Dá diå Zeichenausgabå }beò diå Graphikkartå erfolgt¬  isô diå 
+Umschaltunç  ersô beé deò n{chsteî Ausgabå eineó dieseò  Zei
+cheî wirksam®  Zusammeî miô deò entsprechendeî Escape-Sequenú 
+zuò  Zeichensatzumschaltunç (siehå Kapiteì ´ unä  Anhanç  B)¬ 
+k|nneî  dadurcè abeò aucè beidå Zeichens{tzå zusammeî  darge
+stellô werden.
+.paŠ.paŠ

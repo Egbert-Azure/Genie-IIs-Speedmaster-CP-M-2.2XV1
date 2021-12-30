@@ -1,0 +1,200 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 10
+.pn 1
+.hå Kapiteì µ                                  Schnittstellen
+.fï(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            5-#
+5. Schnittstellen
+
+5.1 Ein- und Ausgabekan{le
+
+Daó CP/Í Betriebssysteí unterst}tzô insgesamô vieò Ein/Ausga
+bekan{le® Jedeò Datentransport¬ deò auæ Zeichenbasió arbeiteô 
+wirä }beò dieså Kan{lå abgewickelt.
+Dieså Hauptkan{lå sprecheî jedocè nichô direkô einå  Schnitt
+stellå deó Ger{teó an¬  sonderî diå Zuordnunç zõ eineò physi
+kalischeî  Schnittstellå erfolgô ersô durcè eineî voî jeweiló 
+vieò Unterkan{len® Diå Bezeichnunç deò Haupt- unä Unterkan{lå 
+isô durcè jeweiló dreé Zeicheî gefolgô voî eineí  Doppelpunkô 
+festgelegt.
+Diå  aktuellå Kanalzuordnunç wirä iî eineí Bytå - aucè IOBYTÅ 
+genannô - aî deò Speicherstellå ³ abgespeichert® Jedeí Haupt
+kanaì sinä iî dieseí Bytå jå zweé Bitó zugeordnet¬  diå  einå 
+deò vieò verschiedeneî Unterkanalbelegungeî dekodieren.
+Welcheò Unterkanaì welcheí Hauptkanaì zugeordneô ist¬ wirä ií 
+Allgemeineî  }beò  deî  STAT-Befehì (siehå Kapiteì  9.2©  be
+stimmt¬  kanî  abeò  aucè durcè direktå [nderunç  deó  IOBYTÅ 
+erfolgen®  (siehå  aucè  Kapiteì ·  Systemkonfigurierunç  unä 
+Kaptiteì 10.¹ IOBYTE.COM).
+Einå [nderunç deò Unterkan{lå isô i.A®  nichô  m|glich¬  kanî 
+jedocè auæ Anfragå verwirklichô werden.
+
+
+5.1.± Erstår Hauptkanaì
+        (CON:¬ Console¬ IOBYTÅ Bitó 0,1)
+
+Dieó isô deò einzigå Kanal¬  deò sowohì Dateî sendeî aló aucè 
+empfangeî  kann®  ]beò  deî CON:-Kanaì laufeî  allå  Ein- unä 
+Ausgabeî deó Betriebssystems®  Diå vieò Unterkan{lå deó CON:-
+Kanaló sind:
+
+- Seriellå Schnittstellå            (TTY:,0,0)
+- Tastatuò unä Bildschirí           (CRT:,0,1)
+- Batchmodå                         (BAT:,1,0)
+- Tastatur und Drucker              (UC1:,1,1)
+
+Diå  Bezeichnunç dahinteò gibô deî Nameî deó Unterkanaló  unä 
+diå Wertå deò Bitó ± unä ° deó IOBYTÅ an.
+
+Ií  Batchmodå wirä keinå physikalischå  Schnittstellå  direkô 
+angesprochen¬  sonderî  diå  Zeicheneingabå erfolgô }beò  deî 
+zweiteî  Hauptkanaì (RDR:© unä diå Ausgabå }beò  deî  vierteî 
+Hauptkanaì (LST:).
+.paŠ5.1.2 Zweiter Hauptkanal
+        (RDR:¬ Reader¬ IOBYTÅ Bitó 2,3)
+
+Dieó isô eiî reineò Eingabe-Kanal®  Diå vieò m|glicheî Unter
+kan{lå sind:
+
+- Seriellå Schnittstellå            (TTY:,0,0)
+- NULL oder Serielle Schnittstellå  (PTR:,0,1)
+- Tastatuò                          (UR1:,1,0)
+- NULL oder Serielle Schnittstellå  (UR2:,1,1)
+
+NULÌ isô eiî Kanaì ohnå Funktion¬  eó wirä immeò deò Werô 26¬ 
+1AH (CP/M Standardwert f}r 'Ende der Eingabe') zur}ckgegeben.
+
+
+5.1.3 Dritter Hauptkanal
+        (PUN:¬ Punch¬ IOBYTÅ Bitó 4,5)
+
+Dieó isô eiî reineò Ausgabe-Kanaì miô folgendeî Unterkan{len:
+
+- Seriellå Schnittstellå            (TTY:,0,0)
+- Centronics Schnittstellå          (PTP:,0,1)
+- Bildschirí                        (UP1:,1,0)
+- NULL oder Serielle Schnittstellå  (UP2:,1,1)
+
+NULÌ  isô eiî Kanaì ohnå Funktion¬  allå Ausgabeî auæ  dieseî 
+Kanaì werdeî verworfen.
+
+
+5.1.4 Vierter Hauptkanal
+        (LST:¬ List¬ IOBYTÅ Bitó 6,7)
+
+Dieseò Kanaì dienô deí Betriebssysteí aló Druckerkanal®  Allå 
+Ausgaben¬ diå auæ eineî Druckeò laufeî solleî (Bildschirmaus
+drucë }beò CTRL-0° beií Geniå III)¬ werdeî }beò dieseî Haupt
+kanaì abgewickelt® Diå vieò Unterkan{lå sind:
+
+- Seriellå Schnittstellå            (TTY:,0,0)
+- Bildschirí                        (CRT:,0,1)
+- Centronics-Parallelschnittstellå  (LPT:,1,0)
+- Centronics-Schnittstellå HexMode  (UL1:,1,1)
+
+Ií   HexModå  werdeî  diå  einzelneî  Zeicheî  nichô   direkô 
+ausgegeben¬  sonderî  iî ihrå jeweiligå Darstellunç ií  Hexa
+dezimalformaô  umgerechnet®  Daó  Zeicheî 'A§  z.B®  wirä  iî 
+diesem Fall als '41' dargestellt.
+Dieseò  Moduó  isô  besonderó beií Austesteî  voî  Programmeî 
+(z.B. WordStar Druckerinstallation) {usserst hilfreich.
+.paŠ5.1.5 Zuordnunç deò Kan{le
+
+5.1.5.1 Beim Genie III
+
+Diå  folgendå  Tabellå gibô nochmaló einå ]bersichô }beò  diå 
+m|glicheî  Kanalzuordnung®  Miô ª isô diå  Zuordnunç  gekenn
+zeichnet¬  diå  iî deò ausgelieferteî Geniå IIÉ  CP/Í  2.2XV³ 
+Versioî voreingestellô ist.
+
+
+Devicå    M|glichkeiteî  Schnittstelle
+-------------------------------------------------
+
+CONº      TTYº           V 24
+          CRTº         ª Tastatur / Bildschirí 
+          BATº           Batchmodå
+          UC1º           Tastatur / Centronics
+
+
+RDRº      TTYº         ª V 24
+          PTRº           V 24
+          UR1º           Tastatur
+          UR2º           NULL ('Niemandsland')
+
+
+PUNº      TTYº         ª V 24
+          PTPº           Centronics
+          UP1º           Bildschirm
+          UP2º           NULL ('Niemandsland')
+
+
+LSTº      TTYº           V 24
+          CRTº           Bildschirm
+          LPTº         ª Centronics-Schnittstelle
+          UL1º           Centronics-Schnittstelle, HexMode
+.paŠ5.1.5.2 Beim Genie IIs
+
+Diå  folgendå  Tabellå gibô nochmaló einå ]bersichô }beò  diå 
+m|glicheî  Kanalzuordnung®  Miô ª isô diå  Zuordnunç  gekenn
+zeichnet¬  diå  iî deò ausgelieferteî Geniå IIs  CP/Í  2.2XV1 
+Versioî voreingestellô ist.
+
+Devicå    M|glichkeiteî  Schnittstelle
+-------------------------------------------------
+
+CONº      TTYº           SIO Kanal A
+          CRTº         ª Tastatur / Bildschirí 
+          BATº           Batchmodå
+          UC1º           SIO Kanal B
+
+
+RDRº      TTYº         ª SIO Kanal A
+          PTRº           NULL ('Niemandsland')
+          UR1º           Tastatur
+          UR2º           SIO Kanal B
+
+
+PUNº      TTYº         ª SIO Kanal A
+          PTPº           Centronics
+          UP1º           Bildschirm
+          UP2º           SIO Kanal B
+
+
+LSTº      TTYº           SIO Kanal A
+          CRTº           Bildschirm
+          LPTº         ª Centronics-Schnittstelle
+          UL1º           Centronics-Schnittstelle, HexMode
+
+
+
+]beò deî Befehì STAÔ XXX:=YYYº  kanî deí Hauptkanaì XXXº  deò 
+Unterkanaì YYYº  zugewieseî werden®  Einå Zuweisunç deò Druk
+kerausgabå auæ deî Bildschirí entsprichô alsï deí Befehì STAÔ 
+LST:=CRT:.
+
+Ií  Batchmodå  gehô diå CON:-Ausgabå zuí LST:-Kanaì  unä  diå 
+CON:-Eingabå kommô voí RDR:-Kanal
+.paŠ5.2 Centronics-Schnittstelle
+
+Diå  Centronics-Parallelschnittstellå isô ií allgemeineî  f}ò 
+deî Anschluş eineó Druckeró vorgesehen® Wichtiç beií Anschluş 
+eineó  Druckeró ist¬  daş eò keineî automatischeî  Zeilenvor
+schuâ (Auto-Linefeed© macheî darf®  Dieó isô beé deî  meisteî 
+Druckerî }beò eineî interneî Schalteò w{hlbar® 
+
+
+5.³ Seriellå Schnittstelle (V 24 oder SIO)
+
+Beií Geniå IIÉ wirä diå eingebautå V2´ Schnittstellå voí CP/Í 
+2.2XV³  unterst}tzt®   Hinweiså  f}ò  diå  Konfiguratioî  deò 
+Schnittstellå  sinä ií Kapiteì 10.13¬  Programí V24.COM¬  ge
+geben.
+Ií Geniå IIó CP/Í 2.2XV± wirä einå (diå erste©  SIO/PIO-Kartå 
+unterst}tzt®   Hinweiså  f}ò  diå Konfiguratioî deò  Schnitt
+stellå sinä ií Kapiteì 10.11¬  Programí SIO.COM¬ gegeben® Diå 
+Belegunç  deó SIO-Anschlusseó auæ deò Kartå isô  deí  Techni
+scheî Handbucè zuí Geniå IIó zõ entnehmen.
+.paŠ.paŠ

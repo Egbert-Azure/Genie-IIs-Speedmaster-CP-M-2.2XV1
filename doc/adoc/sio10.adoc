@@ -1,0 +1,91 @@
+Kurze Anleitung zum Programm SIO.COM, Version 1.0 22.06.86
+
+Allgemeiner Aufruf: +
+SIO <parameter1> ... <parameterX>
+
+Ist kein Parameter angegeben, so gibt das Programm nur die aktuelle +
+Einstellung der beiden SIO Kanäle an.
+
+Parameter sind folgende (in beliebiger Reihenfolge und Kombination):
+
+Parameter	Funktion
+
+A 		Alles weitere bezieht sich auf SIO Kanal A +
+		(Default, falls weder A noch B angegeben sind)
+
+B		Alles weitere bezieht sich auf SIO Kanal B
+
+50, 75, 110, 134.5, 150, 200, 300, 600, 1200, 1800, 2400, 4800, +
+9600, 19200	Baudrate für zuletzt gewählten Kanal
+
+EVEN, ODD, NO	Parität für zuletzt gewählten Kanal
+
+5, 6, 7, 8	Wortlänge für zuletzt gewählten Kanal
+
+1, 1.5, 2	Anzahl der Stopbits für zuletzt gewählten Kanal +
+		1.5 Stopbits werden nur bei 5 Datenbits erzeugt
+
+IN:		Die nächste Protokollangabe ist für das Protokoll +
+		bei der Eingabe (damit wird also das SENDENDE Gerät +
+		gesteuert; z.b. angehalten, falls das CP/M keine +
+		weiteren Daten entgegennehmen kann)
+
+OUT:		Die nächste Protokollangabe ist für das Protokoll +
+		bei der Ausgabe (damit zeigt das EMPFANGENDE Gerät +
+		z.b. Drucker an, ob es weitere Daten übernehmen kann)
+
+XON		Aktivierung des Software-Protokolls durch die ASCII- +
+		Zeichen XON und XOFF: +
+		XON = Datenfreigabe +
+		XOFF = Datensperrung +
+		Bei OUT: XON, wartet das CP/M nach EMPFANG eines XOFF +
+		mit der weiteren Datenausgabe solange, bis ein XON +
+		empfangen wird. Damit ist eine Druckeransteuerung möglich. +
+		Beachten Sie, daß beim XON-Protokoll der Datenein- und +
+		ausgabekanal der SIO benutzt wird. +
+		Die RS-232 (V24) Steuerleitungen DTR und RTS werden auf +
+		aktiv gehalten, CTS und DCD werden nicht abgefragt.
+
+RTS		Die Steuerung erfolgt über die RTS-Leitung (bei IN: RTS) bzw. +
+		CTS-Leitung (bei OUT: RTS). Über die RTS-Leitung wird dem +
+		SENDENDEN Gerät mitgeteilt, ob das CP/M weitere Daten über- +
+		nehmen, das SENDENDE Gerät also weiter senden kann. +
+		Durch Abfrag der CTS-Leitung wird festgestellt, ob das +
+		EMPFANGENDE Gerät weitere Daten annehmen, das CP/M also +
+		weiter SENDEN kann. +
+ 		Die Leitung DTR wird aktiv gehalten, DCD wird nicht abgefragt.
+
+RTS		Die Steuerung erfolgt über die DTR-Leitung (bei IN: DTR) bzw. +
+		DCD-Leitung (bei OUT: DTR). Über die DTR-Leitung wird dem +
+		SENDENDEN Gerät mitgeteilt, ob das CP/M weitere Daten über- +
+		nehmen, das SENDENDE Gerät also weiter senden kann. +
+		Durch Abfrag der DCD-Leitung wird festgestellt, ob das +
+		EMPFANGENDE Gerät weitere Daten annehmen, das CP/M also +
+		weiter SENDEN kann. +
+ 		Die Leitung RTS wird aktiv gehalten, CTS wird nicht abgefragt.
+
+NONE		Kein Protokoll. +
+		Die RS-232 (V24) Steuerleitungen DTR und RTS werden auf +
+		aktiv gehalten, CTS und DCD werden nicht abgefragt.
+
+BTX		Aktivierung des BTX-Modus (getrennte Baudraten für +
+		Senden und Empfangen auf Kanal A) +
+		Bei BTX gilt die Baudrate von Kanal A für den Empfang und +
+		die Baudrate von Kanal B für das Senden. +
+		Kanal B hat in dieser Einstellung die Baudrate von Kanal +
+		B für Empfang und Senden.
+
+NOBTX		Aufhebung des BTX-Modus. Die Baudrate des Kanal A gilt +
+		wieder für Empfangen und Senden auf diesem Kanal.
+
+SAVE		Die neue Einstellung wird im CONFIG.SYS-File ge- +
+		speichert. +
+		Normalerweise greift das SIO-Programm nur lesend auf +
+		die CONFIG.SYS-Datei zur Anzeige aller Parameter zu. Die  +
+		neue Einstellung wird zwar aktiviert, jedoch nicht ge- +
+		speichert. Spätestens nach dem nächsten SIO-Aufruf oder +
+		Kaltstart, wird die in der CONFIG.SYS-Datei gespeicherte +
+		Einstellung wieder übernommen. +
+		Der Parameter SAVE speichert die neue Einstellung im +
+		CONFIG.SYS-File ab, so daß diese auch nach dem nächsten +
+		Kaltstart wieder zur Verfügung steht.

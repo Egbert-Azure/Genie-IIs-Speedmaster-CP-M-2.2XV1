@@ -1,0 +1,393 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 10
+.pn 1
+.hå Kapiteì ·                            Systemkonfigurierung
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            7-#
+7. Systemkonfigurierung
+
+7.1 CONFIG
+
+Durcè  deî Befehì CONFIÇ wirä daó Programí  zuò  Systemkonfi
+guratioî  aufgerufen®  Dabeé  muş daó zõ {nderndå  Konfigura
+tionsfilå  CONFIG.SYÓ  auæ deí aktuellen Laufwerë  vorhandeî 
+sein.
+Nacè  deí  Einladeî deó Fileó CONFIG.SYÓ  voî  deò  gew{hlteî 
+Systemdiskettå  wirä  jedeò  ver{nderbarå  Parameteò  einzelî 
+abgefragô  unä  dabeé  iî Klammerî diå  aktuellå  Einstellunç 
+ausgegeben®  Durcè Dr}ckeî deò ENTER-Tastå wirä diå  aktuellå 
+Einstellunç beibehalteî unä deò n{chstå Parameteò abgefragt.
+Solì diå Einstellunç ver{nderô werden¬  sï isô deò neuå  Werô 
+einzugeben.
+
+Einå  ]bersichô }beò diå sï ver{nderbareî Parameteò gibô  diå 
+folgendå  Aufstellung¬  diå  m|glicheî Wertå sinä jeweiló  iî 
+Klammerî angegeben:
+
+
+Logo anzeigeî  (J/N)
+
+Aló  LOGÏ werdeî diå Meldungeî bezeichnet¬  diå beií Bootvor
+ganç  ausgegebeî werden®  Beé abgeschalteteí LOGÏ wirä  dieså 
+Ausgabå unterdr}ckô unä daó Systeí meldeô sicè direkô miô deí 
+Prompô  A>®  Einå  Abschaltunç deó LOGÏ isô insbesonderå  beé 
+Ausnutzunç deò INFO-Zeilå (siehå Kapiteì 10.8© zõ empfehlen.
+
+
+Interruptó aktiviereî (J/N)
+
+Beé  aktivierteî Interruptó wirä 4° maì prï Sekundå daó  lau
+fendå Programí unterbrocheî unä zuò Speicherstellå 5¶ (0038H© 
+gesprungen (Z80 Interrupt Mode 1).
+Ií Normalfalì wirä dadurcè diå Uhranzeigå iî deò  Statuszeilå 
+aktualisierô unä einå Tastaturabfragå durchgef}hrt® Damiô isô 
+eó  m|glich¬  aucè w{hrenä deò Ausf}hrunç eineó Programmó be
+reitó Zeicheî einzutippen¬  diå danî automatiscè  zwischenge
+pufferô werden®  Dieså Arô deò Tastaturabfragå isô ií Kapiteì 
+3.1.³ unteò deò Bezeichnunç 'Type-ahead§ beschrieben® Dá abeò 
+manchå  Programmå  dieså Speicherstelleî  f}ò  eigenå  Zweckå 
+benutzen¬  kanî diå Erzeugunç voî Interruptó unterbundeî wer
+den®  Dieó  isô aucè beé zeitkritischeî Programmeî zõ empfeh
+len¬ dá diå Interruptroutinå einå gewisså Zeiô ben|tigt® Beií 
+Bootvorganç  werdeî danî zwaò immeò nocè diå genannteî  Spei
+cherstelleî  initialisiert¬  jedocè nichô mehò  benutzt®  Beé 
+abgeschalteteî Interruptó isô eó erforderlich¬ diå Zeiteî deò 
+automatischeî  Tastenwiederholunç  zõ  {nderî  (siehå  weiteò 
+unten).
+
+ŠAlte Tastatur (J/N)
+
+Hieò kanî zwischeî deò alteî unä deò neuå (Siemens-© Tastatuò 
+gew{hlt werden (Nur Genie III).
+
+
+Statuszeilå anzeigeî (J/N)
+
+Dieseò Parameteò kanî ebenfalló durcè diå Escapesequenú ESÃ ß 
+ver{nderô  werden®  Beé  abgeschalteteò Statuszeilå wirä  diå 
+Anzeigå  deò  Zeileî auæ deí Bildschirí voî 25*8°  auæ  24*8° 
+begrenzt® (Nur Genie III)
+
+
+Automatischeò Zeilenvorschuâ (J/N)
+
+Automatischeò  Zeilenvorschuâ bedeutet¬  daş nacè deí  Erhalô 
+deó Videobefehló CÒ (Cursoò zuí Anfanç deò Zeile© automatiscè 
+deò Befehì LÆ (Cursoò iî diå n{chstå Zeile© ausgef}hrô  wird® 
+Dieså  Funktioî  wirä ií Allgemeineî nichô  benutzt¬  dá  daó 
+CP/Í  2.²  Betriebssysteí unä allå unteò CP/Í laufendeî  Pro
+grammå  diå Sequenú CÒ LÆ selbsô erzeugen®  Beé  Nutzunç  deó 
+CP/Í  2.2Ø  aló 'Terminalprogramm§ f}ò eineî andereî  Rechneò 
+kanî dieså Funktioî jedocè gebrauchô werden.
+
+
+Zeilen}berlauæ (J/N)
+
+Beé  aktivierteí  Zeilen}berlauæ wirä deò Cursoò  nacè  ]ber
+schreiteî deò 80®  Spaltenpositioî automatiscè auæ deî Beginî 
+deò  n{chsteî Zeilå gesetzt®  Falló vorrangiç miô BASIÃ  odeò 
+dBaså IÉ gearbeiteô werdeî soll¬ isô deò Zeilen}berlauæ abzu
+schalten® Iî dieseí Falì bleibô deò Cursoò nacè Erreicheî deò 
+letzteî  Zeilenpositioî dorô steheî unä wirä ersô  durcè  diå 
+beideî Videobefehlå CÒ unä LÆ iî diå n{chstå Zeilå bef|rdert® 
+Weiterå  Hinweiså dazõ steheî ií Kapiteì 4.´ (Videomodi©  unä 
+ií Anhanç Â unteò ESÃ ö unä ESÃ w.
+
+
+Funktionstasten aktivieren (J/N)
+
+Diå Funktionstasteî F± bió F¸ (Geniå III© bzw®  P2-° bió P2-· 
+(Geniå IIs)¬ erzeugeî normalerweiså mehrerå Zeichen¬ diå }beò 
+daó FKEY-Programí gew{hlô werdeî k|nnen.
+Zuò Nutzunç deò Funktionstasteî f}ò eigeneî Programme¬ k|nneî 
+diå Tasteî F± bió F¸ deaktivierô werden¬ wodurcè siå nuò nocè 
+eiî  Zeicheî erzeugen®  F± (P2-0© erzeugô 80È (12¸ dez.)¬  F² 
+(P2-1©  81È (12¹ dez.© usw®  bió F¸ (P2-7© miô 87È (13µ dez)® 
+Zusammeî  miô Shifô werdeî uí ¸ h|herå Wertå erzeugô  (Shift-
+F1 bzw. Shifô P2-°  erzeugô 88H¬ 13¶ dez.).
+
+ŠZeilenvorschub zum Drucker senden (J/N)
+
+]beò dieseî Parameteò kanî diå Druckeransteuerunç beeinflussô 
+werden®  Deò Normalfalì ií CP/Í isô J¬  wobeé deò angeschlos
+senå Druckeò auæ 'Auto-Linefeeä Off§ (siehå  Druckerhandbuch© 
+eingestellô werdeî mu~.
+Dadurcè  ergibô sicè beé deò Druckerbehandlunç  einå  gr|~erå 
+Flexibilit{t¬  dá  z.B®  einå Zeilå mehrfacè gedruckô  werdeî 
+kann®
+Falló maî aucè miô deí Betriebssysteí GDOÓ arbeitet¬  muş deò 
+gesondertå Zeilenvorschuâ aî deî Druckeò unterbundeî  werden¬ 
+dá  daó  GDOS-Betriebssysteí beií Druckeò 'Auto-Linefeeä  On§ 
+voraussetzt®   Gibô  maî  danî  trotzdeí  eineî  zus{tzlicheî 
+Zeilenvorschuâ aî deî Drucker¬  sï erh{lô maî eineî doppelteî 
+Zeilenabstand.
+
+ 
+Zeichen einf}gen (J/N)
+
+]beò  dieseî Parameteò kanî zwischeî deî Videomodé Ediô (Ein
+gabå  voî  'N'© unä Inserô (Eingabå voî 'J'© gew{hlô  werden® 
+Deò hieò eingestelltå Moduó wirä nacè deí Starô deó  Betrieb
+systemó  angew{hlô unä entsprechenä iî deò Statuszeilå  ange
+zeigô  (EDÔ odeò INS)®  N{hereó }beò dieså Videomodé  isô  ií 
+Kapiteì 4.´ beschrieben® (Nuò Geniå III)
+
+
+Seitenmodus (J/N)
+
+]beò  dieseî Parameteò kanî zwischeî deî Videomodé Line (Ein
+gabå  voî  'N'© unä Page (Eingabå voî 'J'© gew{hlô  werden® 
+Deò  hieò eingestelltå Moduó wirä nacè deí Starô deó Betrieb
+systemó  angew{hlô unä entsprechenä iî deò Statuszeilå  ange
+zeigô  (Ì odeò P)®   N{hereó }beò dieså Videomodé isô ií  Ka
+piteì 4.´ beschrieben® (Nuò Geniå III)
+
+
+R}ckmeldunç miô Leerzeicheî (J/N)
+
+Wiå  ií  Kapiteì 4.¹ (R}ckmeldunç voî  Werten©  angesprochen¬ 
+kanî  diå  Videoroutinå bestimmtå Wertå aî daó Programí  }beò 
+diå Tastaturroutinå zur}ckmelden®  Beé deò Verwendunç  dieseò 
+M|glichkeiô  innerhalâ  eineó BASIC-Programmó wirä jedocè  iî 
+deò  Regeì daó erstå Zeicheî 'verschluckt'®  Uí dennocè  allå 
+Wertå zõ erhalteî kanî durcè daó Voranstelleî eineó  Leerzei
+chenó  voò diå R}ckmeldunç dieseò Datenverlusô umgangeî  wer
+den® (Nuò Geniå III)
+
+
+Tastenklick einschalten (J/N)
+
+Beé  eingeschalteteí  Tastenklicë  wirä beé  jedeí  erkannteî ŠTastendrucë  eiî kurzeó Klickger{uscè }beò  deî  Lautsprecheò 
+ausgegeben.
+
+
+Tastenwiederholung einschalten (J/N)
+
+Falló  einå  Tastå einå bestimmtå Zeiô lanç gedr}ckô  bleibt¬ 
+wirä deò Tastencodå wiederholt® Diå Funktionstasteî F± bió F¸ 
+sind von dieser Funktion ausgeschlossen.
+Diå  Zeit¬  wielangå einå Tastå bió zuò  ersteî  Wiederholunç 
+gedr}ckô bleibeî muş unä diå anschliessendå Wiederholungsfre
+quenú l{ssô sicè getrennô einstelleî (s.u.).
+
+
+Fehlermeldung einschalten (J/N)
+
+Wiå  bereitó  iî Kapiteì 6.2.± angesprochen¬  werdeî ií  CP/Í 
+2.2Ø  Diskettenfehleò ausf}hrlicheò mitgeteilô aló  beé  nor
+maleî  CP/Í Systemen®  Beé ausgeschalteteò Fehlermeldunç ver
+h{lô  sicè  daó CP/Í 2.2Ø wiå eiî normaleó  CP/Í  Systeí  unä 
+meldeô Diskettenfehleò nuò miô 'Baä Sector'.
+Diå genauå Beschreibunç deò verschiedeneî Fehlermeldungeî isô 
+iî Kapiteì 6.2.² bzw® 6.2.³ gegeben.
+
+
+Pufferanzeige einschalten (J/N)
+
+Zuò  bessereî Kontrollå kanî deò Inhalô deó iî Kapiteì  3.1.³ 
+angesprocheneî Type-aheaä Pufferó iî deò 25®  Bildschirmzeilå 
+sichtbaò  gemachô  werden®  Dieó isô insbesonderå  beé  'ver
+schluckten§ Tasteî zuò Lokalisierunç deó Problemó sehò  hilf
+reich® (Nuò Geniå III)
+
+
+Monitormodus einschalten (J/N)
+
+Miô  dieseí  Parameteò kanî deò ií Kapiteì  4.¸  beschriebenå 
+Monitormoduó direkô nacè deí Kaltstarô aktivierô werden.
+(Nuò Geniå III)
+
+
+Uhrzeit anzeigen (J/N)
+
+Diå  Uhrzeiô  wirä beé jedeí Tastendrucë unä jedeí  Interrupô 
+neõ angezeigt®  Beé zeitkritischeî Anwendungen¬ kanî dieó zuò 
+Verlangsamunç  deò Verarbeitungsgeschwindigkeiô  f}hren®  Auó 
+dieseí  Grunä  kanî  diå  Anzeigå  deò  Uhrzeiô  miô   dieseí 
+Parameter unterbunden werden. (Nur Genie III)
+.paŠLautsprecher einschalten (J/N)
+
+Dieseò  Parameteò  wirkô nichô auæ deî  Lautsprecheò  direkt¬ 
+sonderî  nuò auæ deî ASCII-Codå Control-Ç  (BELL¬  07H)¬  deò 
+normalerweiså eineî kurzeî Pieptoî erzeugt® Beií Arbeiteî miô 
+DFİ kanî dieså Tonausgabe¬  diå }beò Softwarå realisierô ist¬ 
+zuí  Verlusô  voî Zeicheî f}hren®  Iî dieseí Falì solltå  deò 
+BELL-Code mit diesem Parameter ausgeschaltet werden.
+
+
+ASCII Zeichensatz aktivieren (J/N)
+
+Damiô  kanî  deò nacè deí Bootvorganç (Kaltstart©  aktiviertå 
+Zeichensatú gew{hlô werden® Diå Eingabå voî 'J§ w{hlô deî US-
+ASCIÉ Zeichensatú miô eckigeî unä geschwungeneî Klammern¬ 'N§ 
+den deutschen Zeichensatz mit Umlauten. (Nur Genie IIs)
+
+
+Anzahì deò Schreib/Leseversuchå (± bió 255)
+
+Deò  eingegebenå  Werô bestimmô diå Anzahì  deò  Schreib- unä 
+Leseversuchå  auæ eineò Diskettå bió zuò Fehlermeldung®  Nacè 
+jedeí  Diskettenfehleò wirä dieseò Z{hleò uí einó  erniedrigô 
+unä  beií Erreicheî deó Werteó ° deò Fehleò aî  deî  Benutzeò 
+gemeldet®  Wirä beé deò erweiterteî Fehlermeldunç durcè Dr}k
+keî deò CLEAR-Tastå einå Wiederholunç deó Zugriffó gefordert¬ 
+sï wirä diå hieò gew{hltå Anzahì voî Versucheî neõ gestartet.
+
+
+IOBYTE (0 bis 255)
+
+Daó  IOBYTÅ  bestimmô diå iî Kapiteì 5.1.µ angesprochenå  Zu
+weisunç  voî logischeî zõ physikalischeî  Kan{len®  Normaler
+weiså wirä daó IOBYTÅ }beò deî STAT-Befehì ge{ndert¬ deò abeò 
+nacè jedeí Kaltstarô neõ eingegebeî werdeî mu~®  Ií CP/Í 2.2Ø 
+kanî diå Belegunç deó IOBYTEó vorgew{hlô werden¬  sï daş  diå 
+Kanalzuweisunç direkô aktiö ist.
+Diå  aktuellå  Belegunç  deó  IOBYTÅ kanî  miô  deí  Programí 
+IOBYTE.COÍ  festgestellô werden®  Wolleî Siå  einå  bestimmtå 
+Kanalzuordnunç  fesô  abspeichern¬  sï stelleî Siå dieså  miô 
+STAÔ  eiî  unä rufeî danî IOBYTÅ auf¬  daó  Ihneî  deî  neueî 
+IOBYTE-Werô danî mitteilt.
+
+
+Cursor Type (0 bis 255)
+
+Hieò  kanî  daó nacè deí Kaltstarô  zõ  aktivierendå  Cursor-
+Attribuô  gew{hlô werden®  Beé dieseí Parameteò gibô eó eineî 
+wichtigeî Unterschieä zwischeî Geniå IIó unä Geniå III®  Beií 
+Geniå   IIÉ  wirä  deò  hieò  gew{hltå   Wert¬   direkô   zuò 
+Programmierunç deó Bildschirm-Controlleró benutzt® Daheò sinä 
+zwaò  allå  Wertå zwischeî ° unä 25µ  m|glich¬  jedocè  nichô Šunbedingô  sinnvoll®  Genauerå Hinweiså k|nneî deí Datenblatô 
+des Controllers entnommen werden.
+
+Sinnvolle Werte beim Genie III sind:
+
+     43   Cursor aus (unsichtbar)
+     96   Cursor blinkender Block
+      0   Cursor stehender Block
+    107   Cursor blinkender Strich
+     11   Cursor stehender Strich
+
+Beií  Geniå IIó wirä deò gew{hltå Werô aló Parameteò f}ò  diå 
+Escape-Sequenú  'ESÃ ®  x§ (Cursor-Attribuô setzen©  benutzt® 
+Sinnvollå  Wertå sinä daheò nuò diå Zahleî zwischeî ° unä  4¬ 
+alle anderen Werte schalten den Cursor ab.
+
+Sinnvolle Werte beim Genie IIs sind:
+
+      0   Cursor aus (unsichtbar)
+      1   Cursor stehender Block
+      2   Cursor stehender Block
+      3   Cursor stehender Strich
+      4   Cursor stehender Strich
+
+
+Hauptlaufwerë (Á bió D)
+
+Normalerweiså isô daó Laufwerë Aº  allgemeineó Bezugslaufwerë 
+ií CP/Í 2.2® Beé mancheî Anwendungeî isô daó abeò nichô immeò 
+gew}nschô odeò sinnvoll® Miô Hilfå dieseó Parameteró kanî eiî 
+beliebiges Laufwerk als Hauptlaufwerk deklariert werden.
+
+
+Zeiô bió zuò ersteî Wiederholunç (± bió 9999)
+
+Dieseò  Werô  gibô diå Anzahì deò  Tastaturabfrageî  bió  zuí 
+Beginî deò automatischeî Tastenwiederholunç an® Dá diå Tasta
+tuò  peò  Softwarå  abgefragô wird¬  isô diå  Zeitspannå  voí 
+Dr}ckeî deò Tastå bió zuí Beginî deò Wiederholunç nichô immeò 
+konstant®  Jå  nacè  laufendeí Programí k|nneî  sicè  gr|~erå 
+Unterschiedå ergeben.
+Beé  aktivierteî Interruptó isô dieseò Zeitunterschieä  nichô 
+allzõ gro~¬ dá diå Tastatuò konstanô allå 2µ mseã (4° maì prï 
+Sekunde©  abgefragô wird®  Durcè Wahì dieseó Werteó kanî  diå 
+Tastenwiederholunç  optimaì aî diå jeweiligå Anwendunç  ange
+passô werden® Iî deò Regeì liegô dieseò Werô zwischeî 10° unä 
+400.
+
+
+Zeiô bió zuò n{chsteî Wiederholunç (± bió 9999)
+
+Analoç  zuí  vorherigeî Parameteò wirä hieò  diå  Anzahì  deò ŠTastaturabfrageî  bió  zuò n{chsteî  Wiederholung¬  alsï  diå 
+Wiederholfrequenz¬  bestimmt®  Aucè  hieò isô beé aktivierteí 
+Interrupô etwá diå Verdoppelunç deó Werteó notwendig.
+
+Diå iî deò ausgelieferteî Versioî voreingestellteî Wertå sinä 
+nuò etwaigå Anhaltspunkte¬ diå durcè etwaó Ausprobiereî opti
+mierô  werdeî  sollten®  Iî bisherigeî Versucheî  habeî  sicè 
+Wertå zwischeî 1° unä 5° aló guô herausgestellt.
+
+
+Entprellzeit 1 (1 bis 9999)
+
+Diå  Tastaturroutinå  isô sï ausgelegt¬  daş siå  einå  Tastå 
+immeò  zweimaì }berpr}fô uí damiô Tastenprelleî zõ  erkennen® 
+Entprellzeiô  ±  gibô diå Zeiô an¬  diå zwischeî  deî  beideî 
+Tastenabfrageî liegt®  Solltå eó zõ Tastenprelleî kommen¬  sï 
+mu~ dieser Wert erh|ht werden.
+
+
+Entprellzeit 2 (1 bis 9999)
+
+Nacè  eineí erkannteî Tastendrucë warteô diå  Tastaturroutinå 
+einå  gewisså Zeitspanne¬  bió deò Tastencodå  zur}ckgemeldeô 
+wird®  Dieó tr{gô zuí Entprelleî deò Tastatuò bei¬  kanî abeò 
+beé zõ schnelleí Tippeî aucè zuí Verlusô voî Zeicheî  f}hren® 
+In diesem Fall mu~ die Entprellzeit 2 verringert werden.
+
+
+Anzahì deò Spureî (40/8° f}ò µ 1/´ Zoll¬ 7· f}ò ¸ Zoll)
+
+]beò  dieså Fragå wirä diå Anzahì deò  physikalischeî  Spureî 
+deò  jeweiló  vieò m|glicheî µ 1/´ unä ¸ Zolì  Laufwerkå  be
+stimmt®  Dieså Angabå isô sehò wichtig¬  dá darauó diå  Lauf
+werksansteuerunç  beé deò Bearbeitunç voî 4° Spuò Formateî iî 
+deî eingebauteî 8° Spuò Laufwerkeî abgeleiteô wird.
+
+
+Kopfzugriffszeiô (° bió 3)
+
+Miô  dieseí  Parameteò wirä f}ò jedeó  Diskettenlaufwerë  diå 
+Zeiô bestimmt¬  iî deò deò Schreib/Lesekopæ dieseó  Laufwerkó 
+voî Spuò zõ Spuò bewegô wird® F}ò µ 1/´ Zolì Laufwerkå gelteî 
+folgendå Werte:
+
+
+° º  µ msec
+± º 1° msec
+² º 2° msec
+³ º 4° msec
+
+Diå  eingebauteî Laufwerkå arbeiteî miô deò  schnellsteî  Zu
+griffszeiô  unä  daó Systeí isô aucè  entsprechenä  voreingeŠstellt.
+
+F}ò ¸ Zolì Laufwerkå gelteî diå folgendeî Zeiten:
+
+° º  ³ msec
+± º  µ msec
+² º 1° msec
+³ º 2° msec
+
+Ií Allgemeineî isô aucè hieò deò schnellstå Werô sinnvoll,
+{lterå  Laufwerkå k|nneî abeò evtl®  aucè nuò 5-1° mseã  ver
+kraften.
+
+
+Diå  n{chsteî Parameteò werdeî nuò beií Geniå IIÉ  CP/Í  2.2Ø 
+abgefragô unä  dieneî deò Einstellunç deó Bildschrimformates® 
+Siå  entsprecheî  genaõ deî Registerî ° - ·  deó  Bildschirm-
+Controlleró  CRTÃ  6845®   Hieò  sollteî  diå  miô  GDOÓ  2.´ 
+(VIDEO.BAS©  ermittelteî  Wertå  eingegebeî  werden®  Weiterå 
+Informationeî  }beò  deî CRTÃ 684µ k|nneî deí  entsprechendeî 
+Datenblatô entnommeî werden.
+
+Horizontal Total Register (80 - 255)
+Horizontal Displayed Register (80)
+Horizontal Sync Position Register (80 - 255)
+Sync Width Register (0 - 255)
+Vertical Total Register (25 - 255)
+Vertical Total Adjust Register (0 - 255)
+Vertical Displayed Register (24 - 25)
+Vertical Sync Position Register (24 - 255)
+.paŠ

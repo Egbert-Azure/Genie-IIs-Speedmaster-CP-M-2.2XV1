@@ -1,0 +1,215 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 5                                  Schnittstellen"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            5-#"
+_5. Schnittstellen_
+
+_5.1 Ein- und Ausgabekanäle_
+
+Das CP/M Betriebssystem unterstützt insgesamt vier Ein/Ausgabekanäle. Jeder Datentransport, der auf Zeichenbasis arbeitet  +
+wird über diese Kanäle abgewickelt. +
+Diese Hauptkanäle sprechen jedoch nicht direkt eine  Schnittstelle des Gerätes an,  sondern die Zuordnung zu einer physikalischen  Schnittstelle erfolgt erst durch einen von jeweils  +
+vier Unterkanälen. Die Bezeichnung der Haupt- und Unterkanäle  +
+ist durch jeweils drei Zeichen gefolgt von einem  Doppelpunkt  +
+festgelegt. +
+Die  aktuelle Kanalzuordnung wird in einem Byte - auch IOBYTE  +
+genannt - an der Speicherstelle 3 abgespeichert. Jedem Hauptkanal sind in diesem Byte je zwei Bits zugeordnet,  die  eine  +
+der vier verschiedenen Unterkanalbelegungen dekodieren. +
+Welcher Unterkanal welchem Hauptkanal zugeordnet ist, wird im  +
+Allgemeinen  über  den  STAT-Befehl (siehe Kapitel  9.2)  bestimmt,  kann  aber  auch durch direkte Änderung  des  IOBYTE  +
+erfolgen.  (siehe  auch  Kapitel 7  Systemkonfigurierung  und  +
+Kaptitel 10.9 IOBYTE.COM). +
+Eine Änderung der Unterkanäle ist i.A.  nicht  möglich,  kann  +
+jedoch auf Anfrage verwirklicht werden.
+
+
+_5.1.1 Erster Hauptkanal_ +
+        (CON:, Console, IOBYTE Bits 0,1)
+
+Dies ist der einzige Kanal,  der sowohl Daten senden als auch  +
+empfangen  kann.  Über  den CON:-Kanal laufen  alle  Ein- und  +
+Ausgaben des Betriebssystems.  Die vier Unterkanäle des CON:- +
+Kanals sind:
+
+- Serielle Schnittstelle            (TTY:,0,0) +
+- Tastatur und Bildschirm           (CRT:,0,1) +
+- Batchmode                         (BAT:,1,0) +
+- Tastatur und Drucker              (UC1:,1,1)
+
+Die  Bezeichnung dahinter gibt den Namen des Unterkanals  und  +
+die Werte der Bits 1 und 0 des IOBYTE an.
+
+Im  Batchmode wird keine physikalische  Schnittstelle  direkt  +
+angesprochen,  sondern  die  Zeicheneingabe erfolgt über  den  +
+zweiten  Hauptkanal (RDR:) und die Ausgabe über  den  vierten  +
+Hauptkanal (LST:). +
+
+// .pa ""
+
+<<<
+_5.1.2 Zweiter Hauptkanal_ +
+        (RDR:, Reader, IOBYTE Bits 2,3)
+
+Dies ist ein reiner Eingabe-Kanal.  Die vier möglichen Unterkanäle sind:
+
+- Serielle Schnittstelle            (TTY:,0,0) +
+- NULL oder Serielle Schnittstelle  (PTR:,0,1) +
+- Tastatur                          (UR1:,1,0) +
+- NULL oder Serielle Schnittstelle  (UR2:,1,1)
+
+NULL ist ein Kanal ohne Funktion,  es wird immer der Wert 26,  +
+1AH (CP/M Standardwert für `Ende der Eingabe`) zurückgegeben.
+
+
+_5.1.3 Dritter Hauptkanal_ +
+        (PUN:, Punch, IOBYTE Bits 4,5)
+
+Dies ist ein reiner Ausgabe-Kanal mit folgenden Unterkanälen:
+
+- Serielle Schnittstelle            (TTY:,0,0) +
+- Centronics Schnittstelle          (PTP:,0,1) +
+- Bildschirm                        (UP1:,1,0) +
+- NULL oder Serielle Schnittstelle  (UP2:,1,1)
+
+NULL  ist ein Kanal ohne Funktion,  alle Ausgaben auf  diesen  +
+Kanal werden verworfen.
+
+
+_5.1.4 Vierter Hauptkanal_ +
+        (LST:, List, IOBYTE Bits 6,7)
+
+Dieser Kanal dient dem Betriebssystem als Druckerkanal.  Alle  +
+Ausgaben, die auf einen Drucker laufen sollen (Bildschirmausdruck über CTRL-00 beim Genie III), werden über diesen Hauptkanal abgewickelt. Die vier Unterkanäle sind:
+
+- Serielle Schnittstelle            (TTY:,0,0) +
+- Bildschirm                        (CRT:,0,1) +
+- Centronics-Parallelschnittstelle  (LPT:,1,0) +
+- Centronics-Schnittstelle HexMode  (UL1:,1,1)
+
+Im   HexMode  werden  die  einzelnen  Zeichen  nicht   direkt  +
+ausgegeben,  sondern  in ihre jeweilige Darstellung im  Hexadezimalformat  umgerechnet.  Das  Zeichen `A`  z.B.  wird  in  +
+diesem Fall als `41` dargestellt. +
+Dieser  Modus  ist  besonders beim Austesten  von  Programmen  +
+(z.B. WordStar Druckerinstallation) äusserst hilfreich. +
+
+// .pa ""
+
+<<<
+_5.1.5 Zuordnung der Kanäle_
+
+_5.1.5.1 Beim Genie III_
+
+Die  folgende  Tabelle gibt nochmals eine Übersicht über  die  +
+möglichen  Kanalzuordnung.  Mit * ist die  Zuordnung  gekennzeichnet,  die  in der ausgelieferten Genie III  CP/M  2.2XV3  +
+Version voreingestellt ist.
+
+
+Device    Möglichkeiten  Schnittstelle +
+-------------------------------------------------
+
+CON:      TTY:           V 24 +
+          CRT:         * Tastatur / Bildschirm  +
+          BAT:           Batchmode +
+          UC1:           Tastatur / Centronics
+
+
+RDR:      TTY:         * V 24 +
+          PTR:           V 24 +
+          UR1:           Tastatur +
+          UR2:           NULL (`Niemandsland`)
+
+
+PUN:      TTY:         * V 24 +
+          PTP:           Centronics +
+          UP1:           Bildschirm +
+          UP2:           NULL (`Niemandsland`)
+
+
+LST:      TTY:           V 24 +
+          CRT:           Bildschirm +
+          LPT:         * Centronics-Schnittstelle +
+          UL1:           Centronics-Schnittstelle, HexMode +
+
+// .pa ""
+
+<<<
+_5.1.5.2 Beim Genie IIs_
+
+Die  folgende  Tabelle gibt nochmals eine Übersicht über  die  +
+möglichen  Kanalzuordnung.  Mit * ist die  Zuordnung  gekennzeichnet,  die  in der ausgelieferten Genie IIs  CP/M  2.2XV1  +
+Version voreingestellt ist.
+
+Device    Möglichkeiten  Schnittstelle +
+-------------------------------------------------
+
+CON:      TTY:           SIO Kanal A +
+          CRT:         * Tastatur / Bildschirm  +
+          BAT:           Batchmode +
+          UC1:           SIO Kanal B
+
+
+RDR:      TTY:         * SIO Kanal A +
+          PTR:           NULL (`Niemandsland`) +
+          UR1:           Tastatur +
+          UR2:           SIO Kanal B
+
+
+PUN:      TTY:         * SIO Kanal A +
+          PTP:           Centronics +
+          UP1:           Bildschirm +
+          UP2:           SIO Kanal B
+
+
+LST:      TTY:           SIO Kanal A +
+          CRT:           Bildschirm +
+          LPT:         * Centronics-Schnittstelle +
+          UL1:           Centronics-Schnittstelle, HexMode
+
+
+
+Über den Befehl STAT XXX:=YYY:  kann dem Hauptkanal XXX:  der  +
+Unterkanal YYY:  zugewiesen werden.  Eine Zuweisung der Drukkerausgabe auf den Bildschirm entspricht also dem Befehl STAT  +
+LST:=CRT:.
+
+Im  Batchmode  geht die CON:-Ausgabe zum LST:-Kanal  und  die  +
+CON:-Eingabe kommt vom RDR:-Kanal +
+
+// .pa ""
+
+<<<
+_5.2 Centronics-Schnittstelle_
+
+Die  Centronics-Parallelschnittstelle ist im allgemeinen  für  +
+den Anschluß eines Druckers vorgesehen. Wichtig beim Anschluß  +
+eines  Druckers ist,  daß er keinen automatischen  Zeilenvorschub (Auto-Linefeed) machen darf.  Dies ist bei den  meisten  +
+Druckern über einen internen Schalter wählbar. 
+
+
+_5.3 Serielle Schnittstelle (V 24 oder SIO)_
+
+Beim Genie III wird die eingebaute V24 Schnittstelle vom CP/M  +
+2.2XV3  unterstützt.   Hinweise  für  die  Konfiguration  der  +
+Schnittstelle  sind im Kapitel 10.13,  Programm V24.COM,  gegeben. +
+Im Genie IIs CP/M 2.2XV1 wird eine (die erste)  SIO/PIO-Karte  +
+unterstützt.   Hinweise  für  die Konfiguration der  Schnittstelle sind im Kapitel 10.11,  Programm SIO.COM, gegeben. Die  +
+Belegung  des SIO-Anschlusses auf der Karte ist  dem  Technischen Handbuch zum Genie IIs zu entnehmen. +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<

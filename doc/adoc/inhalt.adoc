@@ -1,0 +1,289 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 9"
+
+// .op ""
+
+// ^O^R 61 !!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                          _Anleitung_ +
+                    _zu den CP/M-Systemen_
+
+
+                         _CP/M 2.2XV3_ +
+                         (Genie III)
+
+                             _und_
+
+                         _CP/M 2.2XV1_ +
+                 (Genie IIs und Speedmaster)
+
+
+
+
+
+
+
+
+
+
+
+
+
+                          Handbuch:
+
+                        Erste Auflage +
+                          Juli 1986 +
+
+// .pa ""
+
+<<<
+
+
+                   Anleitung und Programme
+
+    Copyright (c) 1986 by Klaus Kämpf Softwareentwicklung +
+                  Alle Rechte vorbehalten.
+
+
+Mit  Zahlung des Kaufpreises erhält der Endabnehmer ein Nutzungs- aber kein Eigentumsrecht.  Dieses Nutzungsrecht berechtigt  den Endabnehmer das/die Programm(e) auf  einem  Rechner  +
+ablaufen  zu  lassen und entsprechend dem hier  beschriebenen  +
+Verwendungszweck  zu benutzen.  Das Nutzungsrecht  berechtigt  +
+den Endabnehmer,  Kopien der Programme zum Zwecke der persönlichen Programmsicherung (Backup) vorzunehmen. Weitere Kopien  +
+jedweder Art sowie das Kopieren der Anleitung,  sind nicht in  +
+diesem Recht enthalten.
+
+
+
+
+             Technische Änderungen vorbehalten.
+
+Alle  in dieser Anleitung gemachten Angaben erfolgen ohne Gewähr  und ohne Anspruch auf Vollständigkeit und  Richtigkeit.  +
+Diese Anleitung und das/die darin beschriebene(n) Programm(e)  +
+kann/können jederzeit und ohne Benachrichtigung geändert oder  +
+der technischen Entwicklung angepasst werden. Ferner ist jede  +
+Schadenersatz-Forderung  an den oben  angeführten  Eigentümer  +
+ausgeschlossen,  falls  im  Zusammenhang mit  diesem  Produkt  +
+Kosten oder sonstige Schäden entstehen.
+
+
+
+
+
+
+                        Warenzeichen
+
+CP/M  ist  ein eingetragenes Warenzeichen der  Firma  Digital  +
+Research +
+WordStar ist ein eingetragenes Warenzeichen der Firma  MicroPro +
+Televideo  950 ist ein eingetragenes Warenzeichen  der  Firma  +
+Televideo +
+
+// .pa ""
+
+<<<
+
+// ?? dot "he" " Inhaltsverzeichnis"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung              i"
+
+Kapitel          Thema                                  Seite +
+------------------------------------------------------------- +
+   0.            _Vorwort_                                 0-1
+
+   1.            _Einleitung_                              1-1
+
+   2.            _Arbeiten mit CP/M 2.2X_                  2-1 +
+   2.1             Starten des Betriebsystems            2-1 +
+   2.2             Anfertigen einer Sicherungskopie      2-2 +
+   2.3             Service                               2-3 +
+   2.4             Zusatzprodukte                        2-4 +
+   2.5             Benötigte Hardware                    2-5 +
+   2.5.1             Beim Genie III                      2-5 +
+   2.5.1             Beim Genie IIs                      2-5
+
+   3.            _Tastatur_                                3-1 +
+   3.1             Tastaturbedienung                     3-1 +
+   3.1.1             Tastenklick                         3-1 +
+   3.1.2             Tastenwiederholung                  3-1 +
+   3.1.3             Type-ahead                          3-1 +
+   3.2             Funktionstasten                       3-2 +
+   3.3             Spezielle Tasten                      3-2 +
+   3.3.0             Einleitung                          3-2 +
+   3.3.1             SHIFT-Taste                         3-3 +
+   3.3.2             CTRL-Taste                          3-3 +
+   3.3.3             ENTER-Taste                         3-3 +
+   3.3.4             BREAK-Taste                         3-3 +
+   3.3.5             CLEAR-Taste                         3-4 +
+   3.3.6             LOCK-Taste                          3-5 +
+   3.3.6.1             Beim Genie III                    3-5 +
+   3.3.6.2             Beim Genie IIs                    3-5 +
+   3.3.7             Pfeiltasten                         3-5 +
+   3.3.7.0             Einleitung                        3-5 +
+   3.3.7.1             Hochpfeil-Taste                   3-5 +
+   3.3.7.2             Tiefpfeil-Taste                   3-5 +
+   3.3.7.3             Linkspfeil-Taste                  3-6 +
+   3.3.7.4             Rechtspfeil-Taste                 3-6 +
+   3.3.8             Leertaste                           3-6 +
+   3.3.9             00-Taste                            3-6 +
+   3.4             Besondere Tastaturfunktionen          3-7 +
+   3.4.1             CTRL-00                             3-7 +
+   3.4.2             P2-Leertaste                        3-7
+
+   4.            _Der Bildschirm_                          4-1 +
+   4.1             Grundlagen                            4-1 +
+   4.2             Bildschirmformat                      4-2 +
+   4.3             Zeichendarstellung                    4-2 +
+   4.4             Videomodi                             4-2 +
+   4.4.1             Line/Pagemodus                      4-2 +
+   4.4.2             Edit/Insertmodus                    4-3 +
+
+// .pa ""
+
+<<<
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung             ii"
+   4.4.3             Zeilenüberlauf                      4-4 +
+   4.5             Die 25. Zeile                         4-4 +
+   4.5.1             Verwendung als Statuszeile          4-4 +
+   4.5.2             Verwendung als Benutzerzeile        4-5 +
+   4.5.3             Abschalten der 25. Zeile            4-5 +
+   4.6             Zeichenattribute                      4-5 +
+   4.7             Cursorattribute                       4-5 +
+   4.8             Monitormodus                          4-6 +
+   4.9             Rückmeldung von Werten                4-6 +
+   4.10            Steuersequenzen                       4-7 +
+   4.10.1            Cursorbewegung                      4-7 +
+   4.10.2            Löschbefehle                        4-8 +
+   4.10.3            Editierbefehle                      4-8 +
+   4.10.4            Wahl des Videomodus                 4-9 +
+   4.10.5            Wahl des Attributes                 4-9 +
+   4.10.6            Status- und Benutzerzeile           4-9 +
+   4.10.7            Monitormodus                        4-10 +
+   4.10.8            Setzen der Systemparameter          4-10 +
+   4.10.9            Rückmeldung von Werten              4-10 +
+   4.10.10           Sonderfunktionen                    4-10
+
+   5.            _Schnittstellen_                          5-1 +
+   5.1             Ein- und Ausgabekanäle                5-1 +
+   5.1.1             Erster Hauptkanal                   5-1 +
+   5.1.2             Zweiter Hauptkanal                  5-2 +
+   5.1.3             Dritter Hauptkanal                  5-2 +
+   5.1.4             Vierter Hauptkanal                  5-2 +
+   5.1.5             Zuordnung der Kanäle                5-3 +
+   5.1.5.1             Beim Genie III                    5-3 +
+   5.1.5.2             Beim Genie IIs                    5-4 +
+   5.2             Centronics-Schnittstelle              5-5 +
+   5.3             Serielle Schnittstelle                5-5
+
+   6.            _Massenspeicher_                          6-1 +
+   6.1             Einleitung                            6-1 +
+   6.2             Diskettenlaufwerke                    6-1 +
+   6.2.1             Diskettenfehler                     6-1 +
+   6.2.2             Erweiterte Fehlermeldung Genie III  6-2 +
+   6.2.3             Erweiterte Fehlermeldung Genie IIs  6-4
+
+   7.            _Systemkonfigurierung_                    7-1 +
+   7.1           CONFIG                                  7-1
+
+   8.            _Systembefehle_                           8-1 +
+   8.0             Einleitung                            8-1 +
+   8.1             DIR                                   8-1 +
+   8.2             ERA                                   8-1 +
+   8.3             REN                                   8-2 +
+   8.4             TYPE                                  8-2 +
+   8.5             USER                                  8-2 +
+   8.6             SAVE                                  8-3 +
+
+// .pa ""
+
+<<<
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            iii"
+   9.            _CP/M 2.2 - Standardprogramme_            9-1 +
+   9.0             Einleitung                            9-1 +
+   9.1             PIP                                   9-1 +
+   9.2             STAT                                  9-4 +
+   9.3             DDT                                   9-5 +
+   9.4             SUBMIT                                9-9 +
+   9.5             XSUB                                  9-11
+
+  10.            _CP/M 2.2X - Dienstprogramme_            10-1 +
+  10.0             Einleitung                           10-1 +
+  10.1             AUTO.COM                             10-2 +
+  10.2             BOOT.COM                             10-3 +
+  10.3             CONFIG.COM                           10-4 +
+  10.4             DATUM.COM                            10-5 +
+  10.5             FKEY.COM                             10-6 +
+  10.6             FORMAT.COM                           10-8 +
+  10.7             ID.COM                               10-10 +
+  10.8             INFO.COM                             10-12 +
+  10.9             IOBYTE.COM                           10-13 +
+  10.10            PD.COM                               10-14 +
+  10.11            SIO.COM                              10-15 +
+  10.12            UHR.COM                              10-19 +
+  10.13            V24.COM                              10-20 +
+  10.14            ZEIT.COM                             10-22
+
+   A.            _Systeminterne Informationen_             A-1 +
+   A.1             Speicheraufteilung unter CP/M 2.2     A-1 +
+   A.1.1             Speicheraufteilung beim Genie III   A-1 +
+   A.1.2             Speicheraufteilung beim Genie IIs   A-1 +
+   A.2             Aufteilung der Systemdiskette         A-2
+
+   B.            _Videokommandos_                          B-1 +
+   B.1             Controlsequenzen                      B-1 +
+   B.2             Escapesequenzen                       B-3 +
+   B.3             Beispiel                              B-9
+
+   C.            _Fremdformate_                            C-1 +
+   C.1             Unterstützte Fremdformate             C-1 +
+   C.2             Weitere Formate                       C-4 +
+   C.3             Systembedingte Grenzen der Formate    C-4 +
+   C.4             Aufbau des PDRIVE.SYS                 C-6
+
+   D.            _Tastaturtabellen_                        D-1 +
+   D.1             Nummern und Belegungen der Tasten     D-1 +
+   D.2             Belegung des separaten Zehnerblocks   D-3 +
+   D.3             Belegung der Sondertasten             D-4
+
+   E.            _Zeichensätze_                            E-1 +
+   E.1             Zeichensatz beim Genie III            E-1 +
+   E.2             Zeichensatz beim Genie IIs            E-3 +
+   E.3             ASCII-Tabelle                         E-5 +
+
+// .pa ""
+
+<<<
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung             iv"
+   F.            _Literaturhinweise_                       F-1 +
+   F.1             Literatur zum CP/M 2.2                F-1 +
+   F.2             Literatur zum Genie III und Genie IIs F-1 +
+
+// .pa ""
+
+<<<

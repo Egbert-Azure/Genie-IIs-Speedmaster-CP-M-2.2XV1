@@ -1,0 +1,508 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 10
+.pn 1
+.hå Kapiteì ´                                      Bildschirm
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç           4-#
+4® Deò Bildschirm
+
+4.± Grundlagen
+
+Wiå  bereitó iî deò Einleitunç angesprochen¬  orientierô sicè 
+daó  CP/Í beé deò Zeichenein- unä ausgabå aî  Terminals®  Beé 
+{ltereî Rechnern isô eiî solcheó Terminaì einå eigenst{ndigå 
+Einheit¬  diå miô deí eigentlicheî Rechneò }beò einå seriellå 
+Schnittstellå verbundeî ist®  Deò Datentransporô zuí Terminaì 
+geschiehô dabeé seriell¬  Zeicheî f}ò Zeichen®  Jedeó Zeicheî 
+haô eineî bestimmteî Wert¬  deò durcè diå ASCII-Tabellå fest
+gelegô  isô (Anhanç E.3)®  Dá insgesamô nuò 12¸  verschiedenå 
+Wertå }bertrageî werdeî k|nnen¬  bleibeî nacè Abzuç deò  dar
+stellbareî  Zeicheî nuò 3² Wertå f}ò speziellå  Kontrollfunk
+tioneî (Wertå 00È bió 1FH¬ ° bió 3± dez).
+
+Daó  Terminaì isô nuî nichtó andereó aló eiî Befehlsempf{ngeò 
+miô eineò eigeneî 'Programmiersprache'¬ bestehenä auó deî 12¸ 
+verschiedeneî Zeicheî deó ASCII-Codes®  Jedeó empfangenå Zei
+cheî wirä auæ deí Bildschirí dargestellô unä diå Positioî f}ò 
+daó  n{chstå  Zeicheî einå Spaltå  nacè  rechtó  bewegt®  Diå 
+Stelle¬ aî deò daó n{chstå Zeicheî ausgegebeî wird¬ isô durcè 
+deî sogenannteî Cursoò (Positionszeiger© gekennzeichnet® 
+
+F}ò  jedeî  empfangeneî  Werô zwischeî 3² unä  12·  wirä  daó 
+entsprechendå  Zeicheî deò ASCII-Tabellå dargestellt®  Beson
+derå Funktionen¬  wiå z.B® Cursorbewegungen¬ k|nneî durcè diå 
+Wertå 00È bió 1FÈ ausgel|sô werden® Beé deî meisteî Anwendun
+geî  reicheî dieså 3² Funktioneî aus¬  dá siå  einå  minimalå 
+Kontrollå  deò Ausgabå erlauben®  Dá dieså Wertå aucè voî deò 
+Tastatuò }beò diå CTRL-Tastå erzeugô werdeî k|nnen¬  bezeich
+neô maî siå meisô aló Controlcodes.
+
+F}ò  weiterå Funktioneî reicheî diå 3² Wertå abeò nichô  aus® 
+Daheò  wurdå deò Werô 2· (1BH© aló Escapå ('Ausbruch'©  defi
+niert¬ deò eiî Ausbrecheî auó deî 3² festdefinierteî Control
+codeó  erlaubt®  Nacè deí ESC-Codå folgeî grunds{tzlicè  nocè 
+eiî  odeò  mehrerå Werte®  Auó dieseí Grundå  bezeichneô  maî 
+solchå Zeichenfolgeî aucè aló Escapesequenzen.
+
+Miô Hilfå deò Escapesequenzeî k|nneî nuî allå  Sonderfunktio
+nen¬  diå  eiî Terminaì hat¬  auæ einfachå Weiså  angesteuerô 
+werden® Allå CP/M-Programme diå einå komfortablå Zeichenaus
+gabå  haben¬  benutzeî solchå Escapesequenzeî zuí Bildaufbau® 
+Insbesonderå beé 'Full-Screen'-Operationeî wiå siå  z.B®  beé 
+deò  Textverarbeitunç  gebrauchô werden¬  kanî deò  Programm
+ablauæ  durcè  Ausnutzunç deò }beò Escapesequenzeî  ansprech
+bareî M|glichkeiteî eineó Terminaló  beschleunigô werden.
+
+
+Allå  bessereî CP/Í Programmå habeî daheò eiî spezielleó  In
+stallationsprogramí  miô  desseî  Hilfå daó Programí  aî  daó Šangeschlossenå Terminaì angepassô werdeî kann.
+Zuò  optimaleî Nutzunç deò M|glichkeiteî deó Geniå IIÉ  wurdå 
+ií Geniå CP/Í 2.2X daó Terminaì Televideï 950 emuliert.
+
+
+4.² Bildschirmformat
+
+Diå  Bildschirmanzeigå ií Geniå IIÉ CP/Í 2.2X wirä  auó  2µ 
+Zeileî zõ jå 8° Zeicheî gebildet¬  beií Geniå IIó sinä eó  2´ 
+Zeileî  zõ 8° Zeichen®  Zuò Zeichenausgabå werdeî  iî  beideî 
+Ger{teî  diå  ersteî 2´ Zeileî herangezogen¬  diå  25®  Zeilå 
+dienô   beií  Geniå  IIÉ  aló  Sonderzeilå  zuò   Darstellunç 
+besondereò Informationen.
+
+
+4.3 Zeichendarstellung
+
+Diå Zeichendarstellunç geschiehô auæ deî beideî Ger{teî Geniå 
+IIó unä Geniå IIÉ vollkommeî unterschiedlich®
+Daó Geniå IIÉ haô eineî eigenst{ndigeî Bildschirmspeicheò voî 
+2kByteó  (204¸  Bytes©  Gr|~e®   Dá  nuò  2µ  ª  8°   Zeicheî 
+darstellbaò  sind¬  werdeî  4¸  Byteó  nichô  benutzt®  Jedeí 
+Zeicheî stehô alsï eiî Bytå zuò Verf}gung¬ waó diå Anzahì deò 
+darstellbareî  Zeicheî auæ 25¶ beschr{nkt®  Iî jedeò deò 192° 
+Bildschirmpositioneî stehô eiî Werô zwischeî ° unä 255®  Nacè 
+deò  ASCII-Tabellå  sinä diå Wertå zwischeî 3² unä  12·  fesô 
+definiert®  Damiô  lasseî sicè allå Buchstabeî  iî  Gro~- unä 
+Kleinschreibung¬  sowiå  allå Sonderzeicheî  darstellen®  Diå 
+Wertå  12¸  bió  25µ entsprecheî deneî voî ° bió 12·  iî  deò 
+inverseî Darstellung.
+
+Ií   Geniå   IIó   wirä  diå   Bildschirmausgabå   }beò   deî 
+Graphikspeicheò   abgewickelt®   Dieó  bedeuteô  zwaò   eineî 
+erheblicè   h|hereî   Rechenaufwand¬   gibô   jedocè   (fast© 
+unbeschr{nktå  M|glichkeiteî beé deò  Zeichendarstellung®  Ií 
+Geniå IIó wurdeî daheò zweé Zeichens{tzå eingebaut¬  zwischeî 
+denen man jederzeit durch P2-Leertaste umschalten kann.
+Deò  erstå Zeichensatú isô deò Deutschå miô Umlauteî unä  deí 
+Paragraphenzeichen®  Deò zweiteî Zeichensatú isô US-ASCIÉ miô 
+eckigeî  unä  geschwungeneî Klammern¬  insbesonderå  beé  deò 
+Programmierung in Pascal und C unentbehrlich.
+
+
+4.4 Videomodé
+
+4.4.± Linemodus/Pagemoduó                   (nuò Geniå III)
+
+Diå  wichtigsteî  Escapesequenzeî  zuò Gestaltunç  voî  Bild
+schirmdarstellungeî dieneî deí Einf}geî (Insert© unä  L|scheî 
+(Delete© voî Zeileî bzw® Zeichen.
+Einå  derartigå  Behandlunç voî Zeileî beeinflussô immeò  daó 
+gesamtå  Bild®  Beií Einf}geî eineò Zeilå werdeî allå  Zeileî Šunterhalâ  davoî nacè unteî verschoben®  Diå Informatioî  deò 
+letzteî  Zeilå deó Bildeó gehô dabeé verloren®  Beií  L|scheî 
+eineò  Zeilå  werdeî allå Zeileî unterhalâ  davoî  nacè  obeî 
+verschobeî  unä iî deò freiwerdendeî letzteî  Bildschirmzeilå 
+Leerzeicheî eingef}gt.
+Daó  Einf}geî unä L|scheî voî einzelneî Zeicheî haô jedocè jå 
+nacè aktuelleí Videomoduó unterschiedlichå Konsequenzen.
+
+Eó kanî dabeé entwedeò ií Zeilen- (Line¬ kurú L© odeò Seiten- 
+(Page¬  kurú P© moduó gearbeiteô werden® Ií Zeilenmoduó wirkô 
+sicè  eiî  L|scheî odeò Einf}geî eineó Zeichenó nuò  bió  zuí 
+Endå deò betroffeneî Zeilå aus® Beií Einf}geî gehô daó letztå 
+Zeicheî verloren¬ beií L|scheî wirä iî deò letzteî Spaltå eiî 
+Leerzeicheî eingesetzt® Diå andereî Zeileî deó Bildeó bleibeî 
+unbeeinflusst®  Ií  Gegensatú zuí Zeilenmodus¬  deò  nuò  diå 
+Zeicheî  bió zuí Endå eineò Zeilå verschiebt¬  wirkô sicè  ií 
+Seitenmoduó diå Behandlunç voî Zeicheî bió zuí Endå deò Seitå 
+aus®  Beií Einf}geî eineó Zeichenó ií Seitenmoduó werdeî allå 
+Zeicheî  rechtó  davoî  bió zuí Endå deò  Seitå  nacè  rechtó 
+verschoben®  Daó  letztå Zeicheî eineò Zeilå tauchô dabeé aló 
+ersteó  Zeicheî  deò n{chsteî Zeilå wiedeò  auf®  Daó  letztå 
+Zeicheî  deò letzteî Zeilå gehô verloren®  Genausï aucè  beií 
+L|scheî  eineó Zeichenó ií Seitenmodus®  Allå Zeicheî  rechtó 
+voí  gel|schteî  Zeicheî bió zuí Endå deò Seitå  werdeî  einå 
+Positioî  nacè linkó verschoben®  Daó jeweiló  erstå  Zeicheî 
+jedeò  Zeilå tauchô aló letzteó Zeicheî deò vorherigeî  Zeilå 
+wiedeò auf®  Aí Endå deò Seitå wirä diå freiwerdendå Positioî 
+miô deí Leerzeicheî gef}llt.
+
+
+4.4.² Editmodus/Insertmodus                 (nuò Geniå III)
+
+Zweé anderå Modé beeinflusseî diå Ausgabå voî Zeicheî auæ deí 
+Bildschirm®  Deò  sogenanntå Editiermoduó (]berschreib-Modus¬ 
+kurú EDT© isô ií Normalfalì aktiv® Hieò wirä jedeó ankommendå 
+Zeicheî  dargestellô unä diå Cursorpositioî einå Spaltå  nacè 
+rechtó bewegt®  Falló auæ deò letzteî Cursorpositioî  bereitó 
+eiî Zeicheî stand¬ wirä eó }berschrieben.
+Deò  zweitå  Moduó isô deò Insertmoduó  (Einf}ge-Modus¬  kurú 
+INS)®  Dabeé wirä jedeó darzustellendå Zeicheî aî deò Cursor
+positioî  eingef}gô unä daó vorheò dorô  befindlichå  Zeicheî 
+nacè  rechtó  verschoben®  Wiå weiô sicè  dieså  Verschiebunç 
+auswirkt¬  h{ngô  davoî ab¬  oâ deò Zeilen- odeò  Seitenmoduó 
+aktivierô ist.
+
+Welcheò  Moduó  deò jeweiligeî Modipaarå  eingeschalteô  ist¬ 
+wirä  iî  deò Statuszeilå durcè eineî deò vieò  verschiedeneî 
+K}rzeì EDTL¬ EDTP¬ INSÌ odeò INSĞ angezeigt.
+.paŠ4.4.³ Zeilen}berlauf
+
+Eiî weitereò Modus¬  deò Zeilen}berlauæ (Verticaì Wrap)¬  be
+stimmô daó Verhalteî deò Bildschirmausgabå beé Erreicheî  deò 
+letzteî Zeilenposition®  Ií Normalfalì isô deò Zeilen}berlauæ 
+eingeschalteô  unä nacè deò Ausgabå eineó Zeichenó iî deò 80® 
+Spaltå  wirä deò Cursoò automatiscè iî diå erstå  Spaltå  deò 
+n{chsteî  Zeilå  gesetzt®  Nacè Schreibeî deò  letzteî  Bild
+schirmpositioî  wirä deò gesamtå Bildschirminhalô einå  Zeilå 
+nacè  obeî  verschobeî unä deò Cursoò aî deî Anfanç deò  freé 
+werdendeî  letzteî Zeilå gesetzt®  Dá dabeé diå  erstå  Bild
+schirmzeilå  verloreî geht¬  kanî maî deî Zeilen}berlauæ aucè 
+abschalteî unä daó 'Hochlaufen§ deó Bildeó  unterdr}cken®  Iî 
+dieseí  Falì wirä deò Cursoò nichô mehò iî diå n{chstå  Zeilå 
+verschoben¬  sonderî bleibô iî deò letzteî Spaltå stehen® Diå 
+erstå  Spaltå deò n{chsteî Zeilå wirä ersô durcè Empfanç  deò 
+beideî Codeó CÒ (0DH¬  1³ dez© unä LÆ (0AH¬ 1° dez© erreicht® 
+Uí  einå  fl}ssigå Zeichenausgabå zõ  gew{hrleisten¬  muş  iî 
+dieseí  Falì  diå Anzahì deò ausgegebeneî Zeicheî  prï  Zeilå 
+mitgez{hlô werdeî unä nacè deí jeweiló 80®  Zeicheî CÒ unä LÆ 
+eingeschobeî  werden®  Dieó geschiehô z.B®  ií BASIÃ odeò beé 
+dem Datenbankprogramm dBase II.
+
+
+4.5 Diå 25® Zeile                           (nuò Geniå III)
+
+4.5.± Verwendunç aló Statuszeile
+
+Iî  deò  Statuszeilå werdeî allå f}ò deî  Benutzeò  wichtigeî 
+Informationeî dargestellt¬ dazõ geh|ren:
+
+- daó gew{hltå Diskettenlaufwerk
+- deò gew{hltå Benutzerbereich
+- deò Videomodus
+- deò Wochentag
+- daó Datum
+- diå Uhrzeit
+
+Allå dieså Informationeî werdeî iî deò Reihenfolge¬  wiå  siå 
+hieò aufgez{hlô sind¬ voî linkó nacè rechtó dargestellt.
+Diå  eigentlichå  Statuszeilå wirä ií Speicheò aufgebauô  unä 
+beé jedeò [nderunç iî diå 25®  Bildschirmzeilå  kopiert®  Daó 
+hei~t¬ daş aucè beé andereò Nutzunç deò 25® Zeilå diå Status
+zeilå immeò aktualisierô wird.
+Beií  R}ckmeldeî  deò Statuszeilå (vgl®  Anhanç B¬  ESÃ Ú  1© 
+werdeî  aucè nichô diå 8° Zeicheî  deò  25®  Bildschirmzeile¬ 
+sonderî  diå  8° Zeicheî deò interî  verwalteteî  Statuszeilå 
+ausgegeben.
+.paŠ4.5.² Verwendunç aló Benutzerzeile
+
+Beé  mancheî Anwendungeî kanî eó sicè aló n}tzlicè  erweisen¬ 
+aucè deî Statuó deó ablaufendeî Programmó deí Benutzeò mitzu
+teilen® Zõ dieseí Zwecë wurdå diå Benutzerzeilå eingerichtet® 
+]beò einå bestimmtå Escapesequenú (siehå Anhanç B© k|nneî bió 
+zõ  8° Zeicheî aló Benutzerzeilå gespeicherô werden¬  diå An
+zeigå erfolgô ersô }beò einå weiterå Escapesequenz®  Dieó haô 
+deî Vorteil¬ daş diå Benutzerzeilå 'ií Hintergrund§ aufgebauô 
+werdeî kanî unä ersô nacè Eintraç alleò Informationeî  darge
+stellô  wird®  Aucè deò Inhalô deò Benutzerzeilå kanî aî  daó 
+laufendå Programí r}ckgemeldeô werden.
+
+
+4.5.3 Abschalteî deò 25® Zeile
+
+Diå  25®  Zeilå  kanî entwedeò beé  deò  Systemkonfigurierunç 
+(Kap®  7©  odeò  }beò  einå Escapesequenú (siehå  unteî  odeò 
+Anhanç B© abgeschalteô werden.
+
+
+4.6  Zeichenattribute
+
+Ií  Gegensatú zuí emulierteî Terminaì Televideï 950¬  wirä ií 
+Geniå  IIÉ  - techniscè  bedingô -  nuò eiî  Attribuô  unter
+st}tzt¬  diå inverså Darstellung® Ií Geniå IIó CP/Í 2.2Ø wirä 
+zus{tzlicè daó Attributå Unterstrichen verarbeitet.
+Beé  deò  Installatioî voî CP/M-Programmeî auæ  daó  Terminaì 
+Televideï  95°  zeigô sicè jedoch¬  daş  dieså  daó  Attribuô 
+'halbå  Helligkeit§  deí  Attribuô  'Invers§  vorziehen®  Auó 
+dieseí Grunä werdeî aucè diå Escapesequenzeî f}ò diå Ein- unä 
+Ausschaltunç   deò  halbeî  Helligkeiô  erkannt¬   abeò   aló 
+Invertierunç  verarbeitet®   Dabeé  ergibô  sicè  jedocè  eiî 
+Problem® Daó Leerzeicheî wirä iî volleò unä halbeò Helligkeiô 
+identiscè angezeigô unä manchå Programmå verzichteî daheò beé 
+deò Ausgabå voî Leerzeicheî auæ diå R}cknahmå deó Attributes® 
+Auó  dieseí  Grundå wirä daó Attribuô 'halbå Helligkeit§  nuò 
+beé darstellbareî Zeicheî aló Invertierunç interpretiert¬ daó 
+Leerzeicheî  jedocè  ohnå  Attribuô  verarbeitet®   Dieó  isô 
+insbesonderå  beé deò Installatioî deó Programmó Multiplaî zõ 
+beachteî !
+
+
+4.7 Cursorattribute
+
+Daó Geniå IIÉ bieteô wegeî seineó eigenst{ndigeî  Bildschirm-
+Controllers¬    beé   deò   Darstellunç   deó   Cursorsymboló 
+verschiedenå  M|glichkeiten®   Auó  dieseî  Darstellungsarteî 
+wurdeî folgendå vieò gew{hlt¬ diå aucè voí Televideo-Terminaì 
+unterst}tzô werden:
+.paŠ- blinkendeò Block
+  Deò  Cursoò wirä aló blinkendeò weisseò Blocë  dargestellt®   
+  Iî  dieseò Arô isô eò beé invertierteò Schrifô aí besteî zõ   
+  erkennen.
+- stehendeò Block
+  Deò Cursoò wirä aló st{ndiç sichtbareò weisseò Blocë darge  
+  stellt.
+- blinkendeò Strich
+  Deò Cursoò wirä aló blinkendeò Unterstricè dargestellt.
+- stehendeò Strich
+  Deò Cursoò wirä aló stehendeò Unterstricè dargestellt.
+
+Eiî  weitereó w{hlbareó Cursorattribuô schalteô diå  Darstel
+lunç deó Cursoró ab¬ deò Cursoò isô danî nichô sichtbar.
+Dá  beií Geniå IIó diå gesamtå Bildschirmausgabå peò Softwarå 
+gesteuerô wird¬ isô daó Attribuô 'blinken§ beé deò Cursordar
+stellunç nichô wirksaí unä wirä wiå 'stehend§ interpretiert.
+
+
+4.8 Monitormodus                           (nuò Geniå III)
+
+Normalerweiså  k|nneî nuò diå Wertå zwischeî 3² unä 12·  bzw® 
+16° unä 25µ zuò Anzeigå gebrachô werden® Uí jedocè deî gesam
+teî  Zeichensatú voî 25¶ Zeicheî auszunutzen¬  ist aucè deî 
+Wertå  zwischeî  ° unä 3± jå eiî  Zeicheî  zugewiesen®  Dieså 
+Wertå  k|nneî  nuò }beò deî sogenannteî  Monitormoduó  darge
+stellô  werden®  Jedeó  deò 3² Zeicheî stellô eiî  spezielleó 
+Graphikzeicheî  dar¬   daó  gem{ş  deó  ASCII-Standardó   deî 
+jeweiligen Controlcode ersetzt.
+
+Dieså  besonderå Ausgabearô dienô voò alleí deò  Installatioî 
+voî Fremdprogrammen®  Beé eingeschalteteí Monitormoduó werdeî 
+diå  empfangeneî Controlcodeó unä Escapesequenzeî nichô  mehò 
+aló  Befehlå interpretiert¬  sonderî  direkô  angezeigt®  Deò 
+Monitormoduó  isô }beò einå Escapesequenú ein- unä ausschalt
+bar.
+
+Einå  genauå ]bersichô }beò diå verwendeteî K}rzeì zeigô  diå 
+Zeichensatztabellå ií Anhanç E.
+
+
+4.9 R}ckmeldunç voî Werten
+
+Einå Besonderheiô deò Videoroutinå isô diå M|glichkeit¬  aucè 
+Wertå  zur}ckzumelden®  Dieså  R}ckmeldunç geschiehô }beò  deî 
+Tastaturkanal¬  d.h®  daş r}ckgemeldetå Zeicheî wiå  Eingabeî 
+voî  deò Tastatuò behandelô werden®  Nebeî deò aktuelleî Cur
+sorpositioî  k|nneî beií Geniå IIÉ aucè komplettå Zeileî  auæ 
+dieså Arô }bergebeî werden.
+Besonderó interessanô isô beií Geniå IIÉ diå R}ckmeldunç  beé 
+deò  Status- unä Benutzerzeile®  Eiî laufendeó Programí  kanî 
+durcè  Anforderunç deò Statuszeilå z.B®  jederzeiô daó  Datuí Šunä diå Uhrzeiô abfragen® Eiî entsprechendeó Beispielprogramí 
+in BASIC ist am Ende von Anhang B gegeben.
+Jedå  R}ckmeldunç wirä miô deí Controlcodå CÒ (0DH¬  1³  dez© 
+abgeschlossen¬  uí einå Eingabå (z.B®  ií BASIÃ }beò 'INPUT'© 
+zõ  erm|glichen®  Dá  ií Basiã zwischeî jå zweé Befehleî  diå 
+Tastatuò  abgefragô wird¬  kommô eó zwischeî deò Ausgabå  deò 
+Escapesequenú }beò 'PRINT§ unä deò ]bernahmå deò r}ckgemelde
+teî  Wertå durcè 'INPUT§ odeò 'INKEY§ zuí Verlusô eineó  Zei
+chens®  Auó  dieseí Grundå gibô eó iî deò Systemkonfiguratioî 
+(Kapiteì 7.1© diå M|glichkeit¬ voò jedå R}ckmeldunç eiî Leer
+zeicheî zõ setzen¬ daş voí Basiã danî abgefangeî wird.
+
+
+4.10 Steuersequenzen
+
+Auæ  deî  n{chsteî  Seiteî wirä nuò  einå  Kurz}bersichô  deò 
+m|glicheî  Videobefehlå iî deò Forí voî Controlcodeó unä  Es
+capesequenzeî  gegeben®  F}ò jedeî Befehì isô auæ deò  linkeî 
+Seitå deò Controlcodå bzw® diå Escapesequenz¬ deò (die© hexa
+dezimalå unä dezimalå Wert(e© sowiå diå Kurzschreibweiså nacè 
+deí ASCII-Standarä aufgef}hrt® Auæ deò rechteî Seitå befindeô 
+sicè  diå  Bezeichnunç iî Engliscè unä einå deutschå  Kurzbe
+schreibung® Einå ausf}hrlichå Behandlunç deò Befehlå befindeô 
+sicè ií Anhanç B.
+Dá  sicè diå CP/Í 2.2Ø Versioneî f}ò diå Ger{tå Geniå IIÉ unä 
+Geniå  IIó iî deî unterst}tzteî Control- unä  Escapesequenzeî 
+unterscheiden¬  sinä  diå Sequenzen¬  diå nuò auæ  eineí  deò 
+Ger{tå wirksaí sind¬  zus{tzlicè gekennzeichnet® (2© bedeuteî 
+'nur Genie IIs' und (3) 'nur Genie III'.
+
+
+4.10.1 Cursorbewegungen
+
+     CTRL-È   0¸    ¸  BÓ     Backspace
+                              Cursor ein Zeichen nach links
+
+     CTRL-É   0¹    ¹  HÔ     Horizontal Tab
+                              Cursor zum n{chsten Tab
+
+     CTRL-Ê   0Á   1°  LÆ     Linefeed
+                              Cursor eine Zeile nach unten
+
+     CTRL-Ë   0Â   1±  VÔ     Cursor Up
+                              Cursor eine Zeile nach oben
+
+     CTRL-Ì   0Ã   1²  FÆ     Cursor Forward
+                              Cursor ein Zeichen nach rechts
+
+     CTRL-Í   0Ä   1³  CÒ     Carriage Return
+                              Cursor zum Anfang der Zeile
+.paŠ     CTRL-Ö   1¶   2²  SYÎ    Cursor Down
+                              Cursor eine Zeile nach unten
+
+     CTRL-ş   1Å   3°  RÓ     Home
+                              Cursor in die linke obere Ecke
+
+     CTRL-_   1F   31  VS     New Line
+                              Cursoò zuí Anfanç deò n{chsteî
+                              Zeile
+
+     ESÃ ½  1Â 3Ä  2· 6±      Cursoò Addresó iî Page
+                              Neuå  Cursorpositioî  innerhalâ 
+                              deò Seitå w{hlen
+
+
+4.10.2 L|schbefehle
+
+     CTRL-Ú   1Á   2¶  SUÂ    Clear Screen
+                              Seitå miô deí Leerzeicheî  f}l
+                              len¬ Cursoò home
+
+     ESÃ Ô  1Â 5´  2· 8´      Clear to End of Line
+                              Bió   zuí  Zeilenendå  miô  deí 
+                              Leerzeicheî auff}llen
+
+(3)  ESC t  1B 74  27 106     Clear to End of Line to Null
+                              Bis zum Zeilenende l|schen
+
+     ESÃ Ù  1Â 5¹  2· 8¹      Clear to End of Page
+                              Bió  zuí  Seitenendå  miô   deí 
+                              Leerzeicheî auff}llen
+
+(3)  ESC y  1B 79  27 121     Clear to End of Page to Null
+                              Bis zum Seitenende l|schen
+
+     ESÃ ª  1Â 2Á  2· 4²      Clear All to Null
+                              Seite l|schen
+
+(3)  ESC +  1B 2B  27 43      Clear Unprotected
+                              Ganzå Seitå miô deí Leerzeicheî 
+                              auff}llen
+
+
+
+4.10.3 Editierbefehle
+
+     ESÃ Å  1Â 4µ  2· 6¹      Insert Line
+                              Zeile einf}gen
+
+     ESÃ Ò  1Â 5²  2· 8²      Delete Line
+                              Zeile l|schen
+Š(3)  ESÃ Ñ  1Â 5±  2· 8±      Insert Character
+                              Zeichen einf}gen
+
+(3)  ESÃ ×  1Â 5·  2· 8·      Delete Character
+                              Zeichen l|schen
+
+
+4.10.4 Wahl des Videomodus
+
+(3)  ESC N  1B 4E  27 78      Page Edit
+                              Seiteneditierung aktivieren
+
+(3)  ESC O  1B 4F  27 79      Line Edit
+                              Zeileneditierung aktivieren
+
+(3)  ESC q  1B 71  27 113     Insert Mode On
+                              Einf}gemodus einschalten
+
+(3)  ESC r  1B 72  27 114     Insert Mode Off
+                              Einf}gemodus ausschalten
+
+     ESC v  1B 76  27 118     Vertical Wrap On
+                              Zeilen}berlauf einschalten
+
+     ESC w  1B 77  27 119     Vertical Wrap Off
+                              Zeilen}berlauf ausschalten
+
+
+4.10.5 Wahl des Attributes
+
+     ESC )  1B 29  27 41      Half Intensity On
+                              Invertierunç (ohnå Leerzeichen© 
+                              einschalten
+
+     ESC (  1B 28  27 40      Half Intensity Off
+                              Invertierung ausschalten
+
+     ESÃ ®  1Â 2Å  2· 4¶      Seô Cursoò Attribute
+                              Cursorsymbol w{hlen
+
+     ESÃ Ç  1Â 4·  2· 7±      Seô Videï Attribute
+                              Zeichenattribut w{hlen
+
+
+4.10.6 Status- und Benutzerzeile
+
+(3)  ESC g  1B 67  27 103     Display User Line
+                              Benutzerzeile anzeigen
+
+(3)  ESC h  1B 68  27 104     Display Status Line
+                              Statuszeile anzeigen
+Š(3)  ESC f  1B 66  27 102     Load User Line
+                              Benutzerzeile laden
+
+
+4.10.7 Monitormodus
+
+(3)  ESC U  1B 55  27 85      Enter Monitor Mode
+                              Monitormodus einschalten
+
+(3)  ESC X  1B 58  27 88      Exit Monitor Mode
+                              Monitormodus ausschalten
+
+
+4.10.8 Setzen der Systemparameter
+         Nicht Televideo kompatibel !
+
+     ESÃ ß   1Â 5Æ  2· 9µ     Systemparameteò setzen
+
+
+
+4.10.9 R}ckmeldung von Werten
+
+(3)  ESÃ ¶  1Â 3¶  2· 5´      Send Line
+                              Cursorzeile r}ckmelden
+
+     ESÃ ¿  1Â 3Æ  2· 6³      Read Cursor Address in Page
+                              Cursorposition r}ckmelden
+
+     ESC M  1B 4D  27 77      Transmit Terminal ID
+                              Versionsnummeò   unä  Speicher
+                              gr|~å r}ckmelden
+
+(3)  ESÃ Ú  1Â 5Á  2· 9°      Senä User/Statuó Line
+                              Benutzer- odeò      Statuszeilå 
+                              r}ckmelden
+
+
+
+4.10.10 Sonderfunktionen
+
+     CTRL-Ç    0·     ·  BEÌ  Bell
+                              Piepston ausgeben
+
+(3)  ESÃ Ğ  1Â 5°  2· 8°      Page Print with CR LF
+                              Bildschirm ausdrucken
+
+(3)  ESÃ å  1Â 6µ  2· 10±     Loaä Substitutå
+                              Leerzeichen ersetzen
+.paŠ

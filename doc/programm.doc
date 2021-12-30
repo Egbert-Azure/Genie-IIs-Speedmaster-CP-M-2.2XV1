@@ -1,0 +1,693 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 10
+.pn 1
+.hå Kapiteì 1°                                Dienstprogramme
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç          10-#
+10. CP/M Dienstprogramme
+
+10.0 Einleitung
+
+Nachfolgenä  sinä allå mitgelieferteî Dienstprogrammå  aufge
+f}hrt®
+Dieså  Dienstprogrammå  sinä spezielì auæ daó  Geniå  III/IIó 
+CP/Í 2.2Ø zugeschnitteî unä nuò dorô lauff{hig.
+
+Aí  Anfanç jedeò Beschreibunç stehô diå Syntax¬  miô deò  daó 
+entsprechendå Programí aufgerufeî werdeî kann.
+M|glichå Parameteò sinä iî eckigeî Klammerî ('<§ unä '>'© unä 
+iî Kleinschrifô angegeben®  <lw¾ bezeichneô dabeé eineî Lauf
+werksnameî  ií  Bereicè Á bió Ä (miô odeò ohnå  nachfolgendeî 
+Doppelpunkt).
+
+Diå eckigeî Klammerî d}rfeî nichô miô eingegebeî werden.
+.paŠ10.1  AUTO.COM
+
+
+Syntax:    AUTO
+oder       AUTO <befehl>
+
+Anwendung: Ausf}hrunç eineó bestimmteó Programmó odeò Befehló 
+           nacè  deí  Kaltstart¬  ohnå Einwirkunç  durcè  deî 
+           Benutzer®  Wirkungº  Deò aló Parameteò aufgef}hrtå 
+           wirä beií n{chsteî Bootvorganç deò  Systemdiskettå 
+           automatiscè  ausgef}hrt®  Isô keiî Parameteò ange
+           geben¬  sï  wirä beií n{chsteî Booteî keiî  Befehì 
+           ausgef}hrô  unä daó Systeí meldeô sicè soforô  miô 
+           deí Prompô A>.
+
+Bemerkung: Daó AUTO-Programí {nderô immeò deî Autobefehì  des 
+           gefundenen Konfigurationsfile CONFIG.SYS
+           Deò aló Parameteò eingegebenå Befehì daræ  maximaì 
+           3±  Zeicheî umfassen®  Solleî meherå Befehlå nach
+           einandeò  ausgef}hrô werden¬  sï isô dieó nuò  miô 
+           Programí SUBMIÔ unä eineò entsprechendeî  Befehls
+           dateé  (.SUÂ  aló Extension©  m|glich®  Deò  AUTO-
+           Befehì musó danî AUTÏ SUBMIÔ filename.SUÂ lauten.
+
+Beispiele: AUTO DIR B:
+           Nacè  deí n{chsteî Booteî deò Systemdiskettå  wirä 
+           automatiscè daó Inhaltsverzeichnió deò Diskettå ií 
+           Laufwerë Â angezeigt.
+           AUTÏ DATUM
+           Nacè  deí  Booteî wirä soforô daó  aktuellå  Datuí 
+           angezeigt.
+           AUTÏ SUBMIÔ START
+           Nacè deí Booteî wirä automatiscè deò Befehì SUBMIÔ 
+           STARÔ  ausgef}hrt®  Dadurcè  kanî }beò  deî  AUTO-
+           Befehì  aucè  diå Ausf}hrunç mehrereò Befehlå  er
+           reichô  werden®  Ií Filå START.SUÂ m}sseî diå  ge
+           w}nschteî Befehlå stehen.
+           AUTO
+           Nacè deí Booteî wirä keiî Befehì  ausgef}hrt¬  daó 
+           Systeí meldeô sicè direkô miô deí Prompô A>.
+.paŠ10.2  BOOT.COM
+
+
+Syntax:    BOOT
+
+Anwendungº Kaltstarô (Booten© deó Betriebssystems
+
+Wirkung:   Diå  ií eingebauteî EPROÍ  vorhandeî  Boot-Routinå 
+           wirä  aufgerufen®  Daó  Verhalteî deó Ger{teó  isô 
+           somiô wiå nacè deí Einschalten.
+
+Bemerkung: Dieseó  Programí  solì nuò zuí  softwarem{~iç  ge
+           steuerteî Bootvorganç dienen® Ií deò Regeì erfolgô 
+           eiî Kaltstarô deó Systemó durcè Dr}ckeî deò beideî 
+           RESET-Tasten.
+.paŠ10.3  CONFIG.COM
+
+
+Syntax:    CONFIG
+
+Anwendung: [nderunç   odeò  Anzeigå  deó  Konfigurationsfileó 
+           CONFIG.SYÓ deò Systemdiskette.
+
+Wirkung:   Diå  Systemtabellå  deó  Konfigurationsfileó  wirä 
+           eingeleseî unä diå ver{nderbareî Parameteò einzelî 
+           abgefragt®  Durcè Dr}ckeî deò ENTER-Tastå kanî diå 
+           Einstellunç  deó gezeigteî Parameteró  unver{nderô 
+           gelasseî  werden®  Aí Endå deò Konfiguratioî  wirä 
+           diå Systemtabellå wiedeò abgespeichert.
+
+Bemerkung: Diå neuå Konfiguratioî wirä nichô iî deî  Speicheò 
+           }bernommen¬  sonderî wirä ersô nacè deí Booteî deò 
+           ge{nderteî  Systemdiskettå wirksam®  Genauerå Hin
+           weiså auæ dieseó Programí unä diå einzelneî  Para
+           meteò befindeî sicè ií Kapiteì 7.
+.paŠ10.4  DATUM.COM                               (nur Genie III)
+
+
+Syntax:    DATUM
+oder       DATUM <w> <tt>.<mm>.<jj>
+
+Anwendung: Programmierunç  odeò  Anzeigå  voî  Wochentaç  unä 
+           Datuí iî diå eingebautå Hardwareuhr.
+Wirkung:   DATUÍ zeigô deî aktuelleî Wochentaç unä daó  Datuí 
+           iî deò Forí 'Heutå isô Montag¬ deò 1® Januaò 1985§ 
+           an® Anderó aló iî deò Statuszeilå werdeî hieò alsï 
+           Wochentaç  unä  Monaô  ausgeschrieben®  Durcè  diå 
+           Angabå  eineó neueî Wochentagó unä Datumó kanî diå 
+           vorhandenå Einstellunç ver{nderô werden.
+           Deò  Parameteò <w¾ bestimmô deî Wochentaç  ií  Be
+           reicè  ±  (f}ò Montag© bió ·  (f}ò  Sonntag)®  Daó 
+           Datuí  folgô  durcè eiî Leerzeicheî voí  Wochentaç 
+           getrennt® Tag¬ Monaô unä Jahò besteheî jeweiló auó 
+           zweé Zifferî ií Bereicè jeweiló 0± bió 31¬  0± bió 
+           1² unä 0° bió 99.
+
+Bemerkung: Durcè  diå Batteriepufferunç deò Hardwareuhò  wirä 
+           daó  Datuí automatiscè beií ]berganç voî  23:59:5¹ 
+           auæ  00:00:0°  weitergez{hlt®   Einå  selbstt{tigå 
+           Erkennunç voî Schaltjahreî findeô nichô statt.
+.paŠ10.5  FKEY.COM
+
+
+Syntax:    FKEY
+
+Anwendung: [nderunç deò bestehendeî Funktionstastenbelegung.
+
+Wirkung:   FKEÙ  l{dô diå Funktionstastentabellå (FKYTAB© des 
+           Konfigurationsfileó   CONFIG.SYÓ  unä  zeigô   diå 
+           Belegunç deò Funktionstasteî an® 
+           Nacè deí Programmstarô unä deí Einleseî deò FKYTAÂ 
+           werdeî  diå  1¶  Funktionstastenbelegungeî 
+           angezeigt®  Daó Endå jedeî Texteó isô durcè  eineî 
+           weisseî  Blocë markiert¬  Controlcodeó werdeî  aló 
+           invertiertå  Buchstabeî  entsprechenä  deò  ASCII-
+           Tabellå dargestellt®  <ENTER¾ z.B.¬ ASCII-Carriagå 
+           Return¬  entsprichô  deò Tastenkombinatioî  CTRL-Í 
+           unä wirä aló invertierteó 'M§ angezeigt.
+           Durcè  diå beideî Pfeiltasteî Hochpfeiì unä  Tief
+           pfeiì  kanî  einå deò 16 Belegungeî zuò  [nderunç 
+           ausgew{hlô werden® Daó Zeicheî '>§ zeigô dabeé diå 
+           Funktionstastå  an¬  diå durcè Dr}ckeî deò  ENTER-
+           Tastå zuò [nderunç herangezogeî wird®  BREAË spei
+           cherô  diå  aktuellå Belegunç  auæ  deí  gew{hlteî 
+           Laufwerk¬  CLEAR brichô daó Programí ohnå ]bernahmå 
+           deò [nderungeî ab.
+           Nachdeí  einå  Funktionstastå  ausgew{hlô   wurde¬ 
+           befindeô sicè daó Programí ií [nderungsmodus®  Deò 
+           blinkendå  Cursoò zeigô auæ daó erstå Zeicheî  deó 
+           Funktionstastentexts®  Iî  deò untersteî Zeilå isô 
+           diå Anzahì deò nocè freieî Zeicheî angegeben®  Deò 
+           dargestelltå  Texô kanî nuî }berschriebeî  werden¬ 
+           odeò neuå Zeicheî nacè Aktivierunç deó  Einf}gemo
+           duó eingef}gô werden® Durcè diå Pfeiltasteî Links
+           pfeiì  unä  Rechtspfeiì wirä deò Cursoò  innerhalâ 
+           deó Texteó bewegt® Tiefpfeiì l|schô daó Zeicheî aî 
+           deò Cursorposition¬  CLEAÒ deî gesamteî  Text®  Uí 
+           aucè  diå  Eingabå voî Controlcodeó  zõ  erlauben¬ 
+           erfolgô  einå speziellå  Tastaturabfrage®  Dadurcè 
+           isô  eó m|glich¬  allå Controlcodes¬  insbesonderå 
+           deî ENTER-Codå CR¬  miô iî deî Funktionstastentexô 
+           zõ integrieren®  Deò [nderungsmoduó wirä durcè diå 
+           BREAK-Tastå  beendeô unä maî befindeô sicè  danacè 
+           wiedeò ií Auswahlmodus.
+
+Bemerkung: FKEÙ   arbeiteô   immeò  nuò  miô  deò   auæ   deò 
+           Systemdiskettå   befindlicheî   Konfigurationsfilå 
+           CONFIG.SYÓ     unä     speicherô     diå      neuå 
+           Funktionstastenbelegunç  nacè  deò  [nderunç  aucè 
+           wiedeò dorô ab® Diå Aktivierunç deò neueî Belegunç 
+           wirä aí Endå deó Programmó expliziô abgefragt.
+           Ií Auswahlmoduó werdeî diå Pfeiltasteî nacè ca® 1-Š           ² Sekundeî automatiscè wiederholt® SHIFT-Hochpfeiì 
+           verschiebô  diå  Markierunç zuí ersteî unä  SHIFT-
+           Tiefpfeiì zuí letzteî Text.
+.paŠ10.6  FORMAT.COM
+
+
+Syntax:    FORMAT <lw> </V> </W> </VW>
+oder       FORMAT
+
+Anwendung: Daó  Programí FORMAÔ dienô zuò Formatierunç  eineò 
+           Diskette.
+
+Wirkung:   Beé  deò Formatierunç wirä diå Diskettå iî  Spureî 
+           unä  Sektoreî eingeteilt¬  diå deí  Betriebssysteí 
+           diå Orientierunç auæ deò Diskettå beé Schreib- unä 
+           Leseoperationeî erm|glicht.
+           FORMAÔ  formatierô diå Diskettå ií Laufwerë  <lw>® 
+           Isô  keiî Laufwerë angegeben¬  sï wirä  deò  Lauf
+           werksnamå  gesonderô abgefragt®  Diå  Formatierunç 
+           erfolgô immeò iî deí f}ò dieseó Laufwerë gew{hlteî 
+           Format®
+
+Bemerkung: Miô Hilfå deó Formatprogrammó k|nneî allå voí CP/Í 
+           2.2Ø unterst}tzteî Formatå bearbeiteô werden.
+           Daó  FORMAT-Programí beginnô beé deò  Formatierunç 
+           eineò Diskettå immeò auæ deò Spuò 0®  W{hrenä  deò 
+           Formatierunç  wirä diå bearbeitetå Spurnummeò  unä 
+           Diskettenseitå  angezeigt®  Ií Normalfalì wirä diå 
+           Formatierunç  nichô nochmaló  }berpr}ft¬  dá  dieó 
+           eineî  ziemlicheî Zeitverlusô bedeutet®  ]beò  deî 
+           Parameteò   '/V§  kanî  jedocè  einå   ]berpr}funç 
+           erzwungeî  werden®  Wirä dabeé eiî Fehleò erkannt¬ 
+           sï  erfolgô diå Ausgabå eineó kurzeî Pieptonó  unä 
+           diå  Formatierunç deò fehlerhafteî Spuò wirä  wie
+           derholt.
+           Durcè  Dr}ckeî deò BREAK-Tastå isô  jederzeiô  deò 
+           Abbrucè eineò begonneî Formatierunç m|glich.
+
+           ]beò  deî Parameteò '/W§ wirä expliziô auæ diå  zõ 
+           formatierendå   Diskettå  gewartet¬   ohnå  dieseî 
+           Parameteò beginnô diå Formatierunç sofort® Isô daó 
+           aktuellå   unä  daó  zuò   Formatierunç   gew{hltå 
+           Laufwerë  identisch¬  sï  wirä deò Parameteò  '/W§ 
+           automatiscè  gesetzô  unä  diå  Diskettå  getrennô 
+           angefordert.
+
+Beispiele: FORMAT
+           Daó  FORMAT-Programí wirä gestarteô unä fragô nacè 
+           deí Laufwerk¬  daó formatierô werdeî soll® Aî die
+           seò Stellå isô durcè Dr}ckeî deò BREAK-Tastå  odeò 
+           CTRL-Ã  eiî  sofortigeò  Programmabbrucè  m|glich® 
+           Nacè deò Eingabå eineò korrekteî Laufwerksbezeich
+           nunç wirä soforô miô deò Formatierunç begonnen.
+           FORMAÔ B
+           Diå  Diskettå  ií Laufwerë Â wirä iî deí durcè  PÄ Š           f}ò  dieseó Laufwerë gew{hlteî Formaô  formatiert® 
+           Deò Beginî deò Formatierunç erfolgô  sofort¬  ohnå 
+           zus{tzlichå Best{tigung®  Eiî Abbrucè isô nuò }beò 
+           diå BREAK-Tastå m|glich.
+           FORMAÔ B/V
+           Diå  Diskettå  ií Laufwerë Â wirä  formatierô  unä 
+           jedå  Spuò einzelî auæ einå korrektå  Formatierunç 
+           hiî }berpr}ft.
+           FORMAÔ B/W
+           Daó  Format-Programí warteô miô  deò  Formatierunç 
+           bió   diå  gew}nschtå  Diskettå  inó  Laufwerë   Â 
+           eingelegô wurde.
+.paŠ10.7  ID.COM
+
+
+Syntax:    ID <lw>:<formatname>
+
+Anwendung: Aufbringeî   eineó   Boot-Laderó  miô   deò    deò 
+           Formatkennunç  <formatname¾  auæ diå  ií  Laufwerë 
+           <lw¾ eingelegtå Diskette.
+
+Wirkung:   IÄ   formatierô  diå  Spuò  0¬   Vorderseitå   unä 
+           R}ckseite¬   deò  gew{hlteî  Diskettå  miô  jå  1° 
+           Sektoreî  á 25¶ Byteó (Singlå Density© unä  bringô 
+           deî  Bootsektoò  (SYSBOOT.SYS)¬   deî   CPM-Loadeò 
+           (LOADER.SYS©   unä  diå  Formatkennunç   (ben|tigô 
+           PDRIVE.SYS© auf.
+           Diå Spuò ± (Vorder- unä R}ckseite© wirä miô jå  1° 
+           Sektoreî  á 51² Byteó (Doublå Density©  formatierô 
+           unä daó CP/Í 2.² Betriebsysteí (CPM22X.SYS© darauæ 
+           kopiert.
+           Bootf{hiç wirä einå Diskettå jedocè erst¬ wenî diå 
+           beideî  Systemfileó CONFIG.SYÓ unä BIOS22X.SYÓ auæ 
+           diå Diskettå kopierô werden.
+
+Bemerkung: Deò Syntaø deó ID-Befehló entsprichô genaõ deí deó 
+           PD-Befehls®    Deò  ID-Befehì  beeinflussô  jedocè 
+           nichô  diå  deî Laufwerkeî  zugewieseneî  Formate¬ 
+           sonderî  legô  nuò auæ deò Diskettå deó  gew{hlteî 
+           Laufwerkó zweé Systemspureî an®  Haô daó  gew{hltå 
+           Formaô  wenigeò aló zweé reserviertå Systemspuren¬ 
+           wiå z.B®  daó D8° DSDÄ Format¬ sï isô einå Kennunç 
+           nichô m|glich.
+           Genausï  wiå  deò PD-Befehl¬  pr}fô aucè  daó  ID-
+           Programí diå Vertr{glichkeiô zwischeî Laufwerë unä 
+           Formaô  bez}glicè  µ 1/´ odeò ¸  Zoll®  Solì  einå 
+           bootf{higå  Diskettå erstellô werden¬  sï muş  diå 
+           Kennunç  miô eineí Laufwerë gleicheî Typó wiå  daó 
+           Bootlaufwerë erfolgen®  Isô z.B®  diå Kennunç  miô 
+           eineí   aló   40-Spuò  gekennzeichneteî   Laufwerë 
+           erfolgt¬ sï kanî dieså Diskettå nichô iî eineí 80-
+           Spuò Laufwerë gebooteô werden.
+
+ACHTUNG:
+           Fremdå  Systemdisketteî k|nneî nacè deò  Anwendunç 
+           deó  ID-Befehló nichô mehò auæ deí fremdeî  Systeí 
+           gebootet¬ wohì abeò bearbeiteô werden.
+           Deò Benutzeò isô f}ò diå korrektå  Formatzuweisunç 
+           auæ diå entsprechendå Diskettå verantwortlich® Diå 
+           Bearbeitunç  eineò Diskettå miô eineò fehlerhafteî 
+           Formatkennunç kanî zõ unvorhersehbareî  Reaktioneî 
+           unä  ií  Extremfalì  zõ  Datenverlusô  auæ  dieseò 
+           Diskettå f}hren.
+           ]berpr}feî Siå daheò voò deò  Formatzuweisung¬  oâ Š           diå  Diskettå tats{chlicè daó entsprechendå Formaô 
+           hat® 
+
+Beispiele: ID B:S80 DSDD
+           Diå ií Laufwerë Bº befindlichå Diskettå erh{lô diå 
+           Formatkennunç S8° DSDD
+.paŠ10.8  INFO.COM
+
+
+Syntax:    INFO
+
+Anwendung: Angabå  eineó  Informationstexteó zuò  schnellereî 
+           Identifizierunç  deò  gebooteteî   Systemdiskette® 
+           Insbesonderå   beé  f}ò  verschiedenå  Anwendungeî 
+           konfigurierteî  Systemeî isô  dieså  Informations
+           zeilå {u~ersô n}tzlich.
+
+Wirkung:   Nacè  Aufruf¬  fragô daó Programí nacè eineò Text
+           zeile¬  diå bió zõ 8° Zeicheî umfasseî kann® Dieså 
+           Informationszeilå  wirä beií n{chsteî  Bootvorganç 
+           nacè deí LOGÏ ausgegeben.
+
+Bemerkung: Wiå  aucè beií AUTO-Programí wirä diå [nderunç deò 
+           Informationszeilå  nuò iî deí gefundeneî  Konfigu
+           rationsfilå CONFIG.SYÓ ausgef}hrt.
+           Wirä  beé  deò  Konfiguratioî  deò  entsprechendeî 
+           Systemdiskettå  diå Anzeigå deó LOGOó unterbunden¬ 
+           sï  wirä  beií Booteî  nuò  diå  Informationszeilå 
+           ausgegeben®  Dieó  kanî insbesonderå f}ò  Benutzeò 
+           diå nichô miô deí Systeí vertrauô sind¬ einå gro~å 
+           Hilfå bedeuten.
+.paŠ10.9  IOBYTE.COM
+
+
+Syntax:    IOBYTE
+
+Anwendung: Anzeigå deó aktuelleî IOBYTE-Wertes.
+
+Wirkung:   Deò  Werô deò Speicherstellå 0003È (=CP/Í  IOBYTE© 
+           wirä dezimaì ausgegeben.
+
+Bemerkung: Dieseó  Programí  dienô zuò Festlegunç  deó  Para
+           meteró IOBYTÅ beé deò Systemkonfiguratioî mithilfå 
+           voî  CONFIG.COM®  Daó IOBYTÅ steuerô diå  Schnitt
+           stellenzuordnunç  deò  verschiedeneî   CP/M-Haupt
+           kan{lå  CON,PUN,RDÒ unä LST®  Dieså Zuordnunç  isô 
+           normalerweiså festgelegô (siehå Kapiteì *.*)¬ kanî 
+           abeò miô deí STAT-Programí ver{nderô werden®  Solì 
+           einå  neugew{hltå Einstellunç aucè nacè deí n{chs
+           teî  Kaltstarô nocè g}ltiç sein¬  sï muş deò  neuå 
+           IOBYTE-Werô beé deò Systemkonfiguratioî eingegebeî 
+           werden.
+.paŠ10.10 PD.COM
+
+
+Syntax:    PD
+oder       PD <lw>:<formatname>
+oder       PD S <lw>:<formatname>
+
+Anwendung: Auswahì eineó Diskettenformató zuí Lesen¬  Schrei
+           beî  unä Formatiereî voî Disketteî iî  Fremdforma
+           ten®  Welchå Formatå m|glicè sind¬ isô iî deò Tab
+           ellå ií Anhanç Ã angegeben.
+
+Wirkung:   PÄ  zeigô  diå aktuelleî  Formateinstellungeî  deò 
+           achô m|glicheî Diskettenlaufwerkå an® 
+
+           PÄ  <lw>:<formatname¾ weisô deí  Diskettenlaufwerë 
+           <lw¾  daó  Formaô miô deí Nameî  <formatname¾  zu¬ 
+           speicherô  diå  neuå  Belegunç  jedocè  nicht   iî 
+           CONFIG.SYÓ ab.
+
+           PÄ Ó <lw>:<formatname¾ weisô deí Diskettenlaufwerë 
+           <lw¾ daó Formaô miô deí Nameî <formatname¾ zõ  unä 
+           speicherô  diå neuå Belegunç jedocè iî  CONFIG.SYÓ 
+           ab®  Damiô  stehô  diå gew{hltå Belegunç nacè  deí 
+           n{chsteî Kaltstarô wiedeò zuò Verf}gung.
+
+Bemerkung: PÄ benutzô zuò Verwaltunç deò verschiedeneî Forma
+           tå  daó  Datenfilå PDRIVE.SYS®  Wirä  dieseó  Filå 
+           nichô auæ deí aktuelleî Laufwerë gefunden¬ sï wirä 
+           automatiscè  daó  Laufwerë Aº  angew{hlô  unä  diå 
+           Dateé dorô gesucht.
+           Isô  PDRIVE.SYÓ nichô erreichbar¬  sï erfolgô einå 
+           entsprechendå Fehlermeldung®
+
+           PÄ  pr}fô  beé deò Formatzuweisunç ab¬  oâ  dieseó 
+           Formaô miô deí gew{hlteî Laufwerë vertr{glicè ist® 
+           Sï  isô  z.B®  nichô m|glich¬  eineí  µ  1/´  Zolì 
+           Laufwerë  eiî  ¸  Zolì Formaô odeò eineí  4°  Spuò 
+           Laufwerë eiî 8° Spuò Formaô zuzuweisen.
+
+Beispiele: PD B:D80 DSDD
+           Allå  weitereî Diskettenoperationeî miô deí  Lauf
+           werë Â: erfolgeî ií Formaô 'D8° DSDD'
+           PD
+           Diå  zuò Zeiô aktuelleî Formatå deò vier m|glicheî 
+           Diskettenlaufwerkå werdeî angezeigt.
+.paŠ10.1± SIO.COÍ                                 (nuò Geniå IIs)
+
+
+Syntax:    SIO
+odeò       SIÏ <kanal>,<baudrate>,<parit{t>,<wortl{nge>,
+               <stopbits>,<richtung>,<protokoll>,<wait>,
+               <btx>,<save>
+
+Anwendung: Initialisierunç  deò serielleî Schnittstelleî  auæ 
+           neuå  Parameteò odeò Anzeigå deò derzeiô  g}ltigeî 
+           Parameter beider SIO-Schnittstellen.
+
+Wirkung:   Ohnå  Paramter¬  zeigô SIÏ diå aktuelleî  Einstel
+           lungeî  deò  beideî serielleî  Kan{le¬  durcè  diå 
+           unteî  aufgef}hrteî  Parameter®
+           Einå [nderunç deò Einstellunç kanî diå Eingabå deò 
+           m|glicheî Parameteò iî beliebigeò Reihenfolgå  unä 
+           beliebiç ofô erfolgen.
+
+           <kanal>:     A oder B
+                        Aº Alleó weiterå beziehô sicè auæ SIÏ 
+                        Kanaì Á (Default¬  falló wedeò Á nocè 
+                        Â angegebeî sind)
+                        Bº Alleó weiterå beziehô sicè auæ SIÏ 
+                        Kanaì B
+
+           <baudrate>:  50¬  75¬  110¬  134.5¬ 150¬ 300¬ 600¬ 
+                        1200¬  1800¬  2400¬ 3600¬ 4800¬ 7200¬ 
+                        9600 oder 1920°
+                        Diå  Baudratå bestimmô  diå  ]bertra
+                        gungsgeschwindigkeiô  iî Bitó prï Se
+                        kundå (Baud)®  Diå eingestellô  Baud
+                        ratå  wirä  sowohì beií  Empfanç  aló 
+                        aucè beií Sendeî voî Zeicheî benutzt® 
+
+           <parit{t>:   EVEN¬ ODÄ odeò NO
+                        Diå  Parit{ô  bestimmô diå  Erzeugunç 
+                        deó Parit{tsbits® Dieseó Biô wirä beé 
+                        deò serielleî ]bertragunç zuò Fehler
+                        pr}funç  benutzt®  Einå  einwandfreiå 
+                        ]bertragunç  isô  nuò  gew{hrleistet¬ 
+                        wenî beidå kommunizierendeî  Schnitt
+                        stelleî   miô  deò  gleicheî  Parit{ô 
+                        arbeiten.
+
+           <wortl{nge>º 5¬ 6¬ · odeò 8
+                        Diå Wortl{ngå bestimmô diå Anzahì deò 
+                        g}ltigeî  Bitó prï }bertrageneí  Zei
+                        chen® F}ò Text}bertragunç sinä · odeò 
+                        ¸ Bit.
+.paŠ           <stopbits>º  1¬ 1.µ odeò 2
+                        Diå Anzahì deò Stopbitó bestimmô  diå 
+                        Zahì  deò Bitó diå nacè eineí Zeicheî 
+                        zõ  Synchronisationszweckeî  gesendeô 
+                        werden®  Wiå aucè beé deò Parit{ô isô 
+                        einå gleichå Einstellunç deò Stopbitó 
+                        beé beideî kommunizierendeî  Schnitt
+                        stelleî erforderlich.
+                        1.µ  Stopbitó  werdeî nuò  beé  eineò 
+                        Wortl{ngå voî µ Bitó erzeugt.
+
+           <richtung>:  INº  odeò  OUTº  (Deò Doppelpunkô isô 
+                        notwendiç !)
+                        INº  Diå n{chstå Protokollangabå  isô 
+                        f}ò  daó  Protokolì beé deò  Eingabe® 
+                        (damiô  wirä alsï daó sendende  Ger{ô 
+                        gesteuert» z.b® angehalten¬ falló daó 
+                        CP/Í  keinå weitereî Dateî  entgegen
+                        nehmeî kann)
+                        OUTº  Diå n{chstå Protokollangabå isô 
+                        f}ò  daó  Protokolì beé  deò  Ausgabå 
+                        (damiô  zeigô daó  empfangende  Ger{ô 
+                        z.b®  Druckeò an¬ oâ eó weiterå Dateî 
+                        }bernehmeî kann)
+
+           <protokoll>º NONE, RTÓ, DTR oder XON
+                        Daó  eingestelltå  Protokolì  steuerô 
+                        deî  Datenaustauscè }beò diå seriellå 
+                        Schnittstelle¬  uí Zeichenverlustå zõ 
+                        verhindern®  Dieså speziellå ]bertra
+                        gungssteuerunç  wirä aucè aló  'Hand
+                        shaking§  bezeichnet¬   dá  sicè  diå 
+                        beideî kommunizierendeî  Schnittstel
+                        leî  }beò daó eingestelltå  Protokolì 
+                        }beò  diå Zeichen}bertragunç verst{n
+                        digen.
+                        XONº  Aktivierunç deó Software-Proto
+                        kolló durcè diå ASCII-Zeicheî XOÎ unä 
+                        XOFF:
+                        XOÎ (ASCIÉ DC1¬ 11H© ½ Datenfreigabe
+                        XOFÆ (ASCIÉ DC3¬ 13H© ½ Datensperrung
+                        Beé OUTº  XON¬  warteô daó CP/Í  nacè 
+                        EMPFANÇ  eineó XOFÆ miô deò  weitereî 
+                        Datenausgabå  solange¬  bió  eiî  XOÎ 
+                        empfangeî   wird®   Damiô  isô   einå 
+                        Druckeransteuerunç m|glich®  Beachteî 
+                        Sie¬   daş   beií  XON-Protokolì  deò 
+                        Datenein- unä  ausgabekanaì  deò  SIÏ 
+                        benutzô wird®  Diå RS-23²  Steuerlei
+                        tungeî  DTÒ unä RTÓ werdeî auæ  aktiö 
+                        gehalten¬  CTÓ  unä DCÄ werdeî  nichô 
+                        abgefragt.Š                        RTSº  Diå  Steuerunç erfolgô }beò diå 
+                        RTS-Leitunç (beé INº  RTS© bzw®  CTS-
+                        Leitunç (beé OUTº RTS)® ]beò diå RTS-
+                        Leitunç wirä deí sendenden Ger{ô mit
+                        geteilt¬  oâ  daó CP/Í weiterå  Dateî 
+                        }bernehmen¬  daó  sendende Ger{ô alsï 
+                        weiteò sendeî kann®  Durcè Abfraç deò 
+                        CTS-Leitunç wirä festgestellt¬ oâ daó 
+                        empfangende  Ger{ô weiterå Dateî  an
+                        nehmen¬  daó CP/Í alsï weiteò  senden 
+                        kann®  Diå  Leitunç  DTÒ  wirä  aktiö 
+                        gehalten¬ DCÄ wirä nichô abgefragt.
+                        RTSº  Diå  Steuerunç erfolgô }beò diå 
+                        DTR-Leitunç (beé INº  DTR© bzw®  DCD-
+                        Leitunç (beé OUTº DTR)® ]beò diå DTR-
+                        Leitunç  wirä  deí  sendenden   Ger{ô 
+                        mitgeteilt¬ oâ daó CP/Í weiterå Dateî 
+                        }bernehmen¬  daó  sendende Ger{ô alsï 
+                        weiteò sendeî kann®  Durcè Abfraç deò 
+                        DCD-Leitunç wirä festgestellt¬ oâ daó 
+                        empfangende  Ger{ô weiterå Dateî  an
+                        nehmen¬  daó CP/Í alsï weiteò  senden 
+                        kann®  Diå  Leitunç  RTÓ  wirä  aktiö 
+                        gehalten¬ CTÓ wirä nichô abgefragt.
+                        NONEº   Keiî  Protokoll®  Diå  RS-23² 
+                        (V24©  Steuerleitungeî  DTÒ  unä  RTÓ 
+                        werdeî  auæ aktiö gehalten¬  CTÓ  unä 
+                        DCÄ werdeî nichô abgefragt.
+
+           <wait>:      WAIT oder NOWAIT
+                        Beé  WAIÔ  wirä daó  n{chstå  Zeicheî 
+                        ersô  danî  aî  deî   Schnittstellen
+                        controlleò  gegeben¬  wenî  daó  vor
+                        herigå   Zeicheî  vollst{ndiç  ausge
+                        sendeô ist®  Beé NOWAIÔ kanî  bereitó 
+                        w{hrenä  eiî  Zeicheî gesendeô  wird¬ 
+                        daó n{chstå Zeicheî aî deî Controlleò 
+                        }bergebeî werden.
+
+           <btx>:       BTX oder NOBTX
+                        BTXº  Aktivierunç  deó BTX-Moduó (ge
+                        trenntå  Baudrateî  f}ò  Sendeî   unä 
+                        Empfangeî auæ Kanaì A)®  Beé BTØ gilô 
+                        diå  Baudratå  voî  Kanaì Á  f}ò  deî 
+                        Empfanç unä diå Baudratå voî Kanaì  Â 
+                        f}ò daó Senden® Kanaì Â haô iî dieseò 
+                        Einstellunç  diå Baudratå voî Kanaì Â 
+                        f}ò Empfanç unä Senden.
+                        NOBTXº  Aufhebunç deó BTX-Modus®  Diå 
+                        Baudratå deó Kanaì Á gilô wiedeò  f}ò 
+                        Empfangeî   unä  Sendeî  auæ   dieseí 
+                        Kanal.Š
+           <save>:      SAVE
+                        Diå    neuå   Einstellunç   wirä   ií 
+                        CONFIG.SYS-Filå   gespeichert®   Nor
+                        malerweiså  greifô  daó  SIO-Programí 
+                        nuò  lesenä auæ diå  CONFIG.SYS-Dateé 
+                        zuò Anzeigå alleò Parameteò  zu®  Diå 
+                        neuå Einstellunç wirä zwaò aktiviert¬ 
+                        jedocè nichô gespeichert®  Sp{testenó 
+                        nacè  deí  n{chsteî  SIO-Aufruæ  odeò 
+                        Kaltstart¬    wirä    diå   iî    deò 
+                        CONFIG.SYS-Dateé   gespeichertå  Ein
+                        stellunç wiedeò }bernommen® Deò Para
+                        meteò  SAVÅ speicherô diå  neuå  Ein
+                        stellunç  ií CONFIG.SYS-Filå  ab¬  sï 
+                        daş  dieså  aucè  nacè  deí  n{chsteî 
+                        Kaltstarô wiedeò zuò Verf}gunç steht.
+.paŠ10.12 UHR.COM                                 (nur Genie III)
+
+
+Syntax:    UHR
+
+Anwendung: Ausgabe von Wochentag, Datum und Uhrzeit
+
+Wirkung:   Dieseó  kleinå  Programí liesô auó deî letzteî  2³ 
+           Stelleî deò Statuszeilå deî Wochentag¬  daó  Datuí 
+           unä diå Uhrzeiô auó unä gibô dieså aus.
+
+Bemerkung: Dieseó Programí isô vornehmlicè zuò Markierunç voî 
+           Druckerprotokolleî gedacht® Beé Directory-Ausdruk
+           keî odeò {hnlicè }beò CTRL-Ğ kanî durcè vorherigeî 
+           Aufruæ voî UHR¬ deò Ausdrucë miô Datuí unä Uhrzeiô 
+           verseheî werden.
+.paŠ10.13 V24.COÍ                                 (nuò Geniå III)
+
+
+Syntax:    V24
+oder       V24 <baudrate>,<parit{t>,<wortl{nge>,<stopbits>,
+               <protokoll>,<wait>
+
+Anwendung: Initialisierunç  deò serielleî  Schnittstellå  auæ 
+           neuå  Parameteò odeò Anzeigå deò derzeiô  g}ltigeî 
+           Schnittstellenparameter.
+
+Wirkung:   V2´  zeigô diå aktuellå Einstellunç deò  serielleî 
+           Schnittstellå   durcè   diå   unteî   aufgef}hrteî 
+           Parameter®  Diå  [nderunç deò Einstellunç kanî diå 
+           Eingabå  deò  m|glicheî  Parameteò  iî  beliebigeò 
+           Reihenfolgå unä beliebiç ofô erfolgen®
+
+           <baudrate>:  50¬  75¬  110¬  134.5¬ 150¬ 300¬ 600¬ 
+                        1200¬  1800¬  2400¬ 3600¬ 4800¬ 7200¬ 
+                        9600¬ 1920° odeò 38400
+                        Diå  Baudratå bestimmô  diå  ]bertra
+                        gungsgeschwindigkeiô  iî Bitó prï Se
+                        kundå (Baud)®  Diå eingestellô  Baud
+                        ratå  wirä  sowohì beií  Empfanç  aló 
+                        aucè beií Sendeî voî Zeicheî benutzt® 
+
+           <parit{t>:   EVEN¬ ODÄ odeò NO
+                        Diå  Parit{ô  bestimmô diå  Erzeugunç 
+                        deó Parit{tsbits® Dieseó Biô wirä beé 
+                        deò serielleî ]bertragunç zuò Fehler
+                        pr}funç  benutzt®  Einå  einwandfreiå 
+                        ]bertragunç  isô  nuò  gew{hrleistet¬ 
+                        wenî beidå kommunizierendeî  Schnitt
+                        stelleî   miô  deò  gleicheî  Parit{ô 
+                        arbeiten.
+
+           <wortl{nge>º 5¬ 6¬ · odeò 8
+                        Diå Wortl{ngå bestimmô diå Anzahì deò 
+                        g}ltigeî  Bitó prï }bertrageneí  Zei
+                        chen® F}ò Text}bertragunç sinä · odeò 
+                        ¸ Bit.
+
+           <stopbits>º  1¬ 1.µ odeò 2
+                        Diå Anzahì deò Stopbitó bestimmô  diå 
+                        Zahì  deò Bitó diå nacè eineí Zeicheî 
+                        zõ  Synchronisationszweckeî  gesendeô 
+                        werden®  Wiå aucè beé deò Parit{ô isô 
+                        einå gleichå Einstellunç deò Stopbitó 
+                        beé beideî kommunizierendeî  Schnitt
+                        stelleî erforderlich.
+                        1.µ  Stopbitó  werdeî nuò  beé  eineò 
+                        Wortl{ngå voî µ Bitó erzeugt.Š
+           <protokoll>º NONE, RTÓ, DTR oder XON
+                        Daó  eingestelltå  Protokolì  steuerô 
+                        deî  Datenaustauscè }beò diå seriellå 
+                        Schnittstelle¬  uí Zeichenverlustå zõ 
+                        verhindern®  Dieså speziellå ]bertra
+                        gungssteuerunç  wirä aucè aló  'Hand
+                        shaking§  bezeichnet¬   dá  sicè  diå 
+                        beideî kommunizierendeî  Schnittstel
+                        leî  }beò daó eingestelltå  Protokolì 
+                        }beò  diå Zeichen}bertragunç verst{n
+                        digen.
+                        NONÅ  unterst}tzô keiî Protokolì  unä 
+                        setzô diå V24-Steuerleitungeî DTÒ unä 
+                        RTÓ auæ 'high'.
+                        DTÒ  benutzô  deî  DTR- bzw®  DSR-An
+                        schluş  deò  Schnittstellå  f}ò   diå 
+                        Steuerung®  Dieó  isô  beií  Anschluş 
+                        eineó Druckeró }blich.
+                        RTÓ  benutzô  deî  RTS- bzw®  CTS-An
+                        schluş  f}ò diå Steuerung®  Dieó  isô 
+                        beií Datenaustauscè miô andereî Rech
+                        nerî }blich.
+                        XOÎ isô daó beé deò ]bertragunç  }beò 
+                        Akustikkoppleò    (Telefon©   }blichå 
+                        Protokoll¬   wirä  jedocè  nuò   beií 
+                        Sendeî   erkannt®   Wurdå  eiî   XOFÆ 
+                        empfangen¬   sï   wirä  daó   n{chstå 
+                        Zeicheî ersô nacè eineí XOÎ gesendet® 
+                        Dadurcè  kanî  diå 'Gegenstelle§  daó 
+                        Sendeî voî Zeicheî steuern.
+
+           <wait>:      WAIT oder NOWAIT
+                        Beé  WAIÔ  wirä daó  n{chstå  Zeicheî 
+                        ersô  danî  aî  deî   Schnittstellen
+                        controlleò  gegeben¬  wenî  daó  vor
+                        herigå   Zeicheî  vollst{ndiç  ausge
+                        sendeô ist®  Beé NOWAIÔ kanî  bereitó 
+                        w{hrenä  eiî  Zeicheî gesendeô  wird¬ 
+                        daó n{chstå Zeicheî aî deî Controlleò 
+                        }bergebeî werden.
+.paŠ10.14 ZEIT.COM                                (nur Genie III)
+
+
+Syntax:    ZEIT
+oder       ZEIT <std>:<min>
+
+Anwendung: Einstellunç odeò Anzeigå deò aktuelleî Uhrzeit.
+
+Wirkung:   ZEIÔ gibô diå aktuellå Uhrzeiô iî Stunden¬ Minuteî 
+           unä Sekundeî aus®  Zuí Setzeî deò Uhrzeiô muş  diå 
+           gew}nschtå   Stundå   unä   Minutå   aló   jeweiló 
+           zweistelligå  Zahì aló Parameteò angegebeî werden® 
+           Dá diå Uhò beií Programmiereî eineò neueî  Uhrzeiô 
+           diå  Sekundeî automatiscè auæ 0° setzt¬  wirä  diå 
+           eingegebenå Zeiô ersô nacè Dr}ckeî deò ENTER-Tastå 
+           gesetzt.
+           Diå Zeiteinstellunç isô ií allgemeineî nuò  einmaì 
+           notwendig¬ dá diå Hardwareuhò einå eigenå Batteriå 
+           besitzô unä aucè beé ausgeschalteteí Ger{ô weiter
+           l{uft® Beé eineò fehlerhafteî Justagå deò Uhò kanî 
+           eó  jedocè zõ Gleichlaufproblemeî kommen¬  diå bió 
+           zõ  eineò Minutå prï Monaô  ausmacheî  k|nnen®  Iî 
+           dieseî  F{lleî  muş diå Programmierunç deò Uhò  iî 
+           regelm{~igå Abst{ndeî wiederholô werden.
+.paŠ

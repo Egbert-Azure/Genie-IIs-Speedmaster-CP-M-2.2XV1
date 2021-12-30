@@ -1,0 +1,657 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 8                                   Systembefehle"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            8-#"
+_8. CP/M Systembefehle_
+
+_8.0 Einleitung_
+
+Die  folgenden Befehle sind fest im CP/M integriert und daher  +
+jederzeit auf Systemebene erreichbar. Sie erlauben eine minimale Kontrolle des Systems und der auf Diskette gespeicherten  +
+Daten. Für darüber hinausgehende Operationen stehen die CP/M- +
+Standardprogramme  zur Verfügung,  die jedoch als  Datei  auf  +
+einer Diskette erreichbar sein müssen.
+
+Im weiteren werden die folgenden Bezeichnungen verwendet: +
+lw   Laufwerksbezeichnung zwischen A und P +
+efn  Einfachname (Filename ohne ? oder *) +
+mfn  Mehrfachname (efn oder Filename mit ? und/oder *)
+
+
+_8.1 DIR_
+
+
+Syntax:        DIR +
+oder           DIR lw: +
+oder           DIR lw:mfn
+
+Anwendung: Ausgabe  des Inhaltsverzeichnisses (Directory) des             +
+           aktuellen oder angewählten Laufwerks.
+
+Bemerkung: DIR  gibt keinen Aufschluß den Filestatus und  die             +
+           Größe der Files.  Diese Werte können nur über  den             +
+           STAT-Befehl  abgefragt  werden.  Die  Ausgabe  der             +
+           Directory  wird  beim Drücken einer  Taste  sofort             +
+           abgebrochen.  +
+           CTRL-S  stoppt die Ausgabe,  die Betätigung  einer             +
+           beliebigen Taste führt die Ausgabe fort.
+
+
+_8.2 ERA_
+
+Syntax:        ERA mfn +
+oder           ERA lw:mfn
+
+Anwendung: Löschen  eines  oder mehrerer Dateien aus dem  In            +
+           haltsverzeichnis.
+
+Bemerkung: ERA  löscht  die angegebene(n)  Datei(en)  nur  im             +
+           Inhaltsverzeichnis  und gibt die durch sie besetz            +
+           ten  Blöcke  auf der Diskette  wieder  frei.  Über             +
+           spezielle  Programme  kann diese  Löschung  wieder             +
+           rückgängig  gemacht werden.  Soll  eine  bestimmte             +
+           Datei komplett gelöscht werden,  so müssen die von             +
+           ihr belegten Diskettenblöcke mit neuen Daten über            +
+           spielt  werden.  Über ERA lw:*.* können  sämtliche            
+
+           Dateien  des gewählten Laufwerks gelöscht  werden.             +
+           Zur  Absicherung  fragt das CP/M nocheinmal  durch             +
+           `ALL (Y/N)?` nach,  ob auch wirklich alle  Dateien             +
+           gelöscht werden sollen. 
+
+
+_8.3 REN_
+
+Syntax:        REN efn=efn   
+
+Anwendung: Änderung eines Dateinamens
+
+Bemerkung: Der  erste  der  beiden Namen steht für  die  neue             +
+           Dateibezeichnung,  der zweite für den alten Datei            +
+           namen.  Falls bereits eine andere Datei unter  dem             +
+           neuen  Namen  existiert,  so bricht das  CP/M  den             +
+           Befehl  mit der Fehlermeldung `FILE EXISTS` (Datei             +
+           existiert) ab.
+
+
+_8.4 TYPE_
+
+Syntax:        TYPE efn +
+oder           TYPE lw:efn
+
+Anwendung: Auslisten einer Datei auf dem Bildschirm
+
+Bemerkung: TYPE  dient vornehmlich zur Kontrolle von  Textda            +
+           teien auf dem Bildschirm.  Dieser Befehl gibt alle             +
+           Zeichen  der angegebenen Datei bis  zum  Erreichen  +
+           des CTRL-Z Codes (1AH,  26 dez) aus.  Dabei findet  +
+           keine Kontrolle bezüglich der Zeichen statt,  d.h.  +
+           es werden auch Controlcodes ausgegeben.  Dies kann  +
+           bei  Nicht-Textdateien  zu  merkwürdigen  Ausgaben  +
+           führen.  Wie bei DIR kann die Zeichenausgabe durch  +
+           CTRL-S  gestoppt und über einen beliebigen Tasten           druck wieder fortgeführt werden.
+
+
+_8.5 USER_
+
+Syntax:    USER n  
+
+Anwendung: Wahl  eines neuen Benutzerbereichs zwischen 0  und  +
+           15
+
+Bemerkung: Durch den Benutzerbereich kann die Directory einer  +
+           Diskette  in  bis zu 16 Teile  aufgeteilt  werden.  +
+           Dies  ist insbesondere bei großen  Laufwerksgrößen  +
+           (Winchester) nützlich, um die gespeicherten Datei           en in verschiedene Gruppen  zusammenzufassen.  Der  +
+           gewählte  Benutzerbereich gilt für alle  Laufwerke 
+
+           und  läßt nur den Zugriff auf Dateien im  gleichen  +
+           Bereich zu.
+
+
+_8.6 SAVE_
+
+Syntax:        SAVE n efn +
+oder           SAVE n lw:efn  
+
+Anwendung: Abspeichern eines Speicherblocks
+
+Bemerkung: n bezeichnet die Länge des zu sichernden Speicher           bereichs  in 256-Byte Blöcken.  Die  Abspeicherung  +
+           beginnt immer an der Adresse 0100H. +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 9                               Standardprogramme"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung           9-#"
+_9. CP/M Standardprogramme_
+
+_9.0 Einleitung_
+
+Als Standardprogramme sind alle die Programme bezeichnet, die  +
+zum  festen  Bestandteil des CP/M  gehören.  Diese  Programme  +
+beziehen  sich nur auf das CP/M 2.2-Betriebssystem und laufen  +
+ohne Änderung auch auf anderen CP/M-Rechnern.
+
+
+_9.1 PIP.COM_
+
+Das  Programm  PIP.COM dient zum Kopieren  von  Dateien,  zum  +
+Aneinanderreihen/Zusammenfassen von mehreren Dateien zu einer  +
+neuen Datei sowie dem Transport von Dateiinhalten zu Peripheriegeräten.
+
+Der prinzipielle Syntax ist immer:
+
+PIP Ziel:=Quelle,Quelle,Quelle (Option, Option)      usw. +
+allgemein ausgedrückt PIP Laufwerk:=Laufwerk: Dateiname(n)
+
+Wenn  man  mehrere  unterschiedliche   Kopier/Transferbefehle  +
+geben muß,  ist es zweckmäßig, nur einfach PIP ohne Parameter  +
+aufzurufen.  PIP  meldet  sich  dann mit  einem  Prompt;  man  +
+braucht  dann nur noch die jeweiligen Kopierbefehle  einzugeben; das kann etwa so aussehen:
+
+PIP   (meldet sich mit dem "*" Promptzeichen,  hier weggelas        +
+      sen) +
+      B:=C: *.* +
+      A:=b: *.com +
+      lst:=drucker.dat +
+      usw.
+
+Am  einfachsten zu Erklären ist die Handhabung des  Programms  +
+mit  Beispielen:  gegeben sei eine Programmdiskette in A  und  +
+eine formatierte Diskette in B, außerdem ein betriebsbereiter  +
+Drucker und eine Datenquelle (Akustikkoppler, anderer Rechner  +
+etc. mit richtig eingestellten Übertragungsparametern) an der  +
+SIO A. +
+Im Beispiel seien auf DISK A unter anderem die Dateien +
+- DRUCKER.DAT,  die eine Initialisierung für den Drucker ent  hält +
+- FORMAT.COM, Formatierprogramm für neue Disketten +
+- FOX.DAT, beliebige Datei +
+- FRON.COM, beliebiges Programm +
+- F.PRN, beliebige Datei +
+- LOTAT.COM, beliebiges Programm +
+abgespeichert,  außerdem kann von der SIO A noch das Programm  +
+M.COM eingelesen werden. +
+Mit  STAT  sei die Voreinstellung SIO A  ist  PUN:  beim  zum 
+
+Senden und RDR:  zum Empfangen eingestellt (siehe Kap. 9.2).  +
+Das  Lesen der M.COM von der SIO soll durch Ausgabe der Datei  +
+F.PRN an die SIO  gestartet werden.
+
+Die mögliche Praxis mit PIP:
+
+1. PIP b:=a: *.*     +
+   Es werden alle Dateien von A nach B kopiert.
+
+2. PIP b:=a: F*.* +
+   Es  werden die Dateien von A nach B kopiert,  die mit  dem  +
+   Buchstaben  "F"  beginnen,  also im  Beispiel  FORMAT.COM,  +
+   FRON.COM, FOX.DAT und F.PRN
+
+3. PIP b:zusamm.prn=a:f.prn,fox.dat,drucker.dat  +
+   Hier  wird auf Laufwerk B eine Datei  ZUSAMM.PRN  eröffnet  +
+   und in diese Datei die Dateiinhalte von F.PRN, FOX.DAT und  +
+   DRUCKER.DAT zusammenhängend einkopiert.  Dies ist ein Bei   spiel für die Zusammenfassung von Dateien.
+
+4. PIP LST:=DRUCKER.DAT +
+   Der  Inhalt  der  Datei wird zum LST  - Kanal  (meist  der  +
+   Drucker) übertragen, z.B. um den Drucker zu initialisieren  +
+   (Schriftarten, Seitenlänge etc. setzen). Die Datei wird in  +
+   diesem Falle bis zu einem in der Datei befindlichen Datei   endezeichen  (CONTROL-Z ist gleich 1A hex) an den  Drucker  +
+   ausgegeben,  also nicht unbedingt komplett übertragen. Man  +
+   kann  damit natürlich auch ASCII-Dateien ausdrucken,  wird  +
+   aber mit dem Ergebnis wegen der fehlenden Formatierung des  +
+   Textes nicht zufrieden sein.
+
+5. PIP PUN:=NUL:,F.Prn,NUL: +
+   In  unserem  Beispiel würde so die Datei  F.PRN  über  die  +
+   serielle  Schnittstelle SIO A ausgegeben,  zum Beispiel an  +
+   einen  anderen Rechner,  einen seriellen Drucker oder  ein  +
+   Modem/Akkustikkoppler.  Vor  der Ausgabe würden  40  Null- +
+   Bytes übertragen, ebenso nach der Ausgabe (zum Einsynchro   nisieren des Empfängers beispielsweise).
+
+6. PIP a:MNEU.COM=RDR: +
+   In  diesem Beispiel werden die von der SIO gelesenen Daten  +
+   (z.B.  ein  von einem anderen Rechner gesendetes  Programm  +
+   M.COM) automatisch in der Datei MNEU.COM gespeichert. Dies  +
+   Beispiel  ist in der Praxis so nicht ohne weiteres  durch   führbar,  da man sich auf Übertragungsprotokolle  (Steuer-  +
+   und Endzeichen) u.a. einigen müßte.
+
+Die  Haupt- und  Unterkanäle  von PIP entsprechen  denen  von  +
+STAT,  also z.  B.  CON,  LST, PUN, RDR, sowie TTY, CRT, PTR,  +
+PTP, LPT usw. Zusätzlich stehen noch folgende Unterkanäle zur  +
+Verfügung:
+
+
+PRN:  Ist wie LST zu betrachten (also Drucker),  setzt jedoch  +
+      in jeder 8.  Spalte einen Tabulator, numeriert die Zei      len und tätigt alle 60 Zeilen einen Papiervorschub (FF,  +
+      0CH, 12 dez) auf die neue Seite. +
+NUL:  Erzeugt 40 Nullzeichen (nur Lesen möglich) +
+EOF:  Erzeugt den Wert 1AH (26 dez) zur Kennung des Textendes  +
+      (nur Lesen möglich) +
+INP: +
+und +
+OUT:  Diese beiden Kanäle sprechen bestimmte Adressen  inner      halb  des  PIP-Programms an,  in die mit DDT  spezielle  +
+      Ein/Ausgaberoutinen geschrieben werden können.
+
+Als letzte Parameter können im PIP-Befehl noch die  folgenden  +
+Optionen  gesetzt  werden.  Diese Optionen müssen  durch  die  +
+öffnende  eckige  Klammer  (Ä im deutschen  Zeichensatz)  vom  +
+Befehlsanfang getrennt sein.
+
+^=CONTROL, also ^Z bedeutet CONTROL-Z eingeben +
+In  Klammern () sind frei wählbare Parameter  angegeben,  die  +
+Eingabe erfolgt ohne Klammern
+
+B        Blockweise Übertragung.  PIP speichert alle  Zeichen  +
+         bis zum Empfang von CTRL-S (DC3,  13H,  19 dez) zwi         schen.  Diese Übertragungsform ist z.B.  bei der se         riellen Schnittstelle möglich. +
+D<n>     Lösche  alle Zeichen nach der Spalte n (nur sinnvoll  +
+         bei Textdateien). +
+E        Die Übertragung der Zeichen wird auch auf dem  Bild         schirm dargestellt (Echo-Modus) +
+F        entfernt  Seitenvorschubzeichen (0C hex) beim  Über         tragen +
+G<n>     Nimmt die Datei vom Benutzerbereich n +
+H        Teste,  ob die Datei im Intel-Hex Format geschrieben  +
+         ist +
+I        wie H, ignoriert werden aber die :00 Datensätze +
+L        übersetze Großbuchstaben in Kleinbuchstaben +
+N        Numeriere die Ausgabezeilen beginnen bei 1, Schritt         weite 1 +
+O        Objektcodedatei kopieren. Anders als bei Textdateien  +
+         ist  das Dateiende nicht durch 1AH (26 dez)  gekenn         zeichnet.  +
+P<n>     Setze  die Seitenlänge auf n  (Voreinstellung:  60),  +
+         Nach n Zeilen wird ein Seitenvorschub (FF,  0CH,  12  +
+         dez) eingefügt. +
+Q<XXX>^Z Beende  das  Kopieren aus der Quelldatei,  wenn  die  +
+         Zeichenkette XXX angetroffen wird +
+R        Lies auch Dateien,  die mit dem Systemattribut  ver         sehen wurden (Siehe STAT Beschreibung) +
+S<xxx>^Z Wie Q, nur Beginn statt Kopierende wenn XXX auftritt +
+T<n>     Expandiere Tabulatorzeichen (09 hex) in der Datei zu  +
+         n Leerzeichen
+
+U        Konvertiere Kleinbuchstaben zu Großbuchstaben +
+V        Prüfe,  ob die Daten korrekt übertragen wurden. Nach  +
+         dem Schreiben wird die Datei vom Ziellaufwerk  noch         mals   gelesen  um  eine  einwandfreie   Übertragung  +
+         sicherzustellen +
+W        Überschreibe Dateien,  die mit Schreibschutzattribut  +
+         versehen sind (siehe STAT) +
+Z        Lösche das Paritätsbit,  d. h. Zeichen über der Num         mer 127 (7F hex) in der ASCII Tabelle werden bei der  +
+         Übertragung  mit ihrer Zeichennummer - 128 versehen,  +
+         z.B.  wird dabei aus dem Wert 176 (B0 hex) der  Wert  +
+         48 (30 hex).
+
+
+_9.2 STAT.COM_
+
+STAT  dient zur Einstellung und Kontrolle aller CP/M-internen  +
+Systemparameter. Hauptfunktion von STAT ist die Belegungskontrolle einer eingelegten Diskette.  Die Möglichkeiten und der  +
+Syntax des STAT-Befehls sind zum Teil äußerst umfangreich und  +
+sollen hier nur kurz angesprochen werden.  Benutzte Abkürzungen: +
+lw   Laufwerksname zwischen A und P +
+efn  Einfachname, eindeutige Dateibezeichnung +
+mfn  Mehrfachnamen, efn oder mehrdeutige Dateibezeichnung  +
+(mit * und/oder ?) +
+hk   Hauptkanal +
+uk   Unterkanal
+
+STAT            Für jedes seit dem letzten Warmstart ausgeru                fene (eingeloggte) Laufwerk wird der  Disket                tenstatus und die Anzahl der freien Bytes (in  +
+                kbyte) ausgegeben.
+
+STAT lw:        Nur  die  freien Bytes des angewählten  Lauf                werks werden angezeigt.
+
+STAT mfn        Die Dateigröße und der Dateistatus des  (der)  +
+                angegebenen Dateien werden ausgegeben.
+
+STAT lw:mfn     wie STAT mfn
+
+STAT lw:$attr   Dem  angewählten  Laufwerk wird ein  Attribut  +
+                zugewiesen.  Mögliche Laufwerksatrribute sind  +
+                R/O  für Read Only (nur Lesen  erlaubt)  oder  +
+                R/W  für Read Write (Lesen und Schreiben  er                laubt). +
+                Durch  STAT C:$R/O können jegliche Schreibzu                griffe  auf  das Laufwerk C bereits  auf  der  +
+                Systemebene unterbunden werden. Die sicherste  +
+                Möglichkeit  ist  jedoch  grundsätzlich,  die  +
+                Schreibkerbe  am  Diskettenrand   zuzukleben. 
+
+                Dieses Attribut wird nur im Speicher vermerkt  +
+                und  nicht auf die Diskette geschrieben  (!).  +
+                Bei  einem  Warmstart werden  alle  Laufwerke  +
+                wieder auf R/W gesetzt.
+
+STAT mfn:$attr  Der  gewählten Datei wird ein Attribut  zuge                wiesen. Dieses Attribut wird in der Directory  +
+                vermerkt  und  abgespeichert  (!).   Folgende  +
+                Attribute sind möglich: +
+                R/W Read Write: Schreiben und Lesen der Datei  +
+                    erlaubt. +
+                R/O Read Only: Nur Lesen der Datei erlaubt. +
+                SYS SYStem: Datei ist ein Systemfile und wird  +
+                    beim DIR-Befehl nicht mit angezeigt. +
+                DIR DIRectory:  Datei  wird  beim  DIR-Befehl  +
+                    normal behandelt.
+
+STAT lw:DSK:    Diese  STAT-Funktion gibt die logischen Para                meter  des  angegeben  Laufwerks  aus.  Diese  +
+                Parameter  werden durch den PD-Befehl  (siehe  +
+                Kapitel 11.3) verschiedenen Diskettenformaten  +
+                angepasst. Falls diese Parameter eines Fremd                formates bekannt sind, kann über das getrennt  +
+                erhältlich PDRIVE-Programm ein entsprechender  +
+                Eintrag im Datenfile PDRIVE.SYS gemacht  wer                den.
+
+STAT hk:=uk:    Dadurch wird die im Kapitel 5.1.5  angeführte  +
+                Zuordnung  der Haupt- und Unter-kanäle verän                dert.
+
+STAT USR:       Ausgabe  des  zur  Zeit  gewählten  Benutzer                bereichs  und der auf dem aktuellen  Laufwerk  +
+                belegten Benutzerbereiche.  Dies ist die ein                zige  Möglichkeit,  schnell  die  verwendeten  +
+                Benutzerbereiche zu ermitteln.
+
+STAT DEV:       Ausgabe  der  zur Zeit aktuellen  Zuordnungen  +
+                der Haupt- und Unterkanäle. 
+
+STAT VAL:       Dieser Parameter gibt eine kurze Zusammenfas                sung der Möglichkeiten des STAT-Befehls aus.
+
+
+_9.3 DDT.COM_
+
+Das  Programm DDT.COM ist ein Hilfsmittel bei der  Erstellung  +
+und  dem  Austesten  von  Maschinenspracheprogrammen.  Daraus  +
+folgt auch, daß es ein ideales Werkzeug zum "Patchen" +
+(= Verändern) von Programmen bzw. Dateien allgemein ist. +
+DDT  eignet sich jedoch auch hervorragend zum  ERSTELLEN  von  +
+KURZEN  Assemblerroutinen sowie z.  B.  für Drucker-Einstell
+
+dateien (siehe Beispiel unten).
+
+Im Einzelnen kann man unter anderem
+
+- Disassemblieren, d. h. aus hexadezimalem Objektcode die für  +
+  Menschen leichter lesbaren 8080-Assemblermnemonics machen.
+
+- Assemblieren,  das ist der umgekehrte Weg: aus Mnemonics =>  +
+  Objektcode übersetzen,  der für den Prozessor  verarbeitbar  +
+  ist.
+
+- Speicherstellen listen, verändern und ggf. ausdrucken.
+
+- Füllen der Speicherstellen mit konstanten Werten.
+
+- Setzen  von Unterbrechungspunkten zum Austesten eines  Pro  gramms.
+
+- Starten  eines  im Speicher befindlichen  Programms  zwecks  +
+  Test.
+
+- TRACE, d. h. Verfolgen des Programmablaufs in Einzelschrit  ten  mit  Anzeige der Registerinhalte nach jedem  Programm  schritt.
+
+- Ansehen und Ändern der CPU-Register.
+
+- Laden von *.HEX und *.COM Dateien.
+
+Wenn  man  ein wenig mit DDT umgehen kann,  ist es  ein  sehr  +
+mächtiges  Programm und ein gutes Hilfsmittel bei  Änderungen  +
+und  Neuerstellungen von *.COM Programmen.  Nach  dem  Aufruf  +
+(bei dem auch direkt eine Datei angegeben werden kann) meldet  +
+sich  DDT  mit der Versionsnummer und dem DDT  Prompt,  einem  +
+Bindestrich.  DDT  erwartet dann einen der folgenden  Befehle  +
+mit den jeweiligen Parametern. +
+Die Grundform ist Befehl,Parameter,Parameter,Parameter
+
+Als  Parameter  kommen außer bei I nur  Hexadezimalzahlen  in  +
+Frage.
+
+Die Befehle im einzelnen
+
+A     Eingabe von Assemblermnemonics mit Operanden =>  Assem      blierung +
+      z.B.   A0100     => nachfolgende Mnemonics werden über      setzt  und ab Speicherstelle 0100 als Objektcode  abge      legt.
+
+D     steht für DUMP,  Speicherstellen in hexadezimal auflis      ten, hierbei sind immer 16 Bytes in einer Reihe angeor      dnet, rechts von ihnen befindet sich noch ein Feld, das 
+
+      evtl.  ASCII  Texte  leicht erkennen  läßt.  Wenn  kein  +
+      von/bis  angegeben wird,  werden immer 12 Zeilen (a` 16  +
+      Bytes  = 192 Bytes) ab 0100 hex gelistet und  dann  ein  +
+      neuer  Befehl  erwartet.  Wird dann nur  D  eingegeben,  +
+      werden  die nächsten 12 Zeilen a` 16 Bytes in  aufstei      gender  Reihenfolge angezeigt.  Der Syntax bei  D  kann  +
+      aber  auch  z.  B.  sein  D0200,18FA.  Hier würden  die  +
+      Speicherstellen  von  0200hex bis 18FA hex  ohne  Pause  +
+      gelistet,  die Ausgabe läßt sich dann mit CTRL-S unter      brechen und fortführen.
+
+F     damit  kann man den Speicher mit einem konstanten  Wert  +
+      füllen. +
+      SYNTAX:  FBeginn,ENDE,Füllbyte +
+      z.B.  F0300,04FF,F0 füllt den Speicher von 0300 hex bis  +
+      04FF  hex  mit dem Byte F0  hex.  Alle  Speicherstellen  +
+      zwischen Beginn und Ende incl. haben nach diesem Befehl  +
+      den den gleichen Inhalt wie das angegebene Füllbyte.
+
+G     dient  zum Starten eines im Speicher befindlichen  Pro      gramms  zwecks  Testlauf.  Es können  zwei  Unterbrech      ungspunkte  (BREAKPOINTS)  gesetzt  werden,  bei  deren  +
+      Erreichen  die Kontrolle an DDT zurückgegeben wird.  Es  +
+      genügt auch die Angabe von G, dann wird das Programm an  +
+      der Speicherstelle gestartet,  auf die das Register  PC  +
+      des Prozessors (mit Befehl X anzusehen) zeigt. +
+      SYNTAX:  GStartpunkt des Programms,Unterbrechungsadres      se,Unterbrechungsadresse +
+      z.B.   G0200,0300,0400 startet ein Programm im Speicher  +
+      bei 0200 hex,  der Programmablauf wird bei 0300 hex und  +
+      bei  0400 hex unterbrochen und DDT meldet  sich.  Durch  +
+      Eingabe  von G kann dann die Programmausführung  jeweis  +
+      fortgesetzt werden.
+
+H     dient zum Rechnen im Hexadezimalformat. +
+      SYNTAX: Hzahl1,zahl2 +
+      Die  vierstellige Summe und Differenz der beiden Zahlen  +
+      wird berechnet und in hexadezimaler Form ausgegeben.
+
+I     dient  zur Eingabe eines Dateinamens zum späteren  Ein      lesen in den Speicher durch DDT. +
+      SYNTAX: IDateiname.EXT +
+      z.B.    IFormat.com
+
+R     dient  dann zum Einlesen der mit I eingestellten  Datei  +
+      von Diskette. Zu R kann noch eine 2Byte Hexzahl angege      ben werden,  die als positiver OFFSET dient.  Man  kann  +
+      damit  ein  Programm  an eine höhere  als  die  normale  +
+      Ladeadresse umleiten. +
+      SYNTAX:  R  bzw.  ROffset +
+      z.B.      R0300  lädt das mit I spezifizierte  Programm  +
+      300  Bytes (hex!) höher als standardmäßig  durchgeführt 
+
+      in  den  Speicher.  Bei allen DDT  Ladeoperationen  er      scheint nach erfolgreichen Abschluß die Angabe NEXT und  +
+      PC  mit je einer Hexadezimalzahl.  Die Zahl unter  Next  +
+      gibt  die nächste nicht vom geladenen Programm  belegte  +
+      Speicherzelle  an  (von unten nach oben!) und PC  zeigt  +
+      die Startadresse dieses Programmes im Speicher an, z.B.  +
+      für G.
+
+L     dient zum Dissassemblieren des Speicherinhaltes  (siehe  +
+      oben) +
+      SYNTAX:  L bzw. Lvon   bzw.   Lvon,bis +
+      z.B.  L0200,0300 übersetzt die Inhalte der Speicherzel      len  von Adresse 0200 hex bis 0300 hex in Mnemonics und  +
+      zeigt diese an, ähnlich wie der D Befehl
+
+M     steht für Move und man kann damit Inhalte von Speicher      bereichen auf eine andere Adresse im Speicher verschie      ben/kopieren. +
+      SYNTAX:  Mvon,bis,wohin +
+      z.B.   M0100,0200,0300  verschiebt/kopiert die  Inhalte  +
+      der Adressen 0100 hex bis 0200 hex nach 0300  hex.  Der  +
+      Inhalt von 0100 hex findet sich in 0300 hex wieder, der  +
+      Inhalt von 0200 hex bei 0400 hex, entsprechend zwischen  +
+      den Adressen.
+
+S     steht  für  Set und erlaubt das Verändern  der  Inhalte  +
+      einzener  Speicherzellen durch Eingabe von Hexadezimal      zahlen.  Die  ursprünglichen Inhalte können  mit  ENTER  +
+      übernommen werden, der S Modus kann durch Eingabe eines  +
+      Punktes anstelle eines HEX-Wertes verlassen werden. +
+      SYNTAX:  Sadresse +
+      z.B.  S0100 fragt die Adressen ab 0100 hex nach Neuein      gaben ab. Die alten Werte und die Adresse wird dabei in  +
+      tabellarischer Form angezeigt:      0100 1F _ 
+
+T     gestattet  das Verfolgen eines Programm(Probe)ablaufes,  +
+      und zwar 1 bis 65535 Programmschritte. +
+      SYNTAX:  T  oder TAnzahl der Schritte +
+      z.B.  T100 im ersten Fall wird nur 1 Befehl bearbeitet,  +
+      im  zweiten  Fall 256 Befehle (100H  =  256  dez).  Bei  +
+      Beginn  und Ende der T-Aktion wird der aktuelle  Regis      terstand der CPU angezeigt.
+
+U     wie der T-Befehl,  nur wird hier kein CPU-Registerstand  +
+      ausgegeben.  Dies  ist nützlich,  wenn vom Testprogramm  +
+      erstellte  Bildschirminhalte zur  Überprüfung  erhalten  +
+      werden sollen.
+
+X     läßt  die Betrachtung und Veränderung der  CPU-Register  +
+      zu. +
+      SYNTAX:  X   bzw. Xr +
+      z.B.    bei  XH  kann man den Inhalt  des  HL-Registers 
+
+      durch Eingabe eines Hexwertes verändern.  
+
+
+Als  Beispiel für die Benutzung von DDT soll hier die Erstellung einer Datei für die Druckerinitialisierung dienen.  +
+Gegeben sei, daß der Drucker folgende Steuerzeichen benötigt,  +
+um gewisse druckerspezifische Parameter zu initialisieren: +
+  1B 40 1B 6C 0A 1B 4D        (alles hexadezimal)
+
+Durchführung: +
+DDT aufrufen,  S0100 eingeben, anschließend die obigen Bytes,  +
+nach jedem Byte ENTER drücken,  um zur nächsten Speicherzelle  +
+zu gelangen. +
+Nach dem Byte 4D darf man das CTRL-Z nicht vergessen,  da PIP  +
+z.B.  sonst das Dateiende nicht erkennt.  Das Byte 1A hex ist  +
+der  Wert von CTRL-Z und deshalb das einzige  Byte,  das  bei  +
+solchen Aktionen NICHT vor dem Ende vorkommen darf!! +
+Nach  Eingabe von D0100 müßte jetzt u.a.  folgendes zu  sehen  +
+sein: 0100 1B 40 1B 6C 0A 1B 4D 1A usw. +
+Wenn  dies so ist,  ist der Hauptteil bereits  getan.  Leider  +
+kann man die Datei von DDT aus nicht abspeichern. Man muß DDT  +
+verlassen,  und  zwar  geht das immer mit CTRL-C oder  BREAK,  +
+woraufhin sich das bekannte CP/M mit dem Systemprompt meldet.  +
+Als  nächste Eingabe muß unbedingt der Speicherbefehl  erfolgen,  da  bei anderen Eingaben unsere erstellte  Arbeit,  die  +
+sich  ja  nur im Speicher befindet und zudem  noch  an  einer  +
+Stelle,  die von jedem Programm bei Aufruf überschrieben wird  +
+(auch bei erneutem DDT.COM Aufruf!!!). +
+Also den eingebauten CP/M Befehl SAVE benützen, und zwar SAVE  +
+1 DRUCKER.DAT. +
+Bei  Änderungen  in  Programmen mit DDT müssen diese  in  der  +
+gleichen Art nach der Änderung gespeichert  werden,  sinnvollerweise zunächst unter einem anderem Namen, bis die Änderung  +
+getestet ist! Nützlich ist hierbei der Hinweis NEXT bei Laden  +
+eines  Programms von DDT,  da man aus dieser HEX-Zahl  leicht  +
+die  Anzahl  der bei SAVE anzugebenden Blöcke errechnen  kann  +
+(höchstwertiges Byte in Dezimal = Anzahl der Blöcke).
+
+Die  Datei DRUCKER.DAT kann nun mit PIP LST:=Drucker.dat  zum  +
+Drucker  übertragen werden.  Wenn dabei das  Dateiendezeichen  +
+für PIP,  das 1A hex (=CTRL-Z) bei der Dateierstellung  nicht  +
+am Ende eingegeben wurde,  wird von PIP auch noch die restlichen Bytes des 256 Byte Blocks als druckbare Zeichen senden.
+
+
+_9.4 SUBMIT.COM_
+
+Das Standardprogramm SUBMIT.COM erlaubt die Abarbeitung sogenannter  Batchfiles.  Diese Dateien stellen eine  Aneinanderreihung von normalen Eingaben von der Tastatur dar (die Datei  +
+"ersetzt" sozusagen den Bediener!) und lassen sich z.  B. mit  +
+WORDSTAR  oder dem Editor ED.COM komfortabel und schnell  er
+
+stellen.
+
+Ein praktisches Beispiel: +
+Auf  Laufwerk B soll eine fabrikneue Diskette formatiert  und  +
+mit dem CP/M Betriebssystem versehen werden.  Außerdem sollen  +
+auf die neue Diskette alle direkt aufrufbaren Programme von A  +
+kopiert werden (COM-Files).
+
+Der "normale" Arbeitsvorgang: +
+Format b:       .... Warten +
+ID b:S80 DSDD   .... Warten +
+PIP b:=a: *.com .... Warten +
+man  kann schlecht eine andere Arbeit anfangen,  da zwischendurch immmer wieder Tastatureingaben notwendig werden.
+
+Der "Komfortweg",  insbesondere,  wenn man obigen Vorgang oft  +
+durchführen muß: mit ED durchgeführt
+
+ED Copy.sub +
+           ED meldet sich mit *:       I   eingeben, dann +
+format b: <ENTER> +
+id b:s80 dsdd +
+pip b:=a: *.com <ENTER> +
+dir b: <ENTER> +
+<ctrl-Z> +
+           ED kommt wieder mit *:     E eingeben, dann meldet  +
+           sich CP/M mit dem Systemprompt zurück.
+
+submit copy +
+
+// ........  Pause, in Zukunft gen}gt (wenn die Datei copy.sub 
+auf der Diskette vorhanden ist) nur dieser Befehl.  Dies  war  +
+ein  einfaches  Beispiel,  um sehr schnell die  Funktion  von  +
+SUBMIT zu verdeutlichen. +
+Der  prinzipielle  Ablauf ist jedoch immer der  gleiche:  Befehlsdatei  erstellen,  mit der Endung .SUB  abspeichern  und  +
+Submit Dateiname aufrufen. +
+Bei der Erstellung der .SUB Datei gibt es eine Hauptfußangel:  +
+Das  letzte  Zeichen muß immer ein CONTROL-Z  sein  (1AH,  26  +
+dez),  ist dies nicht der Fall,  so kommt es zu einer Fehlermeldung und das Programm steigt aus.
+
+Der Ablauf von SUBMIT ist folgender: +
+Nach  dem  Aufruf mit der Parameterübergabe (xxxx.SUB  Datei)  +
+liest SUBMIT die angegebene Datei vom ENDE her und legt  eine  +
+Datei $$$.SUB an. +
+Der erste Befehl in der *.SUB Datei ist also der letze Befehl  +
+in der $$$.SUB Datei.  Danach erfolgt ein Warmstart (CONTROL- +
+C),  nachdem  der CCP des CP/M immer nach einer Datei $$$.SUB  +
+sucht  und  diese dann ausführt (und zwar  die  letzte  Zeile  +
+zuerst). Wenn alle Befehle abgearbeitet sind, meldet sich das  +
+CP/M mit dem Systemprompt zurück.
+
+Mit  Submit läßt sich noch einiges mehr anfangen.  Der grund
+
+sätzliche Syntax lautet nämlich
+
+SUBMIT Datein.SUB param#1,param#2.......
+
+In der *.SUB Datei können nämlich Platzhalter in der Form  $1   +
+$2, allgemein "Dollar Zahl" benützt werden. Diese Platzhalter  +
+werden dann beim Aufruf der Datei durch die entsprechend  mit  +
+eingegebene Parameter#1, Parameter#2 etc. ersetzt. +
+Die  Anzahl der Parameter muß allerdings immer mit der Anzahl  +
+der  Platzhalter in der Datei  übereinstimmen,  sonst  bricht  +
+Submit ab. +
+Mit dieser Technik kann man mit einer *.SUB Datei z.  B.  mit  +
+mehreren Dateinamen arbeiten. Außerdem läßt sich generell von  +
+einer  *.SUB  als letztes Kommando eine weitere  *.SUB  Datei  +
+aufrufen, womit sich entsprechende Möglichkeiten ergeben.
+
+
+Bitte beachten Sie,  daß SUBMIT die *.SUB Datei grundsätzlich  +
+auf dem Laufwerk mit der Bezeichnung A: erwartet.
+
+
+_9.5 XSUB.COM_
+
+XSUB  kann nur innerhalb einer SUBMIT-Befehlsdatei aufgerufen  +
+werden.  Normalerweise wirken die Befehle einer  SUBMIT-Datei  +
+nur auf Betriebssystemeben,  d.h.  daß über SUBMIT keine Programmeingaben gemacht werden können. +
+Ruft  man als erstes Programm einer SUBMIT-Befehlsdatei  XSUB  +
+auf,  so wird der SUBMIT Ablauf dahingehend geändert, daß die  +
+Zeichen der Befehlsdatei immer die Tastatureingabe ersetzten.  +
+Dadurch  ist es möglich,  einen kompletten Programmstart  mit  +
+allen Eingaben,  die das Programm anfordert,  automatisch ablaufen zu lassen.
+
+Die  Funktionsfähigkeit  des XSUB-Programms  wird  allerdings  +
+nicht  in allen Fällen garantiert.  Es sollte daher immer ein  +
+kurzer Probelauf stattfinden, der die XSUB-Verwendung austestet. +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<

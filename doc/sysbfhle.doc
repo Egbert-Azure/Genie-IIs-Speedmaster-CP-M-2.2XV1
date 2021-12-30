@@ -1,0 +1,677 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 10
+.pn 1
+.hå Kapiteì ¸                                   Systembefehle
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            8-#
+8® CP/Í Systembefehle
+
+8.° Einleitung
+
+Diå  folgendeî Befehlå sinä fesô ií CP/Í integrierô unä daheò 
+jederzeiô auæ Systemebenå erreichbar® Siå erlaubeî einå mini
+malå Kontrollå deó Systemó unä deò auæ Diskettå gespeicherteî 
+Daten® F}ò dar}beò hinausgehendå Operationeî steheî diå CP/M-
+Standardprogrammå  zuò Verf}gung¬  diå jedocè aló  Dateé  auæ 
+eineò Diskettå erreichbaò seiî m}ssen.
+
+Ií weitereî werdeî diå folgendeî Bezeichnungeî verwendet:
+l÷   Laufwerksbezeichnunç zwischeî Á unä P
+efî  Einfachnamå (Filenamå ohnå ¿ odeò *)
+mfî  Mehrfachnamå (efî odeò Filenamå miô ¿ und/odeò *)
+
+
+8.± DIR
+
+
+Syntax:        DIR
+oder           DIR lw:
+oder           DIR lw:mfn
+
+Anwendung: Ausgabå  deó Inhaltsverzeichnisseó (Directory© deó            
+           aktuelleî odeò angew{hlteî Laufwerks.
+
+Bemerkung: DIÒ  gibô keineî Aufschluş deî Filestatuó unä  diå            
+           Gr|~å deò Files®  Dieså Wertå k|nneî nuò }beò  deî            
+           STAT-Befehì  abgefragô  werden®  Diå  Ausgabå  deò            
+           Directorù  wirä  beií Dr}ckeî eineò  Tastå  soforô            
+           abgebrochen® 
+           CTRL-Ó  stoppô diå Ausgabe¬  diå Bet{tigunç  eineò            
+           beliebigeî Tastå f}hrô diå Ausgabå fort.
+
+
+8.2 ERA
+
+Syntax:        ERA mfn
+oder           ERA lw:mfn
+
+Anwendung: L|scheî  eineó  odeò mehrereò Dateieî auó deí  In           
+           haltsverzeichnis.
+
+Bemerkung: ERÁ  l|schô  diå angegebene(n©  Datei(en©  nuò  ií            
+           Inhaltsverzeichnió  unä gibô diå durcè siå besetz           
+           teî  Bl|ckå  auæ deò Diskettå  wiedeò  frei®  ]beò            
+           speziellå  Programmå  kanî dieså  L|schunç  wiedeò            
+           r}ckg{ngiç  gemachô werden®  Solì  einå  bestimmtå            
+           Dateé kompletô gel|schô werden¬  sï m}sseî diå voî            
+           ihò belegteî Diskettenbl|ckå miô neueî Dateî }ber           
+           spielô  werden®  ]beò ERÁ lw:*.ª k|nneî  s{mtlichå            Š           Dateieî  deó gew{hlteî Laufwerkó gel|schô  werden®            
+           Zuò  Absicherunç  fragô daó CP/Í nocheinmaì  durcè            
+           'ALÌ (Y/N)?§ nach¬  oâ aucè wirklicè allå  Dateieî            
+           gel|schô werdeî sollen® 
+
+
+8.3 REN
+
+Syntax:        REN efn=efn   
+
+Anwendung: [nderung eines Dateinamens
+
+Bemerkung: Deò  erstå  deò  beideî Nameî stehô f}ò  diå  neuå            
+           Dateibezeichnung¬  deò zweitå f}ò deî alteî Datei           
+           namen®  Falló bereitó einå anderå Dateé unteò  deí            
+           neueî  Nameî  existiert¬  sï brichô daó  CP/Í  deî            
+           Befehì  miô deò Fehlermeldunç 'FILÅ EXISTS§ (Dateé            
+           existiert© ab.
+
+
+8.4 TYPE
+
+Syntax:        TYPE efn
+oder           TYPE lw:efn
+
+Anwendung: Auslisten einer Datei auf dem Bildschirm
+
+Bemerkung: TYPÅ  dienô vornehmlicè zuò Kontrollå voî  Textda           
+           teieî auæ deí Bildschirm®  Dieseò Befehì gibô allå            
+           Zeicheî  deò angegebeneî Dateé bió  zuí  Erreicheî 
+           deó CTRL-Ú Codeó (1AH¬  2¶ dez© aus®  Dabeé findeô 
+           keinå Kontrollå bez}glicè deò Zeicheî statt¬  d.h® 
+           eó werdeî aucè Controlcodeó ausgegeben®  Dieó kanî 
+           beé  Nicht-Textdateieî  zõ  merkw}rdigeî  Ausgabeî 
+           f}hren®  Wiå beé DIÒ kanî diå Zeichenausgabå durcè 
+           CTRL-Ó  gestoppô unä }beò eineî beliebigeî Tasten
+           drucë wiedeò fortgef}hrô werden.
+
+
+8.5 USER
+
+Syntax:    USER n  
+
+Anwendung: Wahì  eineó neueî Benutzerbereichó zwischeî °  unä 
+           15
+
+Bemerkung: Durcè deî Benutzerbereicè kanî diå Directorù eineò 
+           Diskettå  iî  bió zõ 1¶ Teilå  aufgeteilô  werden® 
+           Dieó  isô insbesonderå beé gro~eî  Laufwerksgr|~eî 
+           (Winchester© n}tzlich¬ uí diå gespeicherteî Datei
+           eî iî verschiedenå Gruppeî  zusammenzufassen®  Deò 
+           gew{hltå  Benutzerbereicè gilô f}ò allå  Laufwerkå Š           unä  l{~ô nuò deî Zugrifæ auæ Dateieî ií  gleicheî 
+           Bereicè zu.
+
+
+8.6 SAVE
+
+Syntax:        SAVE n efn
+oder           SAVE n lw:efn  
+
+Anwendung: Abspeichern eines Speicherblocks
+
+Bemerkung: î bezeichneô diå L{ngå deó zõ sicherndeî Speicher
+           bereichó  iî 256-Bytå Bl|cken®  Diå  Abspeicherunç 
+           beginnô immeò aî deò Adresså 0100H.
+.paŠ.paŠ.pn 1
+.hå Kapiteì ¹                               Standardprogramme
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç           9-#
+9. CP/M Standardprogramme
+
+9.0 Einleitung
+
+Aló Standardprogrammå sinä allå diå Programmå bezeichnet¬ diå 
+zuí  festeî  Bestandteiì deó CP/Í  geh|ren®  Dieså  Programmå 
+bezieheî  sicè nuò auæ daó CP/Í 2.2-Betriebssysteí unä laufeî 
+ohnå [nderunç aucè auæ andereî CP/M-Rechnern.
+
+
+9.1 PIP.COM
+
+Daó  Programí  PIP.COÍ dienô zuí Kopiereî  voî  Dateien¬  zuí 
+Aneinanderreihen/Zusammenfasseî voî mehrereî Dateieî zõ eineò 
+neueî Dateé sowiå deí Transporô voî Dateiinhalteî zõ Periphe
+rieger{ten.
+
+Deò prinzipiellå Syntaø isô immer:
+
+PIĞ Ziel:=Quelle,Quelle,Quellå (Option¬ Option©      usw.
+allgemeiî ausgedr}ckô PIĞ Laufwerk:=Laufwerkº Dateiname(n)
+
+Wenî  maî  mehrerå  unterschiedlichå   Kopier/Transferbefehlå 
+gebeî mu~¬  isô eó zweckm{~ig¬ nuò einfacè PIĞ ohnå Parameteò 
+aufzurufen®  PIĞ  meldeô  sicè  danî miô  eineí  Prompt»  maî 
+brauchô  danî nuò nocè diå jeweiligeî Kopierbefehlå  einzuge
+ben» daó kanî etwá sï aussehen:
+
+PIP   (meldeô sicè miô deí "*¢ Promptzeichen¬  hieò weggelas       
+      sen)
+      B:=Cº *.*
+      A:=bº *.com
+      lst:=drucker.dat
+      usw.
+
+Aí  einfachsteî zõ Erkl{reî isô diå Handhabunç deó  Programmó 
+miô  Beispielenº  gegebeî seé einå Programmdiskettå iî Á  unä 
+einå formatiertå Diskettå iî B¬ au~erdeí eiî betriebsbereiteò 
+Druckeò unä einå Datenquellå (Akustikkoppler¬ andereò Rechneò 
+etc® miô richtiç eingestellteî ]bertragungsparametern© aî deò 
+SIÏ A.
+Ií Beispieì seieî auæ DISË Á unteò andereí diå Dateien
+- DRUCKER.DAT¬  diå einå Initialisierunç f}ò deî Druckeò ent
+  h{lt
+- FORMAT.COM¬ Formatierprogramí f}ò neuå Disketten
+- FOX.DAT¬ beliebigå Datei
+- FRON.COM¬ beliebigeó Programm
+- F.PRN¬ beliebigå Datei
+- LOTAT.COM¬ beliebigeó Programm
+abgespeichert¬  au~erdeí kanî voî deò SIÏ Á nocè daó Programí 
+M.COÍ eingeleseî werden.
+Miô  STAÔ  seé diå Voreinstellunç SIÏ Á  isô  PUNº  beií  zuí ŠSendeî unä RDRº  zuí Empfangeî eingestellô (siehå Kap® 9.2)® 
+Daó  Leseî deò M.COÍ voî deò SIÏ solì durcè Ausgabå deò Dateé 
+F.PRÎ aî diå SIÏ  gestarteô werden.
+
+Diå m|glichå Praxió miô PIP:
+
+1. PIĞ b:=aº *.ª    
+   Eó werdeî allå Dateieî voî Á nacè Â kopiert.
+
+2. PIP b:=a: F*.*
+   Eó  werdeî diå Dateieî voî Á nacè Â kopiert¬  diå miô  deí 
+   Buchstabeî  "F¢  beginnen¬  alsï ií  Beispieì  FORMAT.COM¬ 
+   FRON.COM¬ FOX.DAÔ unä F.PRN
+
+3. PIP b:zusamm.prn=a:f.prn,fox.dat,drucker.dat 
+   Hieò  wirä auæ Laufwerë Â einå Dateé  ZUSAMM.PRÎ  er|ffneô 
+   unä iî dieså Dateé diå Dateiinhaltå voî F.PRN¬ FOX.DAÔ unä 
+   DRUCKER.DAÔ zusammenh{ngenä einkopiert®  Dieó isô eiî Bei
+   spieì f}ò diå Zusammenfassunç voî Dateien.
+
+4. PIP LST:=DRUCKER.DAT
+   Deò  Inhalô  deò  Dateé wirä zuí LSÔ  - Kanaì  (meisô  deò 
+   Drucker© }bertragen¬ z.B® uí deî Druckeò zõ initialisiereî 
+   (Schriftarten¬ Seitenl{ngå etc® setzen)® Diå Dateé wirä iî 
+   dieseí Fallå bió zõ eineí iî deò Dateé befindlicheî Datei
+   endezeicheî  (CONTROL-Ú isô gleicè 1Á hex© aî deî  Druckeò 
+   ausgegeben¬  alsï nichô unbedingô kompletô }bertragen® Maî 
+   kanî  damiô nat}rlicè aucè ASCII-Dateieî ausdrucken¬  wirä 
+   abeò miô deí Ergebnió wegeî deò fehlendeî Formatierunç deó 
+   Texteó nichô zufriedeî sein.
+
+5. PIP PUN:=NUL:,F.Prn,NUL:
+   Iî  unsereí  Beispieì w}rdå sï diå Dateé  F.PRÎ  }beò  diå 
+   seriellå  Schnittstellå SIÏ Á ausgegeben¬  zuí Beispieì aî 
+   eineî  andereî Rechner¬  eineî serielleî Druckeò odeò  eiî 
+   Modem/Akkustikkoppler®  Voò  deò Ausgabå w}rdeî  4°  Null-
+   Byteó }bertragen¬ ebensï nacè deò Ausgabå (zuí Einsynchro
+   nisiereî deó Empf{ngeró beispielsweise).
+
+6. PIP a:MNEU.COM=RDR:
+   Iî  dieseí Beispieì werdeî diå voî deò SIÏ geleseneî Dateî 
+   (z.B®  eiî  voî eineí andereî Rechneò gesendeteó  Programí 
+   M.COM© automatiscè iî deò Dateé MNEU.COÍ gespeichert® Dieó 
+   Beispieì  isô iî deò Praxió sï nichô ohnå weitereó  durch
+   f}hrbar¬  dá maî sicè auæ ]bertragungsprotokollå  (Steuer- 
+   unä Endzeichen© u.a® einigeî m}~te.
+
+Diå  Haupt- unä  Unterkan{lå  voî PIĞ entsprecheî  deneî  voî 
+STAT¬  alsï z®  B®  CON¬  LST¬ PUN¬ RDR¬ sowiå TTY¬ CRT¬ PTR¬ 
+PTP¬ LPÔ usw® Zus{tzlicè steheî nocè folgendå Unterkan{lå zuò 
+Verf}gung:
+ŠPRN:  Isô wiå LSÔ zõ betrachteî (alsï Drucker)¬  setzô jedocè 
+      iî jedeò 8®  Spaltå eineî Tabulator¬ numerierô diå Zei
+      leî unä t{tigô allå 6° Zeileî eineî Papiervorschuâ (FF¬ 
+      0CH¬ 1² dez© auæ diå neuå Seite.
+NULº  Erzeugô 4° Nullzeicheî (nuò Leseî m|glich)
+EOF:  Erzeugô deî Werô 1AÈ (2¶ dez© zuò Kennunç deó Textendeó 
+      (nuò Leseî m|glich)
+INP:
+und
+OUT:  Dieså beideî Kan{lå sprecheî bestimmtå Adresseî  inner
+      halâ  deó  PIP-Programmó an¬  iî diå miô DDÔ  speziellå 
+      Ein/Ausgaberoutineî geschriebeî werdeî k|nnen.
+
+Aló letztå Parameteò k|nneî ií PIP-Befehì nocè diå  folgendeî 
+Optioneî  gesetzô  werden®  Dieså Optioneî m}sseî  durcè  diå 
+|ffnendå  eckigå  Klammeò  (Û ií deutscheî  Zeichensatz©  voí 
+Befehlsanfanç getrennô sein.
+
+^=CONTROL¬ alsï ^Ú bedeuteô CONTROL-Ú eingebeî
+Iî  Klammerî (© sinä freé w{hlbarå Parameteò  angegeben¬  diå 
+Eingabå erfolgô ohnå Klammern
+
+B        Blockweiså ]bertragung®  PIĞ speicherô allå  Zeicheî 
+         bió zuí Empfanç voî CTRL-Ó (DC3¬  13H¬  1¹ dez© zwi
+         schen®  Dieså ]bertragungsforí isô z.B®  beé deò se
+         rielleî Schnittstellå m|glich.
+D<n>     L|schå  allå Zeicheî nacè deò Spaltå î (nuò sinnvolì 
+         beé Textdateien).
+E        Diå ]bertragunç deò Zeicheî wirä aucè auæ deí  Bild
+         schirí dargestellô (Echo-Modus)
+F        entfernô  Seitenvorschubzeicheî (0Ã hex© beií  ]ber
+         tragen
+G<n¾     Nimít diå Dateé vom Benutzerbereich n
+H        Teste¬  oâ diå Dateé ií Intel-Heø Formaô geschriebeî 
+         ist
+I        wiå H¬ ignorierô werdeî abeò diå :0° Datens{tze
+L        }bersetzå Gro~buchstabeî iî Kleinbuchstaben
+N        Numerierå diå Ausgabezeileî beginneî beé 1¬ Schritt
+         weitå 1
+O        Objektcodedateé kopieren® Anderó aló beé Textdateieî 
+         isô  daó Dateiendå nichô durcè 1AÈ (2¶ dez©  gekenn
+         zeichnet® 
+P<n>     Setzå  diå Seitenl{ngå auæ î  (Voreinstellungº  60)¬ 
+         Nacè î Zeileî wirä eiî Seitenvorschuâ (FF¬  0CH¬  1² 
+         dez© eingef}gt.
+Q<XXX>^Z Beendå  daó  Kopiereî auó deò Quelldatei¬  wenî  diå 
+         Zeichenkettå XXØ angetroffeî wird
+R        Lieó aucè Dateien¬  diå miô deí Systemattribuô  ver
+         seheî wurdeî (Siehå STAÔ Beschreibung)
+S<xxx>^Z Wiå Q¬ nuò Beginî statô Kopierendå wenî XXØ auftritt
+T<n>     Expandierå Tabulatorzeicheî (0¹ hex© iî deò Dateé zõ 
+         î LeerzeichenŠU        Konvertierå Kleinbuchstabeî zõ Gro~buchstaben
+V        Pr}fe¬  oâ diå Dateî korrekô }bertrageî wurden® Nacè 
+         deí Schreibeî wirä diå Dateé voí Ziellaufwerë  noch
+         maló   geleseî  uí  einå  einwandfreiå   ]bertragunç 
+         sicherzustellen
+W        ]berschreibå Dateien¬  diå miô Schreibschutzattribuô 
+         verseheî sinä (siehå STAT)
+Z        L|schå daó Parit{tsbit¬  d® h® Zeicheî }beò deò Num
+         meò 12· (7Æ hex© iî deò ASCIÉ Tabellå werdeî beé deò 
+         ]bertragunç  miô ihreò Zeichennummeò - 12¸ versehen¬ 
+         z.B®  wirä dabeé auó deí Werô 17¶ (B° hex© deò  Werô 
+         4¸ (3° hex).
+
+
+9.2 STAT.COM
+
+STAÔ  dienô zuò Einstellunç unä Kontrollå alleò CP/M-interneî 
+Systemparameter® Hauptfunktioî voî STAÔ isô diå Belegungskon
+trollå eineò eingelegteî Diskette®  Diå M|glichkeiteî unä deò 
+Syntaø deó STAT-Befehló sinä zuí Teiì {u~ersô umfangreicè unä 
+solleî hieò nuò kurú angesprocheî werden®  Benutztå Abk}rzun
+gen:
+lw   Laufwerksname zwischen A und P
+efn  Einfachname, eindeutige Dateibezeichnung
+mfî  Mehrfachnamen¬ efî odeò mehrdeutigå Dateibezeichnunç 
+(miô ª und/odeò ?©
+hk   Hauptkanal
+uk   Unterkanal
+
+STAT            F}ò jedeó seiô deí letzteî Warmstarô ausgeru
+                fenå (eingeloggte© Laufwerë wirä deò  Disket
+                tenstatuó unä diå Anzahì deò freieî Byteó (iî 
+                kbyte© ausgegeben.
+
+STAT lw:        Nuò  diå  freieî Byteó deó angew{hlteî  Lauf
+                werkó werdeî angezeigt.
+
+STAT mfn        Diå Dateigr|~å unä deò Dateistatuó deó  (der© 
+                angegebeneî Dateieî werdeî ausgegeben.
+
+STAT lw:mfn     wie STAT mfn
+
+STAT lw:$attr   Deí  angew{hlteî  Laufwerë wirä eiî  Attribuô 
+                zugewiesen®  M|glichå Laufwerksatrributå sinä 
+                R/Ï  f}ò Reaä Onlù (nuò Leseî  erlaubt©  odeò 
+                R/×  f}ò Reaä Writå (Leseî unä Schreibeî  er
+                laubt).
+                Durcè  STAÔ C:$R/Ï k|nneî jeglichå Schreibzu
+                griffå  auæ  daó Laufwerë Ã bereitó  auæ  deò 
+                Systemebenå unterbundeî werden® Diå sicherstå 
+                M|glichkeiô  isô  jedocè  grunds{tzlich¬  diå 
+                Schreibkerbå  aí  Diskettenranä   zuzukleben® Š                Dieseó Attribuô wirä nuò ií Speicheò vermerkô 
+                unä  nichô auæ diå Diskettå geschriebeî  (!)® 
+                Beé  eineí  Warmstarô werdeî  allå  Laufwerkå 
+                wiedeò auæ R/× gesetzt.
+
+STAT mfn:$attr  Deò  gew{hlteî Dateé wirä eiî Attribuô  zuge
+                wiesen® Dieseó Attribuô wirä iî deò Directorù 
+                vermerkô  unä  abgespeicherô  (!)®   Folgendå 
+                Attributå sinä m|glich:
+                R/W Reaä Writeº Schreibeî unä Leseî deò Dateé 
+                    erlaubt.
+                R/Ï Reaä Onlù: Nuò Leseî deò Dateé erlaubt.
+                SYS SYStemº Dateé isô eiî Systemfilå unä wirä 
+                    beií DIR-Befehì nichô miô angezeigt.
+                DIR DIRectoryº  Dateé  wirä  beií  DIR-Befehì 
+                    normaì behandelt.
+
+STAT lw:DSK:    Dieså  STAT-Funktioî gibô diå logischeî Para
+                meteò  deó  angegebeî  Laufwerkó  aus®  Dieså 
+                Parameteò  werdeî durcè deî PD-Befehì  (siehå 
+                Kapiteì 11.3© verschiedeneî Diskettenformateî 
+                angepasst® Falló dieså Parameteò eineó Fremd
+                formateó bekannô sind¬ kanî }beò daó getrennô 
+                erh{ltlicè PDRIVE-Programí eiî entsprechendeò 
+                Eintraç ií Datenfilå PDRIVE.SYÓ gemachô  wer
+                den.
+
+STAT hk:=uk:    Dadurcè wirä diå ií Kapiteì 5.1.µ  angef}hrtå 
+                Zuordnunç  deò Haupt- unä Unter-kan{lå ver{n
+                dert®
+
+STAT USR:       Ausgabå  deó  zuò  Zeiô  gew{hlteî  Benutzer
+                bereichó  unä deò auæ deí aktuelleî  Laufwerë 
+                belegteî Benutzerbereiche®  Dieó isô diå ein
+                zigå  M|glichkeit¬  schnelì  diå  verwendeteî 
+                Benutzerbereichå zõ ermitteln.
+
+STAT DEV:       Ausgabå  deò  zuò Zeiô aktuelleî  Zuordnungeî 
+                deò Haupt- unä Unterkan{le® 
+
+STAT VAL:       Dieseò Parameteò gibô einå kurzå Zusammenfas
+                sunç deò M|glichkeiteî deó STAT-Befehló aus.
+
+
+9.3 DDT.COM
+
+Daó  Programí DDT.COÍ isô eiî Hilfsmitteì beé deò  Erstellunç 
+unä  deí  Austesteî  voî  Maschinenspracheprogrammen®  Darauó 
+folgô auch¬ daş eó eiî idealeó Werkzeuç zuí "Patchen"
+(½ Ver{ndern© voî Programmeî bzw® Dateieî allgemeiî ist.
+DDÔ  eigneô sicè jedocè aucè hervorragenä zuí  ERSTELLEÎ  voî 
+KURZEÎ  Assemblerroutineî sowiå z®  B®  f}ò Drucker-EinstellŠdateieî (siehå Beispieì unten).
+
+Ií Einzelneî kanî maî unteò anderem
+
+- Disassemblieren¬ d® h® auó hexadezimaleí Objektcodå diå f}ò 
+  Menscheî leichteò lesbareî 8080-Assemblermnemonicó machen.
+
+- Assemblieren¬  daó isô deò umgekehrtå Wegº auó Mnemonicó =¾ 
+  Objektcodå }bersetzen¬  deò f}ò deî Prozessoò  verarbeitbaò 
+  ist.
+
+- Speicherstelleî listen¬ ver{nderî unä ggf® ausdrucken.
+
+- F}lleî deò Speicherstelleî miô konstanteî Werten.
+
+- Setzeî  voî Unterbrechungspunkteî zuí Austesteî eineó  Pro
+  gramms.
+
+- Starteî  eineó  ií Speicheò befindlicheî  Programmó  zweckó 
+  Test.
+
+- TRACE¬ d® h® Verfolgeî deó Programmablaufó iî Einzelschrit
+  teî  miô  Anzeigå deò Registerinhaltå nacè jedeí  Programm
+  schritt.
+
+- Anseheî unä [nderî deò CPÕ-Register.
+
+- Ladeî voî *.HEØ unä *.COÍ Dateien.
+
+Wenî  maî  eiî weniç miô DDÔ umgeheî kann¬  isô eó  eiî  sehò 
+m{chtigeó  Programí unä eiî guteó Hilfsmitteì beé  [nderungeî 
+unä  Neuerstellungeî voî *.COÍ Programmen®  Nacè  deí  Aufruæ 
+(beé deí aucè direkô einå Dateé angegebeî werdeî kann© meldeô 
+sicè  DDÔ  miô deò Versionsnummeò unä deí DDÔ  Prompt¬  eineí 
+Bindestrich®  DDÔ  erwarteô danî eineî deò folgendeî  Befehlå 
+miô deî jeweiligeî Parametern.
+Diå Grundforí isô Befehl,Parameter,Parameter,Parameter
+
+Aló  Parameteò  kommeî au~eò beé É nuò  Hexadezimalzahleî  iî 
+Frage.
+
+Diå Befehlå ií einzelnen
+
+A     Eingabå voî Assemblermnemonicó miô Operandeî =¾  Assem
+      blierung
+      z.B®   A010°     =¾ nachfolgendå Mnemonicó werdeî }ber
+      setzô  unä aâ Speicherstellå 010° aló Objektcodå  abge
+      legt.
+
+D     stehô f}ò DUMP¬  Speicherstelleî iî hexadezimaì auflis
+      ten¬ hierbeé sinä immeò 1¶ Byteó iî eineò Reihå angeor
+      dnet¬ rechtó voî ihneî befindeô sicè nocè eiî Feld¬ daó Š      evtl®  ASCIÉ  Textå  leichô erkenneî  l{~t®  Wenî  keiî 
+      von/bió  angegebeî wird¬  werdeî immeò 1² Zeileî (a§ 1¶ 
+      Byteó  ½ 19² Bytes© aâ 010° heø gelisteô unä  danî  eiî 
+      neueò  Befehì  erwartet®  Wirä danî nuò  Ä  eingegeben¬ 
+      werdeî  diå n{chsteî 1² Zeileî a§ 1¶ Byteó iî  aufstei
+      gendeò  Reihenfolgå angezeigt®  Deò Syntaø beé  Ä  kanî 
+      abeò  aucè  z®  B®  seiî  D0200,18FA®  Hieò w}rdeî  diå 
+      Speicherstelleî  voî  0200heø bió 18FÁ heø  ohnå  Pauså 
+      gelistet¬  diå Ausgabå l{~ô sicè danî miô CTRL-Ó unter
+      brecheî unä fortf}hren.
+
+F     damiô  kanî maî deî Speicheò miô eineí konstanteî  Werô 
+      f}llen.
+      SYNTAXº  FBeginn,ENDE,F}llbyte
+      z.B®  F0300,04FF,F° f}llô deî Speicheò voî 030° heø bió 
+      04FÆ  heø  miô deí Bytå F°  hex®  Allå  Speicherstelleî 
+      zwischeî Beginî unä Endå incl® habeî nacè dieseí Befehì 
+      deî deî gleicheî Inhalô wiå daó angegebenå F}llbyte.
+
+G     dienô  zuí Starteî eineó ií Speicheò befindlicheî  Pro
+      grammó  zweckó  Testlauf®  Eó k|nneî  zweé  Unterbrech
+      ungspunktå  (BREAKPOINTS©  gesetzô  werden¬  beé  dereî 
+      Erreicheî  diå Kontrollå aî DDÔ zur}ckgegebeî wird®  Eó 
+      gen}gô aucè diå Angabå voî G¬ danî wirä daó Programí aî 
+      deò Speicherstellå gestartet¬  auæ diå daó Registeò  PÃ 
+      deó Prozessoró (miô Befehì Ø anzusehen© zeigt.
+      SYNTAXº  GStartpunkô deó Programms,Unterbrechungsadres
+      se,Unterbrechungsadresse
+      z.B®   G0200,0300,040° starteô eiî Programí ií Speicheò 
+      beé 020° hex¬  deò Programmablauæ wirä beé 030° heø unä 
+      beé  040° heø unterbrocheî unä DDÔ meldeô  sich®  Durcè 
+      Eingabå  voî Ç kanî danî diå Programmausf}hrunç  jeweió 
+      fortgesetzô werden.
+
+H     dienô zuí Rechneî ií Hexadezimalformat.
+      SYNTAXº Hzahl1,zahl2
+      Diå  vierstelligå Summå unä Differenú deò beideî Zahleî 
+      wirä berechneô unä iî hexadezimaleò Forí ausgegeben.
+
+I     dienô  zuò Eingabå eineó Dateinamenó zuí sp{tereî  Ein
+      leseî iî deî Speicheò durcè DDT.
+      SYNTAØ: IDateiname.EXÔ
+      z.B®    IFormat.com
+
+R     dienô  danî zuí Einleseî deò miô É eingestellteî  Dateé 
+      voî Diskette® Zõ Ò kanî nocè einå 2Bytå Hexzahì angege
+      beî werden¬  diå aló positiveò OFFSEÔ dient®  Maî  kanî 
+      damiô  eiî  Programí  aî einå h|herå  aló  diå  normalå 
+      Ladeadresså umleiten.
+      SYNTAXº  Ò  bzw®  ROffset
+      z.B®      R030°  l{dô daó miô É spezifiziertå  Programí 
+      30°  Byteó (hex!© h|heò aló standardm{~iç  durchgef}hrô Š      iî  deî  Speicher®  Beé alleî DDÔ  Ladeoperationeî  er
+      scheinô nacè erfolgreicheî Abschluş diå Angabå NEXÔ unä 
+      PÃ  miô jå eineò Hexadezimalzahl®  Diå Zahì unteò  Nexô 
+      gibô  diå n{chstå nichô voí geladeneî Programí  belegtå 
+      Speicherzellå  aî  (voî unteî nacè oben!© unä PÃ  zeigô 
+      diå Startadresså dieseó Programmeó ií Speicheò an¬ z.B® 
+      f}ò G.
+
+L     dienô zuí Dissassembliereî deó Speicherinhalteó  (siehå 
+      oben)
+      SYNTAXº  Ì bzw® Lvoî   bzw®   Lvon,bis
+      z.B®  L0200,030° }bersetzô diå Inhaltå deò Speicherzel
+      leî  voî Adresså 020° heø bió 030° heø iî Mnemonicó unä 
+      zeigô dieså an¬ {hnlicè wiå deò Ä Befehl
+
+M     stehô f}ò Movå unä maî kanî damiô Inhaltå voî Speicher
+      bereicheî auæ einå anderå Adresså ií Speicheò verschie
+      ben/kopieren.
+      SYNTAXº  Mvon,bis,wohin
+      z.B®   M0100,0200,030°  verschiebt/kopierô diå  Inhaltå 
+      deò Adresseî 010° heø bió 020° heø nacè 030°  hex®  Deò 
+      Inhalô voî 010° heø findeô sicè iî 030° heø wieder¬ deò 
+      Inhalô voî 020° heø beé 040° hex¬ entsprechenä zwischeî 
+      deî Adressen.
+
+S     stehô  f}ò  Seô unä erlaubô daó Ver{nderî  deò  Inhaltå 
+      einzeneò  Speicherzelleî durcè Eingabå voî Hexadezimal
+      zahlen®  Diå  urspr}nglicheî Inhaltå k|nneî  miô  ENTEÒ 
+      }bernommeî werden¬ deò Ó Moduó kanî durcè Eingabå eineó 
+      Punkteó anstellå eineó HEX-Werteó verlasseî werden.
+      SYNTAXº  Sadresse
+      z.B®  S010° fragô diå Adresseî aâ 010° heø nacè Neuein
+      gabeî ab® Diå alteî Wertå unä diå Adresså wirä dabeé iî 
+      tabellarischeò Forí angezeigtº      010° 1Æ ß 
+
+T     gestatteô  daó Verfolgeî eineó Programm(Probe)ablaufes¬ 
+      unä zwaò ± bió 6553µ Programmschritte.
+      SYNTAXº  Ô  odeò TAnzahì deò Schritte
+      z.B®  T10° ií ersteî Falì wirä nuò ± Befehì bearbeitet¬ 
+      ií  zweiteî  Falì 25¶ Befehlå (100È  ½  25¶  dez)®  Beé 
+      Beginî  unä Endå deò T-Aktioî wirä deò aktuellå  Regis
+      terstanä deò CPÕ angezeigt.
+
+U     wiå deò T-Befehl¬  nuò wirä hieò keiî CPU-Registerstanä 
+      ausgegeben®  Dieó  isô n}tzlich¬  wenî voí Testprogramí 
+      erstelltå  Bildschirminhaltå zuò  ]berpr}funç  erhalteî 
+      werdeî sollen.
+
+X     l{~ô  diå Betrachtunç unä Ver{nderunç deò  CPU-Registeò 
+      zu.
+      SYNTAXº  Ø   bzw® Xr
+      z.B®    beé  XÈ  kanî maî deî Inhalô  deó  HL-Registeró Š      durcè Eingabå eineó Hexwerteó ver{ndern®  
+
+
+Aló  Beispieì f}ò diå Benutzunç voî DDÔ solì hieò diå Erstel
+lunç eineò Dateé f}ò diå Druckerinitialisierunç dienen® 
+Gegebeî sei¬ daş deò Druckeò folgendå Steuerzeicheî ben|tigt¬ 
+uí gewisså druckerspezifischå Parameteò zõ initialisieren:
+  1Â 4° 1Â 6Ã 0Á 1Â 4D        (alles hexadezimal)
+
+Durchf}hrung:
+DDÔ aufrufen¬  S010° eingeben¬ anschlie~enä diå obigeî Bytes¬ 
+nacè jedeí Bytå ENTEÒ dr}cken¬  uí zuò n{chsteî Speicherzellå 
+zõ gelangen.
+Nacè deí Bytå 4Ä daræ maî daó CTRL-Ú nichô vergessen¬  dá PIĞ 
+z.B®  sonsô daó Dateiendå nichô erkennt®  Daó Bytå 1Á heø isô 
+deò  Werô voî CTRL-Ú unä deshalâ daó einzigå  Byte¬  daó  beé 
+solcheî Aktioneî NICHÔ voò deí Endå vorkommeî darf!!
+Nacè  Eingabå voî D010° m}~tå jetzô u.a®  folgendeó zõ  seheî 
+seinº 010° 1Â 4° 1Â 6Ã 0Á 1Â 4Ä 1Á usw.
+Wenî  dieó sï ist¬  isô deò Hauptteiì bereitó  getan®  Leideò 
+kanî maî diå Dateé voî DDÔ auó nichô abspeichern® Maî muş DDÔ 
+verlassen¬  unä  zwaò  gehô daó immeò miô CTRL-Ã odeò  BREAK¬ 
+woraufhiî sicè daó bekanntå CP/Í miô deí Systemprompô meldet® 
+Aló  n{chstå Eingabå muş unbedingô deò Speicherbefehì  erfol
+gen¬  dá  beé andereî Eingabeî unserå erstelltå  Arbeit¬  diå 
+sicè  já  nuò ií Speicheò befindeô unä zudeí  nocè  aî  eineò 
+Stelle¬  diå voî jedeí Programí beé Aufruæ }berschriebeî wirä 
+(aucè beé erneuteí DDT.COÍ Aufruf!!!).
+Alsï deî eingebauteî CP/Í Befehì SAVÅ ben}tzen¬ unä zwaò SAVÅ 
+± DRUCKER.DAT.
+Beé  [nderungeî  iî  Programmeî miô DDÔ m}sseî dieså  iî  deò 
+gleicheî Arô nacè deò [nderunç gespeicherô  werden¬  sinnvol
+lerweiså zun{chsô unteò eineí andereí Namen¬ bió diå [nderunç 
+getesteô ist¡ N}tzlicè isô hierbeé deò Hinweió NEXÔ beé Ladeî 
+eineó  Programmó voî DDT¬  dá maî auó dieseò HEX-Zahì  leichô 
+diå  Anzahì  deò beé SAVÅ anzugebendeî Bl|ckå errechneî  kanî 
+(h|chstwertigeó Bytå iî Dezimaì ½ Anzahì deò Bl|cke).
+
+Diå  Dateé DRUCKER.DAÔ kanî nuî miô PIĞ LST:=Drucker.daô  zuí 
+Druckeò  }bertrageî werden®  Wenî dabeé daó  Dateiendezeicheî 
+f}ò PIP¬  daó 1Á heø (=CTRL-Z© beé deò Dateierstellunç  nichô 
+aí Endå eingegebeî wurde¬  wirä voî PIĞ aucè nocè diå restli
+cheî Byteó deó 25¶ Bytå Blockó aló druckbarå Zeicheî senden.
+
+
+9.4 SUBMIT.COM
+
+Daó Standardprogramí SUBMIT.COÍ erlaubô diå Abarbeitunç soge
+nannteò  Batchfiles®  Dieså Dateieî stelleî einå  Aneinander
+reihunç voî normaleî Eingabeî voî deò Tastatuò daò (diå Dateé 
+"ersetzt¢ sozusageî deî Bediener!© unä lasseî sicè z®  B® miô 
+WORDSTAÒ  odeò deí Editoò ED.COÍ komfortabeì unä schnelì  erŠstellen.
+
+Eiî praktischeó Beispiel:
+Auæ  Laufwerë Â solì einå fabrikneuå Diskettå formatierô  unä 
+miô deí CP/Í Betriebssysteí verseheî werden®  Au~erdeí solleî 
+auæ diå neuå Diskettå allå direkô aufrufbareî Programmå voî Á 
+kopierô werdeî (COM-Files).
+
+Deò "normale¢ Arbeitsvorgang:
+Formaô bº       ...® Warten
+ID bºS80 DSDD   ...® Warten
+PIĞ b:=aº *.coí ...® Warten
+maî  kanî schlechô einå anderå Arbeiô anfangen¬  dá zwischen
+durcè immmeò wiedeò Tastatureingabeî notwendiç werden.
+
+Deò "Komfortweg"¬  insbesondere¬  wenî maî obigeî Vorganç ofô 
+durchf}hreî mu~º miô EÄ durchgef}hrt
+
+EÄ Copy.sub
+           EÄ meldeô sicè miô *º       É   eingeben¬ dann
+formaô bº <ENTER>
+id b:s80 dsdd
+piğ b:=aº *.coí <ENTER>
+diò bº <ENTER>
+<ctrl-Z>
+           EÄ kommô wiedeò miô *º     Å eingeben¬ danî meldeô 
+           sicè CP/Í miô deí Systemprompô zur}ck.
+
+submiô copy
+.........®  Pause¬ iî Zukunfô gen}gô (wenî diå Dateé copy.suâ 
+auæ deò Diskettå vorhandeî ist© nuò dieseò Befehl®  Dieó  waò 
+eiî  einfacheó  Beispiel¬  uí sehò schnelì diå  Funktioî  voî 
+SUBMIÔ zõ verdeutlichen.
+Deò  prinzipiellå  Ablauæ isô jedocè immeò deò  gleicheº  Be
+fehlsdateé  erstellen¬  miô deò Endunç .SUÂ  abspeicherî  unä 
+Submiô Dateinamå aufrufen.
+Beé deò Erstellunç deò .SUÂ Dateé gibô eó einå Hauptfu~angelº 
+Daó  letztå  Zeicheî muş immeò eiî CONTROL-Ú  seiî  (1AH¬  2¶ 
+dez)¬  isô dieó nichô deò Fall¬  sï kommô eó zõ eineò Fehler
+meldunç unä daó Programí steigô aus.
+
+Deò Ablauæ voî SUBMIÔ isô folgender:
+Nacè  deí  Aufruæ miô deò Parameter}bergabå (xxxx.SUÂ  Datei© 
+liesô SUBMIÔ diå angegebenå Dateé voí ENDÅ heò unä legô  einå 
+Dateé $$$.SUÂ an.
+Deò erstå Befehì iî deò *.SUÂ Dateé isô alsï deò letzå Befehì 
+iî deò $$$.SUÂ Datei®  Danacè erfolgô eiî Warmstarô (CONTROL-
+C)¬  nachdeí  deò CCĞ deó CP/Í immeò nacè eineò Dateé $$$.SUÂ 
+suchô  unä  dieså danî ausf}hrô (unä zwaò  diå  letztå  Zeilå 
+zuerst)® Wenî allå Befehlå abgearbeiteô sind¬ meldeô sicè daó 
+CP/Í miô deí Systemprompô zur}ck.
+
+Miô  Submiô l{~ô sicè nocè einigeó mehò anfangen®  Deò grundŠs{tzlichå Syntaø lauteô n{mlich
+
+SUBMIÔ Datein.SUÂ param#1,param#2.......
+
+Iî deò *.SUÂ Dateé k|nneî n{mlicè Platzhalteò iî deò Forí  $±  
+$2¬ allgemeiî "Dollaò Zahl¢ ben}tzô werden® Dieså Platzhalteò 
+werdeî danî beií Aufruæ deò Dateé durcè diå entsprechenä  miô 
+eingegebenå Parameter#1¬ Parameter#² etc® ersetzt.
+Diå  Anzahì deò Parameteò muş allerdingó immeò miô deò Anzahì 
+deò  Platzhalteò iî deò Dateé  }bereinstimmen¬  sonsô  brichô 
+Submiô ab.
+Miô dieseò Technië kanî maî miô eineò *.SUÂ Dateé z®  B®  miô 
+mehrereî Dateinameî arbeiten® Au~erdeí l{~ô sicè generelì voî 
+eineò  *.SUÂ  aló letzteó Kommandï einå weiterå  *.SUÂ  Dateé 
+aufrufen¬ womiô sicè entsprechendå M|glichkeiteî ergeben.
+
+
+Bittå beachteî Sie¬  daş SUBMIÔ diå *.SUÂ Dateé grunds{tzlicè 
+auæ deí Laufwerë miô deò Bezeichnunç Aº erwartet.
+
+
+9.5 XSUB.COM
+
+XSUÂ  kanî nuò innerhalâ eineò SUBMIT-Befehlsdateé aufgerufeî 
+werden®  Normalerweiså wirkeî diå Befehlå eineò  SUBMIT-Dateé 
+nuò auæ Betriebssystemeben¬  d.h®  daş }beò SUBMIÔ keinå Pro
+grammeingabeî gemachô werdeî k|nnen.
+Rufô  maî aló ersteó Programí eineò SUBMIT-Befehlsdateé  XSUÂ 
+auf¬  sï wirä deò SUBMIÔ Ablauæ dahingehenä ge{ndert¬ daş diå 
+Zeicheî deò Befehlsdateé immeò diå Tastatureingabå ersetzten® 
+Dadurcè  isô eó m|glich¬  eineî kompletteî Programmstarô  miô 
+alleî Eingaben¬  diå daó Programí anfordert¬  automatiscè ab
+laufeî zõ lassen.
+
+Diå  Funktionsf{higkeiô  deó XSUB-Programmó  wirä  allerdingó 
+nichô  iî alleî F{lleî garantiert®  Eó solltå daheò immeò eiî 
+kurzeò Probelauæ stattfinden¬ deò diå XSUB-Verwendunç austes
+tet.
+.paŠ.paŠ

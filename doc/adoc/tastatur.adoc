@@ -1,0 +1,348 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 9"
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 3                                        Tastatur"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            3-#"
+_3. Die Tastatur_
+
+_3.1 Tastaturbedienung_
+
+_3.1.1 Tastenklick_
+
+Diese  Funktion  benutzt  den in  die  Tastatur  integrierten  +
+(Genie   III)  bzw.   den  an  die  I/O-Karte  anschließbaren  +
+Lautsprecher (Genie IIs) zur Erzeugung eines kurzen Klicktons  +
+bei jeder betätigten Taste.  Insbesondere bei Ausnutzung  der  +
+Type-ahead  Möglichkeit (siehe unten),  ist diese Tastenquittierung sehr nützlich, da man direkt hören kann, ob die Taste  +
+erkannt wurde oder nicht. +
+Die automatische Tastenwiederholung gibt ebenfalls für  jedes  +
+erzeugte Zeichen einen Klickton aus. Bei der Betätigung einer  +
+Funktionstaste  ertönt nur ein Klickton,  auch wenn die Taste  +
+mehr als ein Zeichen erzeugt.
+
+
+_3.1.2 Tastenwiederholung_
+
+Jede  Taste  wird,  nachdem  sie eine gewisse  Zeit  gedrückt  +
+gehalten  bleibt,  automatisch wiederholt.  Dadurch kann  ein  +
+Zeichen sehr leicht mehrfach erzeugt werden. +
+Da die Tastenabfrage und -wiederholung über Software  gesteuert wird, kann eine gleichbleibende Wiederholungsfrequenz bei  +
+verschiedenen  Programmen jedoch nicht immer eingehalten werden. +
+Dies  liegt  daran,  daß die Wiederholung  nicht  nach  einem  +
+bestimmten  Zeitrhythmus abläuft,  sondern von der Anzahl der  +
+Tastaturabfragen  bestimmt wird.  Bei aktivierten  Interrupts  +
+ist die Wiederholungsfrequenz jedoch gleichbleibend,  da  bei  +
+jedem  Interrupt  die Tastatur abgefragt wird und die  Interruptfrequenz  (40 Interrupts pro Sekunde)  ziemlich  konstant  +
+ist. +
+Bei Zufriff auf die Diskettenlaufwerke werden die  Interrupts  +
+abgeschaltet.  Bei  längeren Diskettenzugriffen ist daher die  +
+Tastaturabfrage und die Uhranzeige für diese Zeit  abgeschaltet.
+
+Um  für jede Anwendung eine optimale Wiederholungsfrequenz zu  +
+erreichen,  ist die Zeit bis zur ersten Wiederholung und  die  +
+Wiederholungsfrequenz  über das CONFIG-Programm frei  wählbar  +
+(siehe Kapitel 7.1).
+
+
+_3.1.3 Type-ahead_
+
+Eine  Besonderheit des CP/M 2.2X stellt die  Type-ahead  Möglichkeit  dar.  Diese,  etwa mit `Voraustippen`  übersetzbare  +
+Bezeichnung,  ermöglicht  es,   Tastatureingaben vorzunehmen,  +
+bevor  sie vom Programm abgearbeitet werden.  Sie können  da
+
+durch  also Zeichen im Voraus eingeben,  die automatisch  gespeichert werden und dem Programm erst zur Verfügung gestellt  +
+werden, wenn es diese verarbeiten kann. 
+
+Der  Type-ahead kann aber nur bei aktivierten Interrupts voll  +
+genutzt  werden,  denn nur in diesem Fall wird  die  Tastatur  +
+häufig genug abgefragt.
+
+Für  den Type-ahead steht ein 64 Zeichen fassender  Tastaturpuffer  zur Verfügung.  Zur Kontrolle,  ob eine Taste erkannt  +
+wurde, dient in den meisten Fällen der Tastenklick. +
+Bei  Überfüllung  des Tastaturpuffers wird kein Zeichen  mehr  +
+gespeichert  und bei jedem Tastendruck ein längerer  Piepston  +
+über den Lautsprecher erzeugt. Falls die eingegebenen Zeichen  +
+nicht durch das Anwenderprogramm abgearbeitet werden, muß der  +
+gesamte Tastaturpuffer durch gleichzeitiges Drücken der  Tasten  CTRL (Genie III) bzw.  P2 (Genie IIs) und CLEAR gelöscht  +
+werden (siehe Kapitel 3.3.5).
+
+
+_3.2 Funktionstasten_
+
+Die auf der Tastatur ausgezeichneten Tasten F1 bis F8 sind im  +
+Genie III CP/M 2.2XV3 als Funktionstaste benutzt. Für die, in  +
+Verbindung mit der Shift-Taste,  16 möglichen Funktionstasten  +
+stehen  256 Bytes als Zeichenspeichern zur  Verfügung.  Damit  +
+kann  jede Funktionstaste im Mittel bis zu 16 Zeichen  erzeugen.  Die  maximale Länge einer durch eine Funktionstaste erzeugten  Zeichenkette,  ist durch den Tastaturpuffer  auf  64  +
+Zeichen begrenzt. +
+Für   das   Genie  IIs  gilt  das  gleiche,   nur   daß   die  +
+Funktionstasten  durch P2-0 (gleichzeitiges Drücken von  `P2`  +
+und `0`) bis P2-7 dargestellt werden.
+
+Die Festlegung der erzeugten Zeichenkette,  geschieht mit dem  +
+Programm FKEY (Kapitel 10.5).
+
+Programmgesteuert  oder mit dem CONFIG-Programm kann die  Erzeugung  der Zeichenkette unterbunden werden.  In diesem Fall  +
+wird dann beim Drücken einer Funktionstaste die Funktionstastennummer +127 ausgegeben.  Dadurch kann die Betätigung einer  +
+bestimmten  Funktionstaste abgefragt werden,  ohne die  durch  +
+sie erzeugt Zeichenkette zu kennen.
+
+
+_3.3 Spezielle Tasten_
+
+_3.3.0 Einleitung_
+
+Auf der Tastatur des Genie III bzw. IIs befinden sich mehrere  +
+Tasten,  die  im  CP/M 2.2X spezielle  Funktionen  haben.  Im  +
+Hinblick auf gewisse Standardprogramme (z.B. WordStar, Turbo
+
+Pascal) wurden diese Funktionen so gewählt,  daß die Tastatur  +
+als  WordStar-kompatibel  zu bezeichnen ist.  Da  auch  viele  +
+andere Programme diesen de facto Standard benutzen,  hat sich  +
+die gewählte Tastenbelegung als sinnvoll erwiesen.
+
+
+_3.3.1 Die SHIFT-Taste_
+
+Die  SHIFT-Taste erzeugt selbst keinen eigenen Wert,  sie ergibt,  wie bei einer normalen Schreibmaschinentastatur,  erst  +
+zusammen mit einer weiteren Taste eine Funktion.  Die  Alphatasten  (@,A-Z,Ä,Ö,Ü,ß) erzeugen normalerweise  Kleinbuchstaben,  wenn  sie zusammen mit der Shift-Taste betätigt  werden  +
+jedoch Großbuchstaben. +
+Auch  bei  allen doppelt beschrifteten Tasten wird das  obere  +
+Zeichen erst zusammen mit der Shift-Taste erreicht.
+
+
+_3.3.2 Die CTRL-Taste_
+
+Die  CTRL-Taste  (Control-Taste)  erzeugt,  genauso  wie  die  +
+Shift-Taste,  keinen eigenen Wert. +
+Wie  der  Name schon zeigt,  hat diese Taste  ebenfalls  eine  +
+Kontrollfunktion.    Zusammen   mit   den   Alphatasten   (A- +
+Z,Ä,Ö,Ü,ß,_) werden die Werte 01H bis 1FH (1 bis 31) erzeugt,  +
+die  in  den meisten Programmen besondere  Funktionen  haben.  +
+Im  Genie  IIs  gibt es keine eigene  CTRL-Taste,  für  diese  +
+Funktion  wurde  die  Taste  `P1`  gewählt.   Innerhalb   des  +
+Handbuchs wird die Bezeichnung `CTRL` beibehalten.
+
+
+_3.3.3 Die ENTER-Taste_
+
+Die  ENTER-,   RETURN- oder  NEWLINE-Taste  hat  die  normale  +
+Funktion, das Abschliessen der Eingabezeile. Entsprechend dem  +
+CP/M-Standard wird der ASCII-Code `Carriage Return (0DH,  13)  +
+erzeugt.
+
+
+_3.3.4 Die BREAK-Taste_
+
+Ein  gewisser Nachteile im CP/M 2.2 ist,  daß ein  Diskettenwechsel  nicht automatisch erkannt wird,  sondern dem  System  +
+gesondert  mitgeteilt  werden muß.  Vom Entwickler  des  CP/M  +
+wurde  dazu die Tastenkombination CTRL-C (Wert:  03H,  3 dez)  +
+gewählt, die auch als `Warmstart` bezeichnet wird. +
+Da viele Programme diesen Wert ebenfalls benutzen,  wurde die  +
+Break-Taste  damit belegt.  Auch alle Kombinationen der  Kontrolltasten  CTRL  und SHIFT zusammen mit BREAK  ergeben  den  +
+Wert 03H. +
+Die  Break-Taste  wird intern noch für  einen  zweiten  Zweck  +
+benutzt:
+
+Beim Zugriff auf ein Peripheriegerät, testet das Betriebssystem zuerst den Status dieses Gerätes, ob es also zur Übernahme  eines Zeichens bereit ist bzw.  ein Zeichen senden  kann.  +
+Fällt  diese Abfrage negativ aus,  wartet das  Betriebssystem  +
+solange bis das Gerät eine `Klarmeldung` gibt. +
+Wird  nun ein nicht vorhandenes Gerät  angesprochen,  `hängt`  +
+sich das Betriebssystem normalerweise auf.  Um diesen Systemabsturz zu verhindern, kann durch Drücken der Breaktaste eine  +
+Klarmeldung erzwungen werden. Die Daten werden zwar in diesem  +
+Fall  ins  Leere geschickt oder es  kommen  unsinnige  Werte,  +
+danach  kann das System jedoch wieder normal  weiterarbeiten.  +
+Wichtig  dabei ist,  daß die Breaktaste in einem solchen Fall  +
+gedrückt bleiben muß, bis die Ein- oder Ausgabe beendet ist.
+
+
+_3.3.5 Die CLEAR-Taste_
+
+Die CLEAR-Taste wird im CP/M 2.2X als Escape-Taste (ESC, 1BH,  +
+27) benutzt, hat aber noch eine weitere Funktion: +
+In normalen CP/M-Systemen führt ein Diskettenfehler meist zum  +
+Systemabsturz  und  es  gibt keinen Hinweis  auf  die  genaue  +
+Fehlerursache. +
+Im  CP/M 2.2X wird nach einem Diskettenfehler in der  Statuszeile die exakte Fehlerbeschreibung und der exakte  Fehlerort  +
+angezeigt (siehe Kapitel 6.2.2 bzw. 6.2.3). +
+Über die CLEAR-Taste kann nun die zuletzt ausgeführte Diskettenoperation  beliebig  oft wiederholt werden,  ohne daß  der  +
+Programmablauf gestört wird.  SHIFT-CLEAR bricht die  fehlerhafte  Diskettenoperation  ab  und meldet den Fehler  an  das  +
+Betriebssystem, daß dann den Programmablauf abbricht. 
+
+Bei beschädigten Disketten kann es vorkommen,  daß ein Fehler  +
+auch nach mehreren Wiederholungen des Diskettenzugriffs nicht  +
+zu  beseitigen ist.  Dies ist besonders bei  wichtigen  Daten  +
+ärgerlich,  da  in den meisten Fällen das gesamte File  nicht  +
+mehr lesbar ist.  Falls also z.B.  nur ein Sektor beschädigt,  +
+der Rest des Files jedoch einwandfrei lesbar ist, kann dieser  +
+Rest noch gerettet werden. +
+Dazu  dient die Funktion CTRL-CLEAR (Genie IIs:  P1-CLEAR !),  +
+die  die fehlerhafte Diskettenoperation  zwar  abbricht,  den  +
+Fehler  jedoch nicht an das Betriebssystem meldet.  Damit hat  +
+man  nun die Möglichkeit auch bei  physikalisch  beschädigten  +
+Disketten einen Großteil der aufgezeichneten Daten zu retten.  +
+Die  fehlerhaften Sektoren werden jedoch durch diese Funktion  +
+nicht repariert, sondern dieser Teil der Daten ist verloren.
+
+_ACHTUNG:_  Beim Drücken vom CTRL-CLEAR wird mit den fehlerhaft  +
+gelesenen Daten weitergearbeitet. Benutzen Sie diese Funktion  +
+also  nur bei defekten Disketten,  von denen Sie  noch  Daten  +
+retten wollen.
+
+
+
+_3.3.6 Die LOCK Taste_
+
+_3.3.6.1 Beim Genie III_
+
+Die Alpha-Lock Taste hat für die sogenannten Alphazeichen (A- +
+Z,Ä,Ö,Ü,ß) dieselbe Funktion wie die SHIFT-Taste und wird für  +
+diese  Zeichen wie eine gedrückte Shifttaste  behandelt.  Die  +
+Alpha-Lock Taste erzeugt selber keinen Wert.
+
+
+_3.3.6.2 Beim Genie IIs_
+
+Da  die Genie IIs Tastatur keine eigene LOCK-Taste hat,  wird  +
+dort die Tastenkombination P1-SHIFT benutzt.  Beim Start  des  +
+Systems  ist die Lock-Funktion ausgeschaltet,  jedes  gleichzeitige  Drücken von `P1` und `SHIFT` schaltet diese Funktion  +
+ein  und wieder aus.  Es gibt leider keine einfache  Möglichkeit,  den  aktuellen Status der Lock-Funktion  darzustellen.  +
+Der  Benutzer  muß sich daher immer merken,  wie oft  er  die  +
+Funktion umgeschaltet hat.
+
+
+_3.3.7 Die Pfeiltasten_
+
+_3.3.7.0 Einleitung_
+
+Alle  vier Pfeiltasten wurden im Hinblick auf die  Funktionen  +
+des  Textverarbeitungsprogramms WordStar belegt.  Jede  Taste  +
+hat zwei verschiedene Funktionen.
+
+Alle folgenden Erklärungen der Pfeiltasten beziehen sich  auf  +
+das  Programm WordStar.  Eine Zusammenfassung aller durch die  +
+Pfeiltasten erzeugten Werte und ihre entsprechenden  Kombinationen  der CTRL-Taste mit einer Alpha-Taste ist im Anhang  D  +
+aufgeführt.
+
+
+_3.3.7.1 Die Hochpfeil-Taste_
+
+Diese  Taste allein erzeugt den Code 05H (5 dez,  CTRL-E) und  +
+plaziert den Cursor eine Zeile höher. Shift-Hochpfeil erzeugt  +
+den Code 12H (18 dez, CTRL-R) und blättert eine Seite zurück.
+
+
+_3.3.7.2 Die Tiefpfeil-Taste_
+
+Der Tiefpfeil setzt den Cursor eine Zeile tiefer und  erzeugt  +
+den Code 18H (24 dez,  CTRL-X).  SHIFT-Tiefpfeil (03H, 3 dez,  +
+CTRL-C) blättert eine Seite vor. +
+Damit  haben die beiden Tasten Hochpfeil und Tiefpfeil  genau  +
+entsprechende Funktionen.
+
+
+
+_3.3.7.3 Die Linkspfeil-Taste_
+
+Die  Linkspfeil-Taste  ist die Einzige der  Pfeiltasten,  die  +
+auch  in anderen Programmen Verwendung  findet.  Diese  Taste     +
+- auch  BACKSPACE  genannt  -  erzeugt den Code 08H  (8  dez,  +
+CTRL-H) der in allen Programmen das zuletzt eingegebene  Zeichen  löscht bzw.  den Cursor eine Position nach links befördert. +
+SHIFT-Linkspfeil  setzt im WordStar den Cursor an den  Anfang  +
+des vorherigen Wortes (01H, 1 dez, CTRL-A).
+
+
+_3.3.7.4 Die Rechtspfeil-Taste_
+
+Der  Rechtspfeil bewegt den Cursor ein Zeichen  nach  rechts,  +
+ohne  das  dort befindliche Zeichen zu löschen (04H,  4  dez,  +
+CTRL-D).   SHIFT-Rechtspfeil  setzt den Cursor an den  Anfang  +
+des nächsten Wortes (06H, 6 dez, CTRL-F). +
+Damit  haben  die beiden Tasten  Linkspfeil  und  Rechtspfeil  +
+ebenfalls entsprechende Funktionen.
+
+
+
+_3.3.8 Die Leertaste_
+
+Obwohl  die  Leertaste  (auch SPACE  oder  SPACEBAR  genannt)  +
+eigentlich   zur  normalen  Schreibmaschinentastatur  gehört,  +
+wurden ihr zwei Sonderfunktionen zugewiesen. +
+Die  Leertaste allein ergibt,  wie ihr Name schon  sagt,  das  +
+Leerzeichen oder Space (20H,  32 dez).  Über  SHIFT-Leertaste  +
+wird  der  TAB-Code (09H,  9 dez,  CTRL-I) erzeugt,  der  den  +
+Cursor  zur nächsten Tabulatorposition  bringt.  Im  normalen  +
+CP/M-Gebrauch  bringt  dieser  Code den Cursor  zur  nächsten  +
+Spaltenposition,  die ein Vielfaches von 8 darstellt.  In den  +
+meisten Textverarbeitungsprogrammen sind diese Tabulatorpositionen jedoch frei wählbar. +
+Beim  Genie  IIs hat die Leertaste noch eine  weiter  Sonderfunktion, die Umschaltung des Zeichensatzes (siehe unten).
+
+
+_3.3.9 Die 00-Taste                            (nur Genie III)_
+
+Die  Taste  `00` auf dem separaten Zehnerblock  der  Tastatur  +
+erzeugt die Zeichenfolge `00`. +
+
+// .pa ""
+
+<<<
+_3.4 Besondere Tastaturfunktionen_
+
+_3.4.1 CTRL-00                               (nur Genie III)_
+
+Mithilfe  der Tastenkombination CTRL-00 kann man  beim  Genie  +
+III  den  aktuellen Bildschirminhalt über den LST-Kanal  ausdrucken. +
+Dieser  Ausgabekanal gibt normalerweise die Daten auf dem  am  +
+Centronics-Parallelport angeschlossenen Drucker aus. Über den  +
+STAT-Befehl  (siehe Kapitel 5.1.5 und 9.2) kann diese  Kanalzuordnung jedoch geändert werden. +
+Die Ausgabe des Bildschirms erfolgt zeilenweise,  wobei  nach  +
+jeder  Zeile (80 Zeichen) die beiden Codes CR (0DH,  13  dez)  +
+und LF (0AH,  10 dez) eingefügt werden. Diese Codes bewirken,  +
+daß  der angeschlossene Drucker den Ausdruck auf der nächsten  +
+Zeile fortsetzt.  Inverse Zeichen werden wie normale  Zeichen  +
+behandelt,  nicht  druckbare Zeichen (01H bis 1FH,  1 bis  31  +
+dez) werden als Punkt (`.`) ausgegeben.
+
+Bei  normaler Papiergröße (72 Zeilen pro Seite) passen  genau  +
+drei Bildschirmseiten auf eine Druckerseite.
+
+
+_3.4.2 P2-Leertaste                            (nur Genie IIs)_
+
+Die  Tastenkombination P2-Leertaste schaltet beim  Genie  IIs  +
+zwischen den beiden eingebauten Zeichensätzen DEUTSCH und US- +
+ASCII  um.  Die  Umschaltung betrifft die folgenden Zeichen:
+
+     Deutsch  US-Ascii +
+        @        @ +
+        Ä        Ä +
+        Ö        Ö +
+        Ü        Ü +
+        ä        ä +
+        ö        ö +
+        ü        ü +
+        ß        ß
+
+Da die Zeichenausgabe über die Graphikkarte erfolgt,  ist die  +
+Umschaltung  erst bei der nächsten Ausgabe eines dieser  Zeichen wirksam.  Zusammen mit der entsprechenden Escape-Sequenz  +
+zur  Zeichensatzumschaltung (siehe Kapitel 4 und  Anhang  B),  +
+können  dadurch aber auch beide Zeichensätze zusammen  dargestellt werden. +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<

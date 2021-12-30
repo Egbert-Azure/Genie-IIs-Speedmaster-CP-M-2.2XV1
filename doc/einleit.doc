@@ -1,0 +1,419 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 9
+.pn 1
+.hå                                                   Vorwort
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            0-#
+0. Vorwort
+
+
+
+Miô  deí Kauæ deó CP/M-Betriebsystemó f}ò Ihò Geniå IIÉ  odeò 
+Geniå IIs¬ habeî Siå Zuganç zuí gr|~teî Softwarepotentiaì deò 
+Welt.
+Obwohì inzwischeî deò Trenä mehò zõ 16-Biô Systemeî geht¬ isô 
+CP/Í aló Standarä nichô totzukriegen®  Deò herausragendå Vor
+teiì  voî CP/Í isô diå riesigå Anzahì voî  Ver|ffentlichungeî 
+unä Literatuò zõ dieseí Betriebssystem® Deò Anhanç Æ gibô nuò 
+eineî  kleineî ]berblicë }beò diå bekanntesteî Werkå unä  er
+hebô sicherlicè keineî Ansprucè auæ Vollst{ndigkeit.
+               
+Damiô Siå daó gro~å CP/Í Softwareangeboô nutzeî k|nnen¬ wurdå 
+ií CP/Í 2.2Ø voò alleí Werô auæ diå Unterst}tzunç voî  Fremd
+formateî  gelegt®  Damiô  isô  ií CP/Í 2.2Ø daó  Probleí  deò 
+Inkompatibilit{ô voî Diskettenformateî praktiscè gel|st.
+Weiterå  Formatå  k|nneî Siå }beò eiî  Zusatzprogramí  selbeò 
+kreiereî odeò voí Autoò anpasseî lassen¬ hieò sinä fasô keinå 
+Grenzeî gesetzt.
+Daó  CP/Í 2.2Ø isô daó Produkô eineò langj{hrigeî Arbeiô  miô 
+deí  Betriebssysteí CP/Í unä wirä kauí W}nschå offeî  lassen® 
+Zusammeî  miô deî getrennô erh{ltlicheî Zusatzprogrammeî  haô 
+maî sogaò Zugrifæ auæ Dateien voî GDOÓ unä MS-DOS.
+
+
+
+
+Aachen, im Juli 1986                     Klaus K{mpf
+.paŠ.pn 1
+.hå Kapitel 1                                      Einleitung
+.fï(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            1-#
+1. Einleitung
+
+Diå  vorliegendå  Ausgabå deó CP/Í 2.2Ø Handbuchó  gehô  vor
+nehmlicè  auæ diå spezielleî Eigenschafteî deó CP/Í 2.2Ø  f}ò 
+diå Ger{tå Geniå IIÉ unä Geniå IIó ein® Diå iî deî Kapitelî ¸ 
+unä  ¹ gegebenå Beschreibunç deò CP/Í 2.² Befehlå  unä  Stan
+dardprogrammå isô nuò aló grobeò ]berblicë gedacht.
+Zuí Themá CP/Í 2.² gibô eó genuç Literatur¬  sodaş sowohì deò 
+Computeranf{ngeò  aló aucè deò Fachmanî schnelì deî  Einstieç 
+iî diå CP/M-Welô findet.
+
+Leseî Siå sicè daó Handbucè aufmerksaí durcè !¡ Nuò sï k|nneî 
+Siå  diå vielf{ltigeî M|glichkeiten¬  diå Ihneî CP/Í 2.2Ø  aî 
+die Hand gibt, richtig nutzen.
+
+Daó  CP/Í 2.2Ø isô f}ò diå beideî Ger{tå Geniå IIÉ unä  Geniå 
+IIó  ií Grundå identisch®  Nuò dort¬  wï diå technischeî  Ge
+gebenheiteî Grenzeî setzen¬ mu~teî Abstrichå gemachô werden.
+Diå  CP/Í Dienstprogrammå unä Datenfileó sinä zwischeî beideî 
+Ger{teî  austauschbar¬  nichô jedocè zwischeî  andereî  CP/M-
+Systemen.
+
+Ií  CP/Í 2.2Ø isô s{mtlichå Systemsoftwarå iî Dateieî vorhan
+deî  unä nicht¬  wiå beé andereî  Systemen¬  iî  irgenwelcheî 
+Systemspureî 'versteckt'®  Dieó haô beií CP/Í 2.2Ø deî gro~eî 
+Vorteiì deò leichteî Austauschbarkeiô deò Systemsoftware®
+Weò  jedocè bisheò miô eineí Standard-CP/Í Systeí  gearbeiteô 
+hat¬  wirä evtl® Anfangó Schwierigkeiteî haben® Daheò solì ií 
+folgendeî  kurú auæ diå Systeminterneî Einzelheiteî deó  CP/Í 
+2.2Ø eingegangeî werden¬ soferî Siå f}ò deî Benutzeò relevanô 
+sind.
+Diå  Rechneò deò Genie-Reihå habeî keiî eingebauteó Betriebs
+system¬  sonderî ladeî dieseó nacè jedeí Einschalteî voî  deò 
+Diskette®  Dieseò  Ladevorganç  wirä ií Allgemeineî  miô  deí 
+englischeî  Begrifæ 'Bootstrap§  bezeichnet®  Beií  Bootstrağ 
+odeò  kurú 'Booten§ unterscheideô maî deî 'Colä Boot§  (Kalt
+start© unä deî 'Warí Boot§ (Warmstart)® Deò Kaltstarô isô daó 
+erstmaligå  Ladeî  deó Betriebsystemó nacè  deí  Einschalten® 
+Hieò  wirä  daó gesamtå Ger{ô auæ daó  Betriebssysteí  einge
+stellô  unä allå Schnittstelleî konfiguriert®  Deò  Kaltstarô 
+isô alsï nuò einmaì notwendig.
+Deò Warmstarô dagegeî isô ií CP/Í nacè jedeí Diskettenwechseì 
+unä  nacè  deí Endå eineó Programmó notwendig®  Ií  CP/Í  2.² 
+k|nneî  Programme¬  Teilå deó Betriebssystemó ver{nderî  odeò 
+sogaò l|schen®  Beií Warmstarô wirä daheò immeò eiî Teiì  deó 
+Systemó neõ voî deò Diskettå geladen® Aucè nacè eineí Disket
+tenwechseì isô dieseó Neuladeî notwendig¬ damiô sicè daó CP/Í 
+interî  auæ diå neuå Diskettå einstelleî kann®  Zuí Warmstarô 
+wirä  alsï immeò einå Systemdiskettå ben|tigt¬  voî  deò  deò 
+entsprechendå Betriebssystemteiì geladeî werdeî kann.
+.paŠDiå  Besonderheiô beií CP/Í 2.2Ø isô nun¬  daş daó  Betriebs
+systeí  iî  Dateieî auæ deò Diskettå gespeicherô  ist®  Damiô 
+jedocè deò Kalt- unä Warmstarô z}giç vonstatteî geht¬  werdeî 
+manchå dieseò Dateieî auæ ganú bestimmtå Stelleî deò Diskettå 
+kopiert®  Zõ  dieseí Zwecë sinä auæ jedeò Systemdiskettå zweé 
+doppelseitigå bzw® vieò einseitigå Spureî zuò Aufnahmå dieseò 
+Dateieî  reserviert®  Beií  Kaltstarô wirä ií CP/Í  2.2Ø  eiî 
+Mini-Betriebssysteí (LOADEÒ genannt© geladen¬ waó iî deò Lagå 
+ist¬  verschiedenå Diskettenformatå zõ behandeln® Dadurcè isô 
+eó m|glich¬ Systemdisketteî iî verschiedeneî Formateî zõ kre
+ieren¬  voî  einseitig¬  einfachå Dichtå bió doppelseitiç beé 
+doppelteò Dichte.
+Zuò  Vereinfachunç  sinä  jedocè diå Systemspureî  beé  alleî 
+Formateî identisch¬  siå werdeî sogaò beé deò Erzeugunç eineò 
+Systemdiskette neu formatiert.
+Daó  Dienstprogramí IÄ (siehå Kapiteì 10.7© haô diå  Aufgabe¬ 
+diå  Systemspureî  zõ  formatiereî unä darauæ  eineî  Urladeò 
+(Bootsektor©  unä deî angesprocheneî LOADEÒ zõ kopieren®  Zu
+s{tzlicè  konfigurierô IÄ deî LOADEÒ auæ daó Formaô deò  Sys
+temdiskette¬  denî diå Diskettenaufteilunç oberhalâ deò  Sys
+temspureî  isô abh{ngiç voí gew{hlteî Format®  Zõ dieseò Kon
+figurierunç   ben|tigô   IÄ   aucè   daó    Formate-Datenfilå 
+PDRIVE.SYS.
+
+Deò  Bootsektoò  isô  auæ deò gelieferteî  Diskettå  ií  Filå 
+SYSBOOT.SYS¬ deò Loadeò ií Filå LOADER.SYÓ gespeichert® Beidå 
+Dateieî werdeî nuò voí Programí IÄ ben|tigt¬ alsï nuò beé deò 
+Erzeugunç eineò neueî Systemdiskette®  Nachdeí deò Bootsektoò 
+unä  deò  Loadeò auæ eineò Diskettå  aufgebrachô  sind¬  wirä 
+dieså  aucè  aló 'bootf{higå Diskette§  bezeichnet®  Bió  auó 
+eineò  bootf{higeî Diskettå jedocè einå vollst{ndigå  System
+diskettå wird¬ sinä nocè weiterå Schrittå notwendig.
+
+Beií  Kaltstarô deó CP/Í 2.2Ø wirä deò Bootsektoò automatiscè 
+iî  deî  Speicheò aâ Adresså 4200È geladeî  unä  diå  weiterå 
+Ausf}hrunç  dorthiî  }bergeben®  Deò Bootsektoò l{dô nuî  deî 
+Loadeò  aî  einå spezifiziertå Adresså (siehå Anhanç  A©  unä 
+gibô  diå  Programmausf}hrunç aî dieseî  weiter®
+Deò  Loadeò kennô daó Formaô deò Systemdiskettå unä isô damiô 
+iî  deò  Lage¬  Dateieî voî dieseò Diskettå  zõ  Laden®  D.h® 
+weiterå Dateî kommeî nichô mehò voî deî Systemspuren¬ sonderî 
+voî Dateieî auæ deò Diskette®
+Diå erstå Datei¬  diå deò Loadeò erwartet¬ isô diå Konfigura
+tionsdateé  CONFIG.SYS®  Hieò sinä allå systeminterneî  Para
+meteò gespeichert¬  wodurcè deò Loadeò diå gesamtå Systemkon
+figuratioî  }bernehmeî kann®  Dá deò Loadeò nuò  w{hrenä  deó 
+Kaltstartó  ben|tigô wirä unä deò durcè ihò belegtå Speicher
+platú sp{teò wiedeò freé ist¬ konntå diå Systemkonfigurierunç 
+sehò komfortabeì gestalteô werden®  Daó Kapiteì · zeigt¬ wel
+chå Parameteò beeinflussô werdeî k|nnen.
+Aucè  benutzeî  vielå  deò  Dienstprogrammå  CONFIG.SYÓ   zuò 
+Speicherunç ihreò Daten®  CONFIG.SYÓ mu~ daheò auæ jedeò SysŠtemdiskettå  vorhandeî  sein®  Isô dieó nichô  deò  Fall¬  sï 
+meldeô sicè deò Loadeò miô 'Keiî CONFIG.SYS§ unä gehô iî einå 
+Endlosschleife.
+
+Nachdeí  CONFIG.SYÓ geladeî wurde¬  kommô deò  Hauptteiì  deó 
+CP/Í  2.2Ø Betriebsystems¬  daó BIOÓ aî diå Reihe®  Daó  BIOÓ 
+bildeô  diå Anpassunç deò CP/Í 2.² aî daó jeweiligå Ger{ô unä 
+machô hieò daó Standard-CP/Í 2.² zuí CP/Í 2.2Ø miô alì seineî 
+M|glichkeiten® Zuò leichteî Austauschbarkeiô deó BIOS¬ isô eó 
+ebenfalló  aló  Dateé (BIOS22X.SYS© auæ  deò  Systemdiskette® 
+BIOS22X.SYÓ  isô  daó zweitå File¬  daş deò  Loadeò  voî  deò 
+Diskettå   leseî   mu~®   Fehlô  es¬   sï  meldeô  eò   'Keiî 
+BIOS22X.SYS'.
+
+Diå  obeî  genannteî  Fileó  (SYSBOOT.SYS¬   LOADER.SYÓ   unä 
+BIOS22X.SYS©  sinä  systemspezifiscè unä ií Gegensatú zõ  deî 
+Dienstprogrammeî unä CONFIG.SYS¬  nicht zwischeî deî  Ger{teî 
+Geniå IIÉ unä Geniå IIó austauschbar.
+
+Deò  Loadeò l{dô daó BIOÓ aî daó oberå Endå deó Speicheró unä 
+konfigurierô  eó entsprechenä deî auó CONFIG.SYÓ  entnommeneî 
+Parametern®  Nacè Ausgabå deò INFO-Zeilå (siehå Kapiteì 10.8© 
+wirä daó BIOÓ gestartet.
+Daó CP/Í 2.2X-BIOÓ hat¬ anderó aló normalå CP/M-System¬ keinå 
+eigenå Kaltstart-Funktioî (CBOOT© mehr® Dieså isô kompletô iî 
+deî Loadeò ausgelagert®  Nacè Beendigunç deó Loaderó isô aucè 
+deò Kaltstarô beendeô unä daó weiterå Systemverhalteî isô wiå 
+beé eineí Warmstart.
+
+Wiå  bereitó obeî angesprochen¬  wirä beií Warmstarô eiî Teiì 
+deó CP/Í (genauer¬ diå beideî Teilå CCĞ unä BDOS© neõ voî deò 
+Diskettå  geladen®  Dá dieseó Nachladeî ziemlicè  h{ufiç  ge
+schieht¬  isô  dieseò Teiì ebenfalló auæ deî Systemspureî ge
+speichert®  Daó Programí ID¬  daş já bekanntlicè diå  System
+spureî  beschreibt¬  ben|tigô alsï aucè nocè dieseî Betriebs
+system-Teil¬  auæ  deò Diskettå aló Dateé  'CPM22X.SYS§  vor
+handen.
+
+
+Zusammenfassend ist also folgendes festzuhalten:
+
+Zuò  Erzeugunç eineò Systemdiskettå m}sseî auæ dieså  (nat}r
+licè  formatierte© Diskettå Systemspureî unä bestimmtå Dateiî 
+aufgebrachô  werden®  Daó Anlegeî deò Systemspureî  wirä  voí 
+Programí IÄ gemacht¬ daş folgendå Fileó ben|tigt:
+
+SYSBOOT.SYS, den Urlader oder Bootsektor
+LOADER.SYS, das Mini-Betriebssystem
+CPM22X.SYS, den nachladbaren Betriebssystem-Teil
+und PDRIVE.SYS, das Formate-Datenfile.
+
+Nachdeí IÄ seinå Arbeiô vollendeô hat¬  isô diå Diskettå zwaò Šbootf{hig¬  abeò  nocè  keinå Systemdiskette®  Probiereî  Siå 
+ruhiç maì aus¬  waó passierô wenî Siå einå nuò miô IÄ  behan
+deltå Diskettå booten.
+Diå  vieò aufgef}hrteî Dateieî werdeî alsï ií Allgemeineî nuò 
+beé deò Ausf}hrunç deó ID-Programmó ben|tigô !
+
+Damiô auó deò bootf{higeî Diskettå einå Systemdiskettå  wird¬ 
+m}sseî  nocè  diå beideî Dateieî CONFIG.SYÓ  unä  BIOS22X.SYÓ 
+kopierô werden®  Beií Kopiereî (z.B® miô deí Standardprogramí 
+PIP©  muş darauæ geachteô werden¬  daş daó richtige¬  beé  IÄ 
+gew{hltå  Formaô  eingestellô isô  (Formateinstellung¬  siehå 
+Kapiteì  10.10)®  Ansonsteî  suchô  n{mlicè  deò  Loadeò  diå 
+Dateieî  iî eineí andereî Format¬  aló siå auæ  deò  Diskettå 
+vorhandeî  sind®
+Aucè sollteî dieså beideî Fileó immeò aló erstå auæ einå neuå 
+Systemdiskettå kopierô werden®  Dadurcè erreichô man¬ daş diå 
+Dateieî iî deò N{hå deò Systemspureî angelegô werden¬ waó deî 
+Bootvorganç erheblicè beschleunigt.
+
+Einå minimalå Systemdiskettå isô nuî einå formatierte¬ miô IÄ 
+behandeltå  Diskette¬  auæ  diå diå  Dateieî  CONFIG.SYÓ  unä 
+BIOS22X.SYÓ kopierô wurden.
+
+
+Dieó  solltå aló Einstieç iî diå spezielleî Eigenschafteî deó 
+CP/Í  2.2Ø ausreichen¬  allå weitereî Informationeî zuí  CP/Í 
+2.²  sollteî Siå auó eineí deò ií Anhanç Æ  genannteî  B}cheò 
+entnehmeî k|nnen.
+.paŠ.pn 1
+.hå Kapitel 2                          Arbeiten mit CP/M 2.2X
+.fï(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            2-#
+2. Arbeiten mit CP/M 2.2X
+
+2.1  Starten des Betriebsystems
+
+Damiô  daó CP/Í 2.2Ø korrekô geladeî wird¬  sollteî Siå  beií 
+Booteî deó Systemó iî deò angegebeneî Reihenfolgå vorgehen:
+
+1.  Schalteî Siå Ihò Geniå IIÉ bzw®  Geniå IIó ein® Falló Siå 
+    externå  Laufwerkå    odeò sonstigå Peripherieger{tå  an
+    geschlosseî haben¬ schalteî Siå dieså vorheò ein.
+
+2.  Legeî Siå diå CP/M-Systemdiskettå iî daó erstå µ 1/´ Zolì 
+    Laufwerkå  unä  schlie~eî Siå vorsichtiç  diå  Laufwerks
+    klappe®  Nacè  1-² Sekundeî wirä deò Bildschirí  gel|schô 
+    unä daó Betriebssysteí geladen®  Danacè erscheinô auæ deí 
+    Bildschirí  diå  Systemmeldunç sowiå  Versionsnummeò  unä 
+    -datum.
+    Solltå dieså Meldunç nichô erscheinen¬  sï kanî dieó ver
+    schiedenå Gr}ndå haben:
+
+    - Diå LSP-Tastå isô gedr}ckô (Geniå IIs)®  Daó CP/Í  2.2Ø 
+      kanî nuò beé hoheò Taktfrequenú gebooteô werden
+    - Diå Diskettå isô falscè eingelegô worden®  Wiå Siå einå 
+      Systemdiskettå  einlegen¬  isô ií  GDOS-Handbucè  genaõ 
+      beschrieben.
+    - Diå  eingelegtå Diskettå isô keinå  Systemdiskette®  Iî      
+      dieseí Falì verdunkelô sicè deò Bildschirí nicht¬  son     
+      derî eó erscheinô einå systemspezifischå Meldung
+      Vergewisserî Siå sich¬  oâ Siå einå CP/Í 2.²X Systemdis     
+      kettå eingelegô haben.
+      Dieselbå  Meldunç  erscheinô auch¬  wenî  diå  Diskettå 
+      nichô einwandfreé ií Laufwerë liegt®
+    - Diå Diskettå isô defekt®  Daó Geniå IIÉ bzw®  Geniå IIó 
+      haô  deî Boot-Sektoò nichô  einwandfreé  indentifizierô 
+      unä  brichô deî Bootvorganç ab®  Schalteî Siå daó Ger{ô 
+      f}ò  eiî paaò Sekundeî auó unä probiereî Siå deî  Boot
+      vorganç miô eineò andereî Systemdiskette.
+
+Solltå  aucè nacè Befolgunç alleò obigeî Regelî diå  Diskettå 
+nichô  booten¬  wendeî Siå sicè bittå aî deî Autoò odeò Ihreî 
+H{ndler.
+
+Miô deí Erscheineî deó Systempromptó 'A>§ isô deò Bootvorganç 
+abgeschlosseî  unä daó Betriebssysteí zuò Befehlsannahmå  be
+reit.
+.paŠ2.² Anfertigeî eineò Sicherungskopie
+
+Bevoò Siå miô deí CP/M-Betriebssyssteí arbeiten¬  sollteî Siå 
+sicè mehrerå Kopieî deò Originaldiskettå machen®  Diå  Origi
+naldiskettå verwahreî Siå bittå aî eineí sichereî Orô auf¬ dá 
+Siå  dieså Diskettå zusammeî miô deò Seriennummeò aló  recht
+m{~igeò Benutzer deó CP/Í ausweist.
+Zuò Kopierunç deò Originaldiskettå geheî Siå bittå iî folgen
+deò Reihenfolgå vor:
+
+1® Legeî Siå einå neuå Diskettå iî daó zweitå Laufwerk.
+2. Gebeî  Siå  deî Befehì 'FORMAÔ B§  ein®  Diå  Diskettå  ií    
+   zweiteî Laufwerë wirä dadurcè formatiert.
+3. Nacè  Wiedererscheineî deó Systemproptó 'A>§ gebeî Siå deî    
+   Befehì  'IÄ B:S8° DSDD§ ein®  Dadurcè wirä  daó  Betriebs
+   systeí auæ    diå zweitå Diskettå kopiert.
+4. Aló letzteò Schritô folgô deò Befehì 'PIĞ B:=*.*'® Darauf   
+   hiî  werdeî allå Programmå unä Dateî deò  Originaldiskettå    
+   auæ diå zweitå Diskettå kopiert.
+
+Nacè  Abschluş deò Kopiå entnehmeî Siå bittå diå Originaldis
+kettå deí ersteî Laufwerë unä legeî Siå stattdesseî diå Kopiå 
+iî  dieseó Laufwerk®  Dr}ckeî Siå nuî diå beideî miô  'RESET§ 
+(Geniå  III© bzw®  'RS§ (Geniå IIs© bezeichneteî  Tasteî  deò 
+Tastatuò  unä  lasseî siå wiedeò los®  Dadurcè wirä  nuî  diå 
+Kopiå  gebootet¬  waó gleichzeitiç eiî Tesô f}ò eineî erfolg
+reicheî Kopiervorganç ist.
+Zuò Erzeugunç weitereò Systemdisketten¬ wiederholeî Siå bittå 
+miô deò neueî Kopiå diå Schrittå 1-3¬ gebeî abeò beií Schritô 
+´  'SUBMIÔ SYSCOPY§ ein®  Dadurcè werdeî diå Fileó  iî  eineò 
+ganú bestimmteî Reihenfolgå kopiert¬  waó deî Bootvorganç unä 
+daó sp{terå Arbeiteî beschleunigt.
+
+
+
+
+
+
+
+
+
+                       ZUÒ  BEACHTUNG:
+
+Diå  Originaldiskettå unä allå Kopieî enthalteî Ihrå  Serien
+nummer®  Nebeî  deí Betriebssysteí unterliegeî aucè allå  auæ 
+deò  Originaldiskettå  befindlicheî Programmå unä  Dateî  deí 
+Urheberrechtsschutz®  Jeglichå Kopieî sinä nuò f}ò Ihreî per
+s|nlicheî Gebraucè bestimmt®  Einå Weitergabå deò aufgezeich
+neteî  Dateî unä Programmå iî jedwedeò Forí isô verboteî  unä 
+wirä  aló Verstoş gegeî daó Urhebergesetú strafrechtlicè ver
+folgt.
+.paŠ2.³ Service
+
+Dieseó  Handbucè  kanî sicherlicè  nichô  allå  auftauchendeî 
+Frageî  odeò  Problemå restloó kl{ren®  Dá daó CP/Í 2.2Ø  voî 
+eineí  unabh{ngigeî Autoò erstellô wurde¬  kanneî  Ihneî  Ihò 
+H{ndleò  odeò diå Fa®  Phoeniø nuò begrenztå Auskunfô  geben® 
+Falló  Siå alsï speziellå Frageî zuí CP/Í 2.2Ø haben¬  wendeî 
+Siå sicè bittå schriftlicè an:
+
+
+
+
+                         Klauó K{mpf
+                     Softwareentwicklung
+                        Jakobstr® 236
+                         510° Aachen
+
+
+
+
+
+
+Allå Anfrageî sollteî folgendå Dateî beinhalten:
+
+- Seriennummeò
+- Versionsnummeò unä 
+- Versionsdatuí Ihreó Betriebsystems.
+- Angeschlossenå Laufwerkå unä Peripherieger{te
+
+Versionsnummeò  unä  Versionsdatuí  sinä  auæ  deò  Original
+diskettå  aló  INFO-Zeilå  gespeichert®   Diå  Versionsnummeò 
+alleinå  erhalteî  Siå  aucè  durcè  Eingabå  voî  <CLEAR¾  Í 
+<RETURN>®  Daó Systeí meldeô danî einå ² (f}ò Geniå IIs© odeò 
+³ (f}ò Geniå III© und¬  durcè Kommá getrennt¬  diå  Versions
+nummeò zur}ck.
+.paŠ2.4 Zusatzprodukte
+
+Zuí CP/Í 2.2Ø sinä }beò diå obeî angegebeî Adresså aucè  nocè 
+die folgenden Zusatzprogramme erh{ltlich:
+
+
+PDRIVE.COÍ                                            DÍ 79.-
+                  Programí zuò Anpassunç eineó Fremdformates® 
+                  Durcè  Eingabå deò STAÔ DSK:-Parameteò  unä 
+                  deó  physikalischeî   Aufzeichnungsformateó 
+                  k|nneî  Siå  sicè  selbsô  weiterå  Formatå 
+                  erstellen.
+
+
+IG.COM
+GC.COM
+CG.COM                                                DM 99.-
+                  Programmpakeô  zuí  ]bertrageî voî  Dateieî 
+                  zwischeî  deî  Betriebssystemeî  CP/Í   unä 
+                  GDOS®  GDOS-Disketteî  k|nneî direkô  unteò 
+                  CP/Í bearbeiteô werden.
+
+
+IM.COM
+MC.COM
+CM.COM                                                DM 99.-
+                  Programmpakeô  zuí  ]bertrageî voî  Dateieî 
+                  zwischeî  deî  Betriebssystemeî  CP/Í   unä 
+                  MSDOÓ  (IBÍ  PC© odeò TOÓ (Ataré  ST)®  Diå 
+                  verschiedeneî Diskettenformatå werdeî auto
+                  matiscè erkannt¬ einfacè Fremddiskettå ein
+                  legeî unä loó geht'ó ...
+.paŠ2.5 Ben|tigte Hardware
+
+
+2.5.1 Beim Genie III
+
+Daó  CP/Í 2.2Ø isô auæ deî normaleî Geniå IIÉ (altå odeò neuå 
+Tastatuò unä ² 80-Spuò Laufwerke© soforô lauff{hig® Diå Geniå 
+IIÉ Pluskartå wirä nichô unterst}tzt.
+
+
+2.5.2 Beim Genie IIs
+
+Zuí  Arbeiteî miô CP/Í 2.2Ø muş daó Geniå IIó  miô  folgendeî 
+Karten best}ckt sein:
+
+CPU-Karte, entweder 6 oder 8 Mhz
+
+VIDEO-Karte
+
+I/O-Karte, Lautsprecher optional
+
+GRAFIK-Karte, wird f}r das 80x24 Bildformat ben|tigt
+
+FLOPPY-Karte¬ mindestenó zweé Laufwerkå m}sseî vorhandeî sein
+
+SIO/PIO-Karte, optional, SIO wird vom CP/M 2.2X unterst}tzt
+
+192k-Karte, wird z.Zt. noch nicht unterst}tzt
+
+HOST II/IIIs-Karte, wird nicht unterst}tzt
+.paŠ.pn 2
+.fï(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            0-#

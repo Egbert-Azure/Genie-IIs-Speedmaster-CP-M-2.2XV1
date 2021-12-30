@@ -1,0 +1,404 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 10
+.pn 1
+.hå Anhanç Â                                   Videokommandos
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç           B-#
+B.  Videokommandos
+
+Diå  CP/Í  2.2Ø Versioneî f}ò diå Ger{tå  Geniå  IIó  (Speed
+master©  unä  Geniå IIÉ unterscheideî sicè voò alleí  iî  deò 
+Anzahì  deò unterst}tzteî Videokommandos®  Daheò sinä diå  ií 
+folgendeî  aufgef}hrteî Control- unä Escapesequenzeî miô  (2© 
+f}ò   Geniå  IIó  unä  (3©  f}ò  Geniå  IIÉ   gekennzeichnet® 
+Videokommandoó  ohnå  zus{tzlichå  Kennunç  sinä  auæ  beideî 
+Ger{ten g}ltig.
+
+
+B.1  Controlsequenzen
+
+Aló Controlsequenzeî werdeî diå Videobefehlå bezeichnet¬  diå 
+nuò eiî Bytå ben|tigen® Jedeò Befehì isô durcè diå Controlse
+quenz¬  deî  hexadezimaleî Wert¬  deî dezimaleî Werô unä  diå 
+Abk}rzunç gem{ş deí ASCII-Standard.
+
+
+CTRL-Ç   0·    ·  BEÌ    Bell
+
+     Piepstoî ausgeben.
+
+
+CTRL-È   0¸    ¸  BÓ     Backspace
+
+     Backspace¬ Cusoò eiî Zeicheî nacè linkó ohnå daó Zeicheî 
+     zõ  l|schen®  Uí  daó Zeicheî aî deò  Cursorpositioî  zõ 
+     l|schen¬ m}sseî diå dreé Codeó Backspace,Space,Backspacå 
+     benutzô werden.
+
+
+CTRL-É   0¹    ¹  HÔ     Horizontal Tab
+
+     TAB¬  Cursoò zuò n{chsteî Tabulatorposition®
+
+
+CTRL-Ê   0Á   1°  LÆ     Linefeed
+
+     Cursoò einå Zeilå nacè unten® Nacè Erreicheî deò unters
+     teî  Zeile¬  wirä deò Bildschirminhalô einå  Zeilå  nacè 
+     obeî verschoben® (vgl® SYN)
+
+
+CTRL-Ë   0Â   1±  VÔ     Cursoò Up
+
+     Cursoò einå Zeilå nacè oben® Nacè Erreicheî deò obersteî 
+     Zeile¬ wirä dieseò Codå ignoriert.
+.paŠCTRL-Ì   0Ã   1²  FÆ     Cursoò Forward
+
+     Cursoò eiî Zeicheî nacè rechts® Nacè Erreicheî deò letz
+     teî Bildschirmposition¬ wirä dieseò Codå ignoriert.
+
+
+CTRL-Í   0Ä   1³  CÒ     Carriagå Return
+
+     Cursoò zuí Anfanç deò aktuelleî Zeile®  Uí deî Cursoò aî 
+     deî  Anfanç deò n{chsteî Zeilå zõ positionieren¬  m}sseî 
+     diå beideî Codeó CÒ unä LÆ ausgegebeî werden.
+
+
+ 
+CTRL-Ö   1¶   2²  SYÎ    Cursoò Down
+
+     Cursoò einå Zeilå nacè unten® Nacè Erreicheî deò unters
+     teî  nichô  gesch}tzteî Zeile¬  wirä dieseò Codå  ingno
+     riert® (vgl® LF)
+
+
+CTRL-Ú   1Á   2¶  SUÂ    Cleaò Screen
+
+     Bildschirí  l|scheî unä Cursoò iî diå linkå oberå  Ecke® 
+     Dieseò Codå wirkô nuò auæ diå ungesch}tzteî Zeilen.
+
+
+CTRL-[   1B   27  ESC    Escape
+
+     ESÃ  haô keinå eigenå Funktion¬  sonderî dienô zuò  Ein
+     leitunç  deò  ií  Abschnitô  B.²  beschriebeneî  Escape
+     Sequenzen.
+
+
+CTRL-ş   1Å   3°  RÓ     Home
+
+     Cursoò iî diå linkå oberå Ecke.
+
+
+CTRL-ß   1Æ   3±  VÓ     Ne÷ Line
+
+     Entsprichô deò Sequenú CÒ unä LF.
+.paŠB.²  Escapesequenzen
+
+Aló Escapesequenzeî werdeî allå Terminalkommandoó bezeichnet¬ 
+diå eiî 'darstellbares§ Zeicheî beinhalten®  Aló  Unterschei
+dunç  zõ deî darstellbareî Zeicheî wirä deò Escape-Codå (ESC¬ 
+1Â hex¬ 2· dezimal© vorangestellt.
+Nebeî  deò Escapesequenú gem{ş deí ASCII-Standarä  sinä  aucè 
+diå  entsprechendeî hexadezimaleî unä dezimaleî Wertå  aufge
+f}hrt® 
+
+
+ESÃ ©  1Â 2¹  2· 4±      Halæ Intensitù On
+
+     Inverså  Schrifô  ein®  Leerzeicheî werdeî nichô  inver
+     tiert.
+
+
+ESÃ ¨  1Â 2¸  2· 4°      Halæ Intensitù Off
+
+     Inverså Schrifô aus® (entsprichô ESÃ G0)
+
+
+ESÃ Í  1Â 4Ä  2· 7·      Transmiô Terminaì ID
+
+     Ger{tebezeichnunç unä BIOS-Versionsnummeò  zur}ckmelden® 
+     Diå  R}ckmeldunç  bestehô auó µ Zeichen¬  deò  Ger{tebe
+     zeichnunç ('2§ f}ò Geniå IIIó unä Speedmaster¬  '3§  f}ò 
+     Geniå III)¬  eineí Komma¬ deò Versionshauptnummer¬ eineí 
+     Punkô  unä deò Versionsunternummer®  Einå typischå R}ck
+     meldunç  auæ  deí Geniå IIÉ w{rå diå  folgendå  Zeichen
+     ketteº '3,1.0§ (Geniå III¬ BIOS-Versioî 1.0)
+
+
+ESÃ Ğ  1Â 5°  2· 8°      Pagå Prinô witè CÒ LÆ            (3)
+
+     Bildschirí ausdrucken® Dieseò Befehì druckô deî gesamteî 
+     Bildschirminhalô }beò deî aktuelleî LST:-Kanaì aus.
+
+
+ESÃ Î  1Â 4Å  2· 7¸      Pagå Edit                        (3)
+
+     Seiteneditierunç einschalten® Deò 'Bereich§ deò Editier
+     befehlå  wirä  bió zuí Endå deò  Bildschirmseitå  ausge
+     dehnt® Iî deò Statuszeilå wirä INSĞ odeò EDTĞ angezeigt.
+
+
+ESÃ Ï  1Â 4Æ  2· 7¹      Linå Edit                        (3)
+
+     Zeileneditierunç einschalten® Deò 'Bereich§ deò Editier
+     befehlå wirä durcè daó Endå deò Cursorzeilå begrenzt® Iî 
+     deò Statuszeilå wirä INSÌ odeò EDTÌ angezeigt.
+Š
+ESÃ Å  1Â 4µ  2· 6¹      Inserô Line
+
+     Zeilå  einf}gen®  Diå  aktuellå Zeilå unä allå  tiefereî 
+     Zeileî  werdeî nacè unteî verschoben®  Diå letztå  Bild
+     schirmzeilå f{llô weç unä diå aktuellå Zeilå durcè Leer
+     zeicheî ersetzt.
+
+
+ESÃ Ò  1Â 5²  2· 8²      Deletå Line
+
+     Zeilå l|schen® Diå aktuellå Zeilå wirä gel|schô unä allå 
+     tiefereî Zeileî nacè obeî verschoben®  Diå letztå  Bild
+     schirmzeilå wirä durcè Leerzeicheî ersetzt.
+
+
+ESÃ Ñ  1Â 5±  2· 8±      Inserô Character                 (3)
+
+     Zeicheî einf}gen®  Daó Zeicheî aî deò Cursorpositioî unä 
+     allå Zeicheî rechtó davoî werdeî einå Spaltå nacè rechtó 
+     verschoben®  Jå nacè aktuelleí Editierbereicè (siehå ESÃ 
+     Î  unä  ESÃ  O© gehô daó letztå Zeicheî deò  Zeilå  bzw® 
+     Seitå  verloren®  Aî deò Cursorpositioî wirä  eiî  Leer
+     zeicheî eingesetzt.
+
+
+ESÃ ×  1Â 5·  2· 8·      Deletå Character                 (3)
+
+     Zeicheî l|schen®  Daó Zeicheî aî deò Cursorpositioî wirä 
+     gel|schô  unä allå Zeicheî rechtó davoî einå Spaltå nacè 
+     linkó  verschoben®   Jå  nacè  aktuelleí  Editierbereicè 
+     (siehå ESÃ Î unä ESÃ O© wirä aí Zeilen- bzw®  Seitenendå 
+     eiî Leerzeicheî eingesetzt.
+
+
+ESÃ Ô  1Â 5´  2· 8´      Cleaò Enä oæ Line
+
+     L|scheî bió zuí Zeilenende®  Allå Zeicheî rechtó voî deò 
+     Cursorpositioî  bió zuí Zeilenendå werdeî miô deí  durcè 
+     ESÃ å gew{hlteî Zeicheî (Geniå III© bzw® deí Leerzeicheî 
+     (Geniå IIó unä Speedmaster© ersetzt.
+
+
+ESÃ ô  1Â 7´  2· 10¶     Cleaò tï Enä oæ Linå tï Null     (3)
+
+     L|scheî bió zuí Zeilenende®  Allå Zeicheî rechtó voî deò 
+     Cursorpositioî  bió zuí Zeilenendå werdeî miô deí  Null
+     codå ersetzt.
+.paŠESÃ Ù  1Â 5¹  2· 8¹      Cleaò tï Enä oæ Page
+
+     L|scheî bió zuí Seitenende®  Allå Zeicheî rechtó voî deò 
+     Cursorpositioî  bió zuí Seitenendå werdeî miô deí  durcè 
+     ESÃ å gew{hlteî Zeicheî (Geniå III© bzw® deí Leerzeicheî 
+     (Geniå IIó unä Speedmaster© ersetzt.
+
+
+ESÃ ù  1Â 7¹  2· 12±     Cleaò tï Enä oæ Pagå tï Null     (3)
+
+     L|scheî bió zuí Seitenende®  Allå Zeicheî rechtó voî deò 
+     Cursorpositioî  bió zuí Seitenendå werdeî miô deí  Null
+     codå ersetzt.
+
+
+ESÃ ª  1Â 2Á  2· 4²      Cleaò Alì tï Null
+
+     Seitå  l|schen®  Diå gesamtå Bildschirmseitå wirä  durcè 
+     deî  Nullcodå (Leerzeicheî beií Geniå IIs©  ersetzô  unä 
+     deò  Cursoò  iî diå Homepositioî (linkå oberå Ecke©  ge
+     bracht.
+
+
+ESÃ «  1Â 2Â  2· 43      Cleaò Unprotected                (3)
+
+     Seitå l|schen®  Diå gesamtå Bildschirmseitå wirä miô deí 
+     durcè ESÃ å gew{hlteî Zeicheî bzw®  deí Leerzeicheî  er
+     setzô  unä  deò Cursoò iî diå Homepositioî (linkå  oberå 
+     Ecke© gebracht.
+
+
+ESÃ å ø  1Â 6µ  2· 10±   Loaä Substitutå foò Space        (3)
+
+     Leerzeicheî durcè ø ersetzen® Daó aî deò Stellå ø einge
+     setztå  Zeicheî ersetzô iî alleî folgendeî Befehleî  daó 
+     Leerzeichen® 
+
+
+ESÃ ® ø  1Â 2Å  2· 4¶      Seô Cursoò Attribute
+
+     Cursorzeicheî w{hlen®  Deò Parameteò ø bestimmô daó Cur
+     sorsymboì nacè folgendeò Tabelle:
+
+     ASCIÉ  Dez®  Hex®  Cursorzeicheî      
+       °     4¸    3°   Cursoò aus
+       ±     4¹    3±   Blinkendeò Block                  (3)
+       ²     5°    3²   Stehendeò Block
+       ³     5±    3³   Blinkendeò Strich                 (3)
+       ´     5²    3´   Stehendeò Strich
+
+     Beií Geniå IIó wirä diå Funktioî 'Blinken§ nichô  unter
+     st}tzt®  D.h® diå Einstellunç 'blinkend§ wirä aló 'stehŠ     end§ ausgewertet.
+ 
+
+ESÃ ½ z s 1Â 3Ä  2· 6±      Cursor Address in Page
+
+     Deò  Cursoò  wirä  zõ deò durcè diå Parameteò  ú  unä  ó 
+     bestimmteî Zeilen- unä Spaltenpositioî  gebracht®  Falló 
+     eineò  deò  Parameteò diå  Seitengrenzeî  }berschreitet¬ 
+     wirä  eò durcè deî maximaì erlaubteî Werô  ersetzt®  Deò 
+     jedeí  Parameteò entsprechendå Zeilen- bzw®  Spaltenwerô 
+     isô iî deò ASCII-Tabellå ií Anhanç Å aufgef}hrt.
+
+
+ESÃ ¿  1Â 3Æ  2· 6³      Reaä Cursoò Addresó iî Page
+
+     Diå  aktuellå Cursorpositioî wirä aló Zeilen- unä  Spal
+     tenwerô zur}ckgemeldet®  Deò Zusammenhanç zwischeî r}ck
+     gemeldeteî  ASCII-Werteî unä deí entsprechendeî  Zeilen- 
+     bzw®  Spaltenwerô  isô iî deò ASCII-Tabellå ií Anhanç  Å 
+     aufgef}hrt® 
+
+
+ESÃ Ç ø  1Â 4·  2· 7±    Seô Videï Attribute
+
+     Zeichenattribuô w{hlen®  F}ò deî Parameteò ø werdeî fol
+     gendå Wertå erkannt:
+
+     ASCIÉ  Dez®  Hex®  Attribut
+       °     4¸    3°   Keines¬ normalå Zeichendarstellung
+       ´     5²    3´   Invers¬ invertiertå Zeichendarstel-
+                        lung
+       ¸     5¶    3¸   Underline¬ Zeicheî werdeî unter-
+                        stricheî ausgegeben               (2)
+       <     60    3C   Underline und Invers zusammen.    (2)
+
+
+ESÃ Ú ø  1Â 5Á  2· 9°    Transmiô User/Statuó Line        (3)
+
+     Benutzer- odeò Statuszeilå zur}ckmelden® Jå nacè Parame
+     teò  ø  werdeî  diå 8° Zeicheî  deò  Benutzer- odeò  deò 
+     Statuszeilå zur}ckgemeldet® F}ò ø gilt:
+
+     ASCIÉ  Dez®  Hex®  Zur}ckgemeldetå Zeilå  
+       °     4¸    3°   Benutzerzeile
+       ±     4¹    3±   Statuszeile
+
+
+ESÃ æ  1Â 6¶  2· 10²     Loaä Useò Line                   (3)
+
+     Benutzerzeilå  laden®  Allå  folgendeî Zeicheî  bió  zuí 
+     Endezeicheî CÒ (1³ dez¬  0Ä hex© werdeî iî diå Benutzer
+     zeilå  }bernommen®  Falló  mehò aló 8°  Zeicheî  geladeî Š     werden¬  sï wirä daó 80® Zeicheî miô deí zuletzô gelade
+     neî Zeicheî ersetzt.
+     Einå  Darstellunç  deò Benutzerzeilå iî  deò  25®  Bild
+     schirmzeilå erfolgô ersô nacè deí ESÃ ç Code.
+
+
+ESÃ ç  1Â 6·  2· 10³     Displaù Useò Line                (3)
+
+     Benutzerzeilå  anzeigen®  Diå durcè ESÃ æ geladeneî Zei
+     cheî werdeî iî deò 25® Bildschirmzeilå angezeigt.
+
+
+ESÃ è  1Â 6¸  2· 10´     Displaù Statuó Line              (3)
+
+     Statuszeilå anzeigen®  Iî deò 25®  Bildschirmzeilå  wirä 
+     diå Statuszeilå angezeigt.
+
+
+ESÃ Õ  1Â 5µ  2· 8µ      Enteò Monitoò Mode               (3)
+
+     Monitormoduó  aktivieren®  Allå Befehlssequenzeî  werdeî 
+     bió  zuí  Empfanç deó ESÃ õ bzw®  ESÃ Ø Codeó nichô  aló 
+     Befehle¬ sonderî aló Zeicheî interpretiert® Diå Befehls
+     codeó  0°  bió 3± (dez© werdeî dabeé aló  K}rzeì  darge
+     stellt® (siehå ASCII-Tabelle)
+
+
+ESÃ Ø  1Â 5¸  2· 88      Exit Monitoò Mode                (3)
+
+     Monitormoduó ausschalten®  Allå Befehlssequenzeî  werdeî 
+     aló Befehlå interpretiert.
+
+
+ESÃ ñ  1Â 7±  2· 11³     Inserô Modå On                   (3)
+
+     Einf}gemoduó  einschalten®  Allå folgendeî Zeicheî }ber
+     schreibeî  nichô daó aî deò  Cursorpositioî  befindlichå 
+     Zeichen¬  sonderî  werdeî dorô eingef}gt®  Allå  Zeicheî 
+     rechtó  voî  deò Cursorpositioî bió zuí Endå  deò  Zeilå 
+     bzw®  Spaltå  werdeî eiî Zeicheî nacè rechtó verschoben® 
+     Iî deò Statuszeilå erscheinô INSÌ odeò INSP.
+
+
+ESÃ ò  1Â 7²  2· 11´     Inserô Modå Off                  (3)
+
+     Einf}gemoduó ausschalten®  Allå folgendeî Zeicheî  }ber
+     schreibeî  daó aî deò Cursorpositioî befindlichå Zeicheî 
+     (Normalfall)®  Iî  deò Statuszeilå erscheinô  EDTÌ  odeò 
+     EDTP.
+.paŠESÃ ö  1Â 7¶  2· 11¸     Verticaì Wrağ On
+
+     Vertikaleî ]berlauæ einschalten®  Beií ]berschreiteî deó 
+     Zeilenendes¬  wirä  diå Zeichenausgabå iî  deò  n{chsteî 
+     Bildschirmzeilå fortgesetzt.
+
+
+ESÃ ÷  1Â 7·  2· 11¹     Verticaì Wrağ Off
+
+     Vertikaleî  ]berlauæ  ausschalten®  Beií  Erreicheî  deò 
+     letzteî  Zeilenpositioî (80®  Spalte© bleibô deò  Cursoò 
+     dorô steheî unä allå folgendeî Zeicheî werdeî auæ dieseò 
+     Positioî dargestellt® Deò Anfanç deò n{chsteî Zeilå wirä 
+     ersô }beò diå beideî Befehlscodeó CÒ unä LÆ erreicht.
+
+
+ESÃ ¶  1Â 3¶  2· 5´      Senä Line                        (3)
+
+     Zeilå  zur}ckmelden®  Diå aktuellå Cursorzeilå wirä  zu
+     r}ckgemeldet.
+
+
+ESÃ ß ø  1Â 5Æ  2· 95
+
+*    Systemparameteò  setzen®  ]beò  dieså  nichô  Televideo- 
+     kompatiblå Escapesequenú werdeî verschiedenå  Systemein
+     stellungeî  ver{nderô  werden®  Zuò Zeiô werdeî f}ò  deî 
+     Parameteò ø folgendeî Wertå erkannt:
+
+     ASCIÉ  Dez®  Hex®  Ausgef}hrtå Aktion
+       °     4¸    3°   25® Bildschirmzeilå einschalten.  (3)
+       ±     4¹    3±   25® Bildschirmzeilå ausschalten.  (3)
+       ²     5°    3²   Deutscher Zeichensatz             (2)
+       ³     5±    3³   US-ASCII Zeichensatz              (2)
+       ´     5²    3´   Funktionstasteî aktivieren.
+       5     53    35   Funktionstasteî ausschalten® Beé aus
+                        geschalteteî   Funktionstasteî   wirä 
+                        nichô  deò  }beò FKEÙ  gew{hltå  Texô 
+                        ausgegeben¬  sonderî  deò ií  TASTEN-
+                        Programí  eingestelltå Werô  erzeugt®        
+       6     54    36   Uhranzeigå  iî deò  Statuszeilå  ein
+                        schalten.                         (3)
+       7     55    37   Uhranzeigå  iî  deò Statuszeilå  aus
+                        schalten®                         (3)
+.paŠB.3 Beispiel
+
+Beispielprogramí f}ò daó Geniå IIÉ zuí Einleseî voî Datuí unä 
+Zeiô iî eiî BASIC-Programm:
+
+10 PRINT CHR$(27)"Z0"; : REM Statuszeile r}ckmelden
+20 A$ = INPUT$(80) : REM 80 Zeichen von Tastatur einlesen
+30 TIME$ = RIGHT$(A$,8)
+40 DATE$ = LEFT$( RIGHT$(A$,22), 12)
+50 PRINT TIME$ : REM Ausgabe der Uhrzeit
+60 PRINT DATE$ : REM Ausgabe des Datums
+.paŠ.paŠ

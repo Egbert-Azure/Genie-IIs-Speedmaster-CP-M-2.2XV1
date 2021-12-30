@@ -1,0 +1,244 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 10
+.pn 1
+.hå Kapiteì ¶                                  Massenspeicher
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            6-#
+6® Massenspeicher
+
+6.± Einleitung
+
+Anderó  aló  diå iî deî vorherigeî Kapitelî behandelteî  Ein¯ 
+Ausgabekan{le¬ sinä diå Massenspeicheò nichô zeichen- sonderî 
+blockorientiert®  Dieó bedeutet¬ daş diå Daten}bertragunç voî 
+unä  zõ deî Massenspeicherî (Disketten© iî Bl|ckeî zõ jå  12¸ 
+Zeicheî (Bytes© erfolgt®  Eiî Datenblocë wirä ií weitereî aló 
+RECORÄ bezeichnet¬ dá deò Begrifæ Blocë anderweitiç verwendeô 
+wird.
+Daó  CP/M-Betriebsysteí unterst}tzô bió zõ 1¶ derartigå  Mas
+senspeicheò  unteò deî Bezeichnungeî Aº  bió P:¬  unteò  CP/Í 
+2.2Ø  k|nneî  jedocè  nuò bió zõ ´ Laufwerkå  miô  deî  CP/M-
+Bezeichnungeî Aº bió Dº angeschlosseî werden.
+
+
+6.² Diskettenlaufwerke
+
+Beim CP/M 2.2X k|nneî bió zõ vieò µ 1/´ Zolì odeò ¸  Zolì 
+Diskettenlaufwerkå  angeschlosseî werden®  Voí  CBIOÓ  unter
+st}tzô  werdeî  s{mtlicheî  Datenformatå voî  singlå  Densitù 
+(einfachå Dichte)¬  singlå sideä (einseitig© bió doublå  Den
+sitù (doppeltå Dichte)¬  doublå sideä (doppelseitig)®
+Dadurcè isô eó m|glich¬  beliebigå Diskettenformatå voî ande
+reî  CP/M-Rechnerî zõ leseî unä zõ schreiben®  Diå  Zuweisunç 
+eineó  Datenformató auæ eiî Diskettenlaufwerë geschiehô  }beò 
+deî PD-Befehl¬ deò ií Kapiteì 10.1° beschriebeî ist® Anhanç Ã 
+gibô  eineî ]berblicë }beò diå zuò Zeiô m|glicheî  Disketten
+formate.
+¸ Zolì Formatå sinä jedocè nuò aí Geniå IIÉ getesteô  worden¬ 
+eiî   einwandfreieó  Funktioniereî  kanî  jedocè  beé  beideî 
+Ger{teî  nichô  garantierô  werden®   Aufgrunä  deò   h|hereî 
+Datenratå beé ¸ Zolì Laufwerken¬  isô deò st|rungfreé Betrieâ 
+insbesonderå  voí Diskcontrolleò unä deí verwendeteî Laufwerë 
+abh{ngig.
+
+
+6.2.± Diskettenfehler
+
+Anderó aló beé sonsô }blicheî CP/Í Systemen¬  werdeî voí CP/Í 
+2.2Ø s{mtlichå m|glicheî Diskettenfehleò abgefangen.
+Bereitó beé deò Anwahì eineó Laufwerkó wirä getestet¬ oâ sicè 
+dariî einå Diskettå befindet®  Isô dieó nichô deò Fall¬  wirä 
+dieó deí Benutzeò durcè diå Fehlermeldung
+
+'BDOS Err on x: Select'
+
+mitgeteilt®  Dieselbå Meldunç erscheinô auch¬  wenî  versuchô 
+wurde¬ eiî nichô vorhandeneó Laufwerë anzuw{hlen® Dabeé stehô 
+xº f}ò einå deò sechzehî m|glicheî Laufwerksbezeichnungen.
+Deò Benutzeò muş dieså Fehlermeldunç durcè Dr}ckeî deò ENTER-ŠTastå  quittieren®  Danacè f}hrô daó Systeí selbstt{tiç  einå 
+Warmstarô auó unä w{hlô daó Hauptlaufwerë (siehå Kapiteì 7.1© 
+an.
+
+Tritô  beií  Schreibeî odeò Leseî eineò Diskettå  eiî  Fehleò 
+auf¬  sï kanî daó Systeí auæ zweé Arteî reagieren® Beé ausge
+schalteteò  Fehlermeldunç (siehå Kapiteì 7.1© wirä deò Fehleò 
+nuò mit
+
+'BDOS Err on x: Bad Sector'
+
+quittiert®  Dr}ckeî  deò ENTER-Tastå f}hrô zõ eineò Wiederho
+lunç  deò fehlerhafteî Diskettenoperation¬  BREAË brichô  deî 
+Vorganç aâ unä f}hrô eineî Warmstarô aus.
+
+
+
+6.2.² Erweitertå Fehlermeldung beim Genie III
+
+Wesentlicè  komfortableò isô diå Fehlerbehandlunç beé  einge
+schalteteò Fehlermeldung®  Hieò wirä diå Fehlerursachå expli
+ziô iî deò 25®  Bildschirmzeilå angegeben.
+Aufgrunä    deó    knappeî   Speicherplatzeó    werdeî    diå 
+erweiterteî Fehlermeldungeî nuò durcè K}rzeì dargestellt¬ diå 
+jedoch im folgenden erl{utert werden:
+
+Aló ersteò  erscheinô 'R:' (Lesefehler© odeò 'W:§ (Schreibfehler© 
+unä zeigô damiô diå letztå Diskettenoperatioî an® Diå n{chstå 
+Meldunç bezeichneô diå Fehlerart:
+
+'2' º Dateî verloren
+
+Beií Lesen/Schreibeî deó Sektoró lieæ deò Diskettenkontrolleò 
+auó deò Synchronisation®  Fehlerursachå isô entwedeò diå  ge
+dr}cktå LSP-Tastå odeò einå falschå Einstellunç deó betroffe
+neî Diskettenlaufwerks.
+
+'3' º Pr}fzahlfehler
+
+Diå  beií Leseî errechnetå Pr}fsummå f}ò dieseî Sektoò stimmô 
+nichô  miô deò aufgezeichneteî Pr}fsummå  }berein®  Fehlerur
+sachå kanî nebeî schlechteí Diskettenmateriaì aucè eiî unsau
+bereó Laufwerë sein®  Iî selteneî F{lleî kanî aucè einå elek
+trischå St|runç eineî Pr}fzahlfehleò hervorrufen.
+
+
+'4' º Sektoò nichô gefunden
+
+Deò  angegebenå Sektoò konntå auæ deò Diskettå nichô  lokali
+sierô werden®  Ursachå isô fasô immeò einå falschå Formatein
+stellung®  Beé  eineò unsaubeò eingelegteî Diskettå  kanî  eó 
+ebenfalló zõ eineí solcheî Fehleò kommen.Š
+
+'5' º Schreibfehler
+
+Deò  angegebenå Sektoò konntå nichô geschriebeî werden®  Feh
+lerursachå isô meisô eiî defekteó Laufwerk.
+
+
+'6' º Schreibgesch}tzt
+
+Diå  Diskettå isô }beò eineî Aufklebeò auæ deò  linkeî  Seitå 
+schreibgesch}tzt®  Bittå  beachteî Sie¬  daş ¸ Zoll-Disketteî 
+schreibgesch}tzô  sind¬  wenî deò Aufklebeò  nichô  vorhandeî 
+ist.
+
+
+Nacè  deò  Laufwerksbezeichnunç }beò 'A§ bió 'D§ wirä iî  deò 
+25®  Zeilå aucè diå Positioî deó fehlerhafteî Sektoró  ausge
+geben.
+'V§ stehô f}ò diå Vorderseitå unä 'R§ f}ò diå R}ckseite®  F}ò 
+diå  Spuò  werdeî dreé Wertå ausgegeben®  Deò erstå Werô  be
+zeichneô diå voí Betriebsysteí angefordertå  Spurnummer.  Deò 
+zweitå  Werô isô diå physikalsischå Spurnummer®  Dadurcè kanî 
+insbesonderå  beé deò Verarbeitunç voî 40-Spuò Disketteî  auæ 
+80-Spuò  Laufwerkeî unä beé verschiedeneî doppelseitigeî  Zu
+griffsarteî  diå Fehlerursachå bestimmô  werden®  Diå  drittå 
+Spurnummeò  isô  diå  Nummeò  unteò  deò  diå  gesuchtå  Spuò 
+formatierô  seiî sollte®  Manchå CP/Í Formatå addiereî  eineî 
+bestimmteî  Werô  zõ  deò Spurnummeò (z.B®  Kontroî  PSÉ  80© 
+wodurcè  diå  Spurnummeò  z.B®  nichô miô  °  sonderî  miô  ³ 
+beginneî  unä  nichô beé 3¹ bzw®  7¹ sonderî beé 4²  bzw®  8² 
+enden® Iî dieseî F{lleî isô diå Angabå deò dritteî Spurnummeò 
+auch recht hilfreich.
+
+Diå  zuletzô ausgegebenå Sektornummeò isô diå voí  CBIOÓ  er
+rechnetå physikalischå Sektornummer¬  nichô diå voí Betriebs
+systeí angefordertå Recordnummer.
+
+Nacè  deò Ausgabå deò erweiterteî Fehlermeldungen¬  kanî }beò 
+diå CLEAR-Tastå deò weiterå Verlauæ bestimmô werden:
+
+CLEAR:  Diå zuletzô ausgef}hrtå Diskettenoperatioî wirä  wie
+derholt® Dieó isô besonderó beé Pr}fzahlfehlerî zõ empfehlen¬ 
+dá nacè mehrereî Versucheî deò fehlerhaftå Sektoò meisô  docè 
+nocè  zõ  leseî  ist®  Aucè  beé  falscheò  Formateinstellunç 
+('Recorä  noô  found'© kanî voò deí Dr}ckeî  deò  CLEAR-Tastå 
+einå Diskettå miô deí richtigå Formaô eingelegô werden.
+
+SHIFT-CLEAR:  Diå Diskettenoperatioî wirä abgebrocheî unä deò 
+Fehleò  aî daó Betriebssysteí gemeldet®  Deò weiterå  Verlauæ 
+isô wiå beé ausgeschalteteò Fehlermeldung.
+.paŠCTRL-CLEAR: Diå Diskettenoperatioî wirä abgebrochen¬  eó  er
+folgô jedocè keinå Fehlermeldunç aî daó Betriebssystem® Dieså 
+Arô  deò  Fehlerbehandlunç isô besonderó beé deò Rettunç  voî 
+Dateî  voî physikaliscè besch{digteî Disketteî zõ  empfehlen® 
+Dadurcè  kann¬  obwohì vielleichô eiî odeò  mehrerå  Sektoreî 
+besch{digô sind¬  eiî Gro~teiì deò aufgezeichneteî Dateî docè 
+nocè geretteô werden®  Hieò isô abeò Vorsichô geboten¬ dá miô 
+deî fehlerhafô geleseneî Sektoreî weitergearbeiteô wird.
+
+
+6.2.3 Erweitertå Fehlermeldung beim Genie IIs
+
+Diå  Fehlermeldunç  erscheinô  grunds{tzlicè  aí  Anfanç  deò 
+aktuelleî Cursorzeilå unä wirä miô eineí Piepstoî (ASCIÉ Belì 
+Character© deí Benutzeò mitgeteilt.
+
+Diå  Fehlermeldunç selbeò bestehô auó 2° Zeicheî iî folgendeò 
+Reihenfolge:
+
+LFES TTT/KKK/PPP SSS
+
+Diå einzelneî Zeicheî habeî folgendå Bedeutung:
+
+Ì	Daó Laufwerk¬ auæ deí deò Fehleò auftrat
+	Ì stehô f}ò diå Laufwerkskennunç 'A§ .® 'P'
+
+Æ	Zuletzô ausgef}hrtå Funktion:
+	Leseî ('R§ f}ò READ© odeò Schreibeî ('W§ f}ò WRITE)
+
+Å	Deò Fehlercode¬ einå Zahì zwischeî ° unä 7:
+	°	Funktioî waò nocè nichô beendet
+	±	Einå Datenanforderunç wurdå nichô erf}llt
+	²	Dateî verloreî (Daó Systeí muş miô 5.² bzw
+		¸ MHú laufeî !!)
+	³	Pr}fzahlfehler
+	´	Sektoò nichô gefundeî (Immeò eiî Zeicheî f}r
+		eiî falscè gew{hlteó Format)
+	µ	Schreibfehleò (Laufwerë defekt)
+	¶	Schreibgesch}tzt
+	·	Laufwerë waò nichô bereit
+
+Ó	Diå Seite¬ auæ diå zuletzô zugegriffeî wurde
+	Ó stehô f}ò 'V§ (Vorderseite© odeò 'R§ (R}ckseite)
+
+TTT     Diå voí CP/Í angefordertå Spurnummer¬  i.a® einå Zahì 
+        zwischeî 00° unä 159
+
+KKK     Diå  voí Systeí nacè deò aktuelleî  Formateinstellunç 
+        berechnetå  physikalischå  Spurnummer®  Beé  4°  Spuò         
+        Formateî  iî  8°  Tracë Laufwerkeî (fast©  immeò  diå 
+        H{lftå voî TTT
+ŠPPP     Diå  voí  Systeí aî deò  physikalischeî  Spurpositioî 
+        KKK¬ Seitå Ó erwartetå Spurnummeò voî deò Formatierung.
+
+SSS	Die vom System erwartete physikalische Sektornummer.
+
+
+Diå Wertå TTT¬  KKK¬  PPĞ unä SSÓ sinä ií allgemeineî nuò f}ò 
+'Insider§  interessanô unä dieneî vornehmlicè  zuí  Austesteî 
+voî Formateinstellungen.
+
+
+
+Nacè  eineò Fehlermeldunç warteô daó Systeí auæ einå Reaktioî 
+deó Benutzeró iî Forí eineó Tastendrucks:
+
+CLEAR           falló  diå  fehlerhaftå  Funktioî  wiederholô 
+                werdeî soll®  Sehò zõ empfehleî beé Pr}fzahl
+                fehlern¬  beé gen}genä h{ufigeò  Wiederholunç 
+                wirä  eiî fehlerhafteò Sektoò meisô docè nocè 
+                gelesen.
+
+SHIFT-CLEAR     falló  diå fehlerhaftå  Funktioî  abgebrocheî 
+                werdeî  soll®  Iî dieseí Falì wirä deò Fehleò 
+                aî daó CP/Í weitergegeben¬  waó sicè danî miô 
+                'BDOÓ Erroò oî ...§ meldet.
+
+P1-CLEAR        falló deò Fehleò }bergangeî werdeî  soll®  Zõ 
+                empfehleî  beé starë besch{digteî  Disketten¬ 
+                voî  deneî abeò nocè Dateî 'gerettet§  werdeî 
+                sollen®  ]beò  P1-Cleaò kanî eiî Abbrucè  voí 
+                CP/Í auó verhinderô werden.
+.paŠ.paŠ

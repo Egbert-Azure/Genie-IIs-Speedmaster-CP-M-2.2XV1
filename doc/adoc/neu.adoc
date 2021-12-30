@@ -1,0 +1,51 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 9"
+
+// .pn " 1"
+
+// ?? dot "he" " Anhang F                                Literaturhinweise"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            F-#"
+_F. Literaturhinweise_
+
+Die folgende Liste von CP/M 2.2 spezifischer Literatur erhebt  +
+keinen  Anspruche auf Vollständigkeit oder Richtigkeit.  Auch  +
+ist  die  gegebene Reihenfolge rein zufällig  und  impliziert  +
+keinerlei Wertung.
+
+
+_F.1 Literatur zum CP/M 2.2_
+
+Allgemeine CP/M Literatur: +
+- Vom Umgang mit CP/M 2.2, Bernd Pol, IWT Verlag +
+- CP/M Handbuch, Rodney Zaks, Sybex Verlag +
+- TerminalBuch CP/M, Oldenbourg Verlag
+
+Für Systemprogrammierer: +
+- Originalhandbuch CP/M 2.2 von Digital Research (engl.), +
+  (Nachdruck), Markt & Technik Verlag
+
+Für Z80-Spezialisten: +
+- CP/M 2.2 Assembler-Listing, Röckrath Microcomputer
+
+
+_F.2 Literatur zum Genie III und Genie IIs_
+
+- Technisches Handbuch zum Genie IIs, Phoenix GmbH +
+- Schaltpläne zum Genie III, Phoenix GmbH +
+- Genie III User`s Manual & Utilities, EACA Ltd. +
+- Programmierung des Z80, Rodney Zaks, Sybex Verlag +
+- Datenblätter Z80-CPU, -SIO, -PIO, Zilog +
+- Datenblatt HD46505, 6845 CRTC, Hitachi oder Motorola +
+
+// .pa ""
+
+<<<

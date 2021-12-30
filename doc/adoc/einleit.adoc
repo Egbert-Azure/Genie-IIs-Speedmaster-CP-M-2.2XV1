@@ -1,0 +1,422 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 9"
+
+// .pn " 1"
+
+// ?? dot "he" "                                                   Vorwort"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            0-#"
+_0. Vorwort_
+
+
+
+Mit  dem Kauf des CP/M-Betriebsystems für Ihr Genie III  oder  +
+Genie IIs, haben Sie Zugang zum größten Softwarepotential der  +
+Welt. +
+Obwohl inzwischen der Trend mehr zu 16-Bit Systemen geht, ist  +
+CP/M als Standard nicht totzukriegen.  Der herausragende Vorteil  von CP/M ist die riesige Anzahl von  Veröffentlichungen  +
+und Literatur zu diesem Betriebssystem. Der Anhang F gibt nur  +
+einen  kleinen Überblick über die bekanntesten Werke und  erhebt sicherlich keinen Anspruch auf Vollständigkeit. +
+                +
+Damit Sie das große CP/M Softwareangebot nutzen können, wurde  +
+im CP/M 2.2X vor allem Wert auf die Unterstützung von  Fremdformaten  gelegt.  Damit  ist  im CP/M 2.2X das  Problem  der  +
+Inkompatibilität von Diskettenformaten praktisch gelöst. +
+Weitere  Formate  können Sie über ein  Zusatzprogramm  selber  +
+kreieren oder vom Autor anpassen lassen, hier sind fast keine  +
+Grenzen gesetzt. +
+Das  CP/M 2.2X ist das Produkt einer langjährigen Arbeit  mit  +
+dem  Betriebssystem CP/M und wird kaum Wünsche offen  lassen.  +
+Zusammen  mit den getrennt erhältlichen Zusatzprogrammen  hat  +
+man sogar Zugriff auf Dateien von GDOS und MS-DOS.
+
+
+
+
+Aachen, im Juli 1986                     Klaus Kämpf +
+
+// .pa ""
+
+<<<
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 1                                      Einleitung"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            1-#"
+_1. Einleitung_
+
+Die  vorliegende  Ausgabe des CP/M 2.2X Handbuchs  geht  vornehmlich  auf die speziellen Eigenschaften des CP/M 2.2X  für  +
+die Geräte Genie III und Genie IIs ein. Die in den Kapiteln 8  +
+und  9 gegebene Beschreibung der CP/M 2.2 Befehle  und  Standardprogramme ist nur als grober Überblick gedacht. +
+Zum Thema CP/M 2.2 gibt es genug Literatur,  sodaß sowohl der  +
+Computeranfänger  als auch der Fachmann schnell den  Einstieg  +
+in die CP/M-Welt findet.
+
+Lesen Sie sich das Handbuch aufmerksam durch !! Nur so können  +
+Sie  die vielfältigen Möglichkeiten,  die Ihnen CP/M 2.2X  an  +
+die Hand gibt, richtig nutzen.
+
+Das  CP/M 2.2X ist für die beiden Geräte Genie III und  Genie  +
+IIs  im Grunde identisch.  Nur dort,  wo die technischen  Gegebenheiten Grenzen setzen, mußten Abstriche gemacht werden. +
+Die  CP/M Dienstprogramme und Datenfiles sind zwischen beiden  +
+Geräten  austauschbar,  nicht jedoch zwischen  anderen  CP/M- +
+Systemen.
+
+Im  CP/M 2.2X ist sämtliche Systemsoftware in Dateien vorhanden  und nicht,  wie bei anderen  Systemen,  in  irgenwelchen  +
+Systemspuren `versteckt`.  Dies hat beim CP/M 2.2X den großen  +
+Vorteil der leichten Austauschbarkeit der Systemsoftware. +
+Wer  jedoch bisher mit einem Standard-CP/M System  gearbeitet  +
+hat,  wird evtl. Anfangs Schwierigkeiten haben. Daher soll im  +
+folgenden  kurz auf die Systeminternen Einzelheiten des  CP/M  +
+2.2X eingegangen werden, sofern Sie für den Benutzer relevant  +
+sind. +
+Die  Rechner der Genie-Reihe haben kein eingebautes Betriebssystem,  sondern laden dieses nach jedem Einschalten von  der  +
+Diskette.  Dieser  Ladevorgang  wird im Allgemeinen  mit  dem  +
+englischen  Begriff `Bootstrap`  bezeichnet.  Beim  Bootstrap  +
+oder  kurz `Booten` unterscheidet man den `Cold Boot`  (Kaltstart) und den `Warm Boot` (Warmstart). Der Kaltstart ist das  +
+erstmalige  Laden  des Betriebsystems nach  dem  Einschalten.  +
+Hier  wird  das gesamte Gerät auf das  Betriebssystem  eingestellt  und alle Schnittstellen konfiguriert.  Der  Kaltstart  +
+ist also nur einmal notwendig. +
+Der Warmstart dagegen ist im CP/M nach jedem Diskettenwechsel  +
+und  nach  dem Ende eines Programms notwendig.  Im  CP/M  2.2  +
+können  Programme,  Teile des Betriebssystems verändern  oder  +
+sogar löschen.  Beim Warmstart wird daher immer ein Teil  des  +
+Systems neu von der Diskette geladen. Auch nach einem Diskettenwechsel ist dieses Neuladen notwendig, damit sich das CP/M  +
+intern  auf die neue Diskette einstellen kann.  Zum Warmstart  +
+wird  also immer eine Systemdiskette benötigt,  von  der  der  +
+entsprechende Betriebssystemteil geladen werden kann. +
+
+// .pa ""
+
+<<<
+Die  Besonderheit beim CP/M 2.2X ist nun,  daß das  Betriebssystem  in  Dateien auf der Diskette gespeichert  ist.  Damit  +
+jedoch der Kalt- und Warmstart zügig vonstatten geht,  werden  +
+manche dieser Dateien auf ganz bestimmte Stellen der Diskette  +
+kopiert.  Zu  diesem Zweck sind auf jeder Systemdiskette zwei  +
+doppelseitige bzw. vier einseitige Spuren zur Aufnahme dieser  +
+Dateien  reserviert.  Beim  Kaltstart wird im CP/M  2.2X  ein  +
+Mini-Betriebssystem (LOADER genannt) geladen, was in der Lage  +
+ist,  verschiedene Diskettenformate zu behandeln. Dadurch ist  +
+es möglich, Systemdisketten in verschiedenen Formaten zu kreieren,  von  einseitig,  einfache Dichte bis doppelseitig bei  +
+doppelter Dichte. +
+Zur  Vereinfachung  sind  jedoch die Systemspuren  bei  allen  +
+Formaten identisch,  sie werden sogar bei der Erzeugung einer  +
+Systemdiskette neu formatiert. +
+Das  Dienstprogramm ID (siehe Kapitel 10.7) hat die  Aufgabe,  +
+die  Systemspuren  zu  formatieren und darauf  einen  Urlader  +
+(Bootsektor)  und den angesprochenen LOADER zu kopieren.  Zusätzlich  konfiguriert ID den LOADER auf das Format der  Systemdiskette,  denn die Diskettenaufteilung oberhalb der  Systemspuren  ist abhängig vom gewählten Format.  Zu dieser Konfigurierung   benötigt   ID   auch   das    Formate-Datenfile  +
+PDRIVE.SYS.
+
+Der  Bootsektor  ist  auf der gelieferten  Diskette  im  File  +
+SYSBOOT.SYS, der Loader im File LOADER.SYS gespeichert. Beide  +
+Dateien werden nur vom Programm ID benötigt, also nur bei der  +
+Erzeugung einer neuen Systemdiskette.  Nachdem der Bootsektor  +
+und  der  Loader auf einer Diskette  aufgebracht  sind,  wird  +
+diese  auch  als `bootfähige Diskette`  bezeichnet.  Bis  aus  +
+einer  bootfähigen Diskette jedoch eine vollständige  Systemdiskette wird, sind noch weitere Schritte notwendig.
+
+Beim  Kaltstart des CP/M 2.2X wird der Bootsektor automatisch  +
+in  den  Speicher ab Adresse 4200H geladen  und  die  weitere  +
+Ausführung  dorthin  übergeben.  Der Bootsektor lädt nun  den  +
+Loader  an  eine spezifizierte Adresse (siehe Anhang  A)  und  +
+gibt  die  Programmausführung an diesen  weiter. +
+Der  Loader kennt das Format der Systemdiskette und ist damit  +
+in  der  Lage,  Dateien von dieser Diskette  zu  Laden.  D.h.  +
+weitere Daten kommen nicht mehr von den Systemspuren, sondern  +
+von Dateien auf der Diskette. +
+Die erste Datei,  die der Loader erwartet, ist die Konfigurationsdatei  CONFIG.SYS.  Hier sind alle systeminternen  Parameter gespeichert,  wodurch der Loader die gesamte Systemkonfiguration  übernehmen kann.  Da der Loader nur  während  des  +
+Kaltstarts  benötigt wird und der durch ihr belegte Speicherplatz später wieder frei ist, konnte die Systemkonfigurierung  +
+sehr komfortabel gestaltet werden.  Das Kapitel 7 zeigt, welche Parameter beeinflusst werden können. +
+Auch  benutzen  viele  der  Dienstprogramme  CONFIG.SYS   zur  +
+Speicherung ihrer Daten.  CONFIG.SYS **muß** daher auf jeder Sys
+
+temdiskette  **vorhanden  sein**.  Ist dies nicht  der  Fall,  so  +
+meldet sich der Loader mit `Kein CONFIG.SYS` und geht in eine  +
+Endlosschleife.
+
+Nachdem  CONFIG.SYS geladen wurde,  kommt der  Hauptteil  des  +
+CP/M  2.2X Betriebsystems,  das BIOS an die Reihe.  Das  BIOS  +
+bildet  die Anpassung der CP/M 2.2 an das jeweilige Gerät und  +
+macht hier das Standard-CP/M 2.2 zum CP/M 2.2X mit all seinen  +
+Möglichkeiten. Zur leichten Austauschbarkeit des BIOS, ist es  +
+ebenfalls  als  Datei (BIOS22X.SYS) auf  der  Systemdiskette.  +
+BIOS22X.SYS  ist  das zweite File,  daß der  Loader  von  der  +
+Diskette   lesen   muß.   Fehlt  es,   so  meldet  er   `Kein  +
+BIOS22X.SYS`.
+
+Die  oben  genannten  Files  (SYSBOOT.SYS,   LOADER.SYS   und  +
+BIOS22X.SYS)  sind  systemspezifisch und im Gegensatz zu  den  +
+Dienstprogrammen und CONFIG.SYS,  **nicht** zwischen den  Geräten  +
+Genie III und Genie IIs austauschbar.
+
+Der  Loader lädt das BIOS an das obere Ende des Speichers und  +
+konfiguriert  es entsprechend den aus CONFIG.SYS  entnommenen  +
+Parametern.  Nach Ausgabe der INFO-Zeile (siehe Kapitel 10.8)  +
+wird das BIOS gestartet. +
+Das CP/M 2.2X-BIOS hat, anders als normale CP/M-System, keine  +
+eigene Kaltstart-Funktion (CBOOT) mehr. Diese ist komplett in  +
+den Loader ausgelagert.  Nach Beendigung des Loaders ist auch  +
+der Kaltstart beendet und das weitere Systemverhalten ist wie  +
+bei einem Warmstart.
+
+Wie  bereits oben angesprochen,  wird beim Warmstart ein Teil  +
+des CP/M (genauer, die beiden Teile CCP und BDOS) neu von der  +
+Diskette  geladen.  Da dieses Nachladen ziemlich  häufig  geschieht,  ist  dieser Teil ebenfalls auf den Systemspuren gespeichert.  Das Programm ID,  daß ja bekanntlich die  Systemspuren  beschreibt,  benötigt also auch noch diesen Betriebssystem-Teil,  auf  der Diskette als Datei  `CPM22X.SYS`  vorhanden.
+
+
+Zusammenfassend ist also folgendes festzuhalten:
+
+Zur  Erzeugung einer Systemdiskette müssen auf diese  (natürlich  formatierte) Diskette Systemspuren und bestimmte Datein  +
+aufgebracht  werden.  Das Anlegen der Systemspuren  wird  vom  +
+Programm ID gemacht, daß folgende Files benötigt:
+
+SYSBOOT.SYS, den Urlader oder Bootsektor +
+LOADER.SYS, das Mini-Betriebssystem +
+CPM22X.SYS, den nachladbaren Betriebssystem-Teil +
+und PDRIVE.SYS, das Formate-Datenfile.
+
+Nachdem ID seine Arbeit vollendet hat,  ist die Diskette zwar 
+
+bootfähig,  aber  noch  keine Systemdiskette.  Probieren  Sie  +
+ruhig mal aus,  was passiert wenn Sie eine nur mit ID  behandelte Diskette booten. +
+Die  vier aufgeführten Dateien werden also im Allgemeinen nur  +
+bei der Ausführung des ID-Programms benötigt !
+
+Damit aus der bootfähigen Diskette eine Systemdiskette  wird,  +
+müssen  noch  die beiden Dateien CONFIG.SYS  und  BIOS22X.SYS  +
+kopiert werden.  Beim Kopieren (z.B. mit dem Standardprogramm  +
+PIP)  muß darauf geachtet werden,  daß das richtige,  bei  ID  +
+gewählte  Format  eingestellt ist  (Formateinstellung,  siehe  +
+Kapitel  10.10).  Ansonsten  sucht  nämlich  der  Loader  die  +
+Dateien  in einem anderen Format,  als sie auf  der  Diskette  +
+vorhanden  sind. +
+Auch sollten diese beiden Files immer als erste auf eine neue  +
+Systemdiskette kopiert werden.  Dadurch erreicht man, daß die  +
+Dateien in der Nähe der Systemspuren angelegt werden, was den  +
+Bootvorgang erheblich beschleunigt.
+
+Eine minimale Systemdiskette ist nun eine formatierte, mit ID  +
+behandelte  Diskette,  auf  die die  Dateien  CONFIG.SYS  und  +
+BIOS22X.SYS kopiert wurden.
+
+
+Dies  sollte als Einstieg in die speziellen Eigenschaften des  +
+CP/M  2.2X ausreichen,  alle weiteren Informationen zum  CP/M  +
+2.2  sollten Sie aus einem der im Anhang F  genannten  Bücher  +
+entnehmen können. +
+
+// .pa ""
+
+<<<
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 2                          Arbeiten mit CP/M 2.2X"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            2-#"
+_2. Arbeiten mit CP/M 2.2X_
+
+_2.1  Starten des Betriebsystems_
+
+Damit  das CP/M 2.2X korrekt geladen wird,  sollten Sie  beim  +
+Booten des Systems in der angegebenen Reihenfolge vorgehen:
+
+1.  Schalten Sie Ihr Genie III bzw.  Genie IIs ein. Falls Sie  +
+    externe  Laufwerke    oder sonstige Peripheriegeräte  an    geschlossen haben, schalten Sie diese vorher ein.
+
+2.  Legen Sie die CP/M-Systemdiskette in das erste 5 1/4 Zoll  +
+    Laufwerke  und  schließen Sie vorsichtig  die  Laufwerks    klappe.  Nach  1-2 Sekunden wird der Bildschirm  gelöscht  +
+    und das Betriebssystem geladen.  Danach erscheint auf dem  +
+    Bildschirm  die  Systemmeldung sowie  Versionsnummer  und  +
+    -datum. +
+    Sollte diese Meldung nicht erscheinen,  so kann dies ver    schiedene Gründe haben:
+
+    - Die LSP-Taste ist gedrückt (Genie IIs).  Das CP/M  2.2X  +
+      kann nur bei hoher Taktfrequenz gebootet werden +
+    - Die Diskette ist falsch eingelegt worden.  Wie Sie eine  +
+      Systemdiskette  einlegen,  ist im  GDOS-Handbuch  genau  +
+      beschrieben. +
+    - Die  eingelegte Diskette ist keine  Systemdiskette.  In       +
+      diesem Fall verdunkelt sich der Bildschirm nicht,  son      +
+      dern es erscheint eine systemspezifische Meldung +
+      Vergewissern Sie sich,  ob Sie eine CP/M 2.2X Systemdis      +
+      kette eingelegt haben. +
+      Dieselbe  Meldung  erscheint auch,  wenn  die  Diskette  +
+      nicht einwandfrei im Laufwerk liegt. +
+    - Die Diskette ist defekt.  Das Genie III bzw.  Genie IIs  +
+      hat  den Boot-Sektor nicht  einwandfrei  indentifiziert  +
+      und  bricht den Bootvorgang ab.  Schalten Sie das Gerät  +
+      für  ein paar Sekunden aus und probieren Sie den  Boot      vorgang mit einer anderen Systemdiskette.
+
+Sollte  auch nach Befolgung aller obigen Regeln die  Diskette  +
+nicht  booten,  wenden Sie sich bitte an den Autor oder Ihren  +
+Händler.
+
+Mit dem Erscheinen des Systemprompts `A>` ist der Bootvorgang  +
+abgeschlossen  und das Betriebssystem zur Befehlsannahme  bereit. +
+
+// .pa ""
+
+<<<
+_2.2 Anfertigen einer Sicherungskopie_
+
+Bevor Sie mit dem CP/M-Betriebssysstem arbeiten,  sollten Sie  +
+sich mehrere Kopien der Originaldiskette machen.  Die  Originaldiskette verwahren Sie bitte an einem sicheren Ort auf, da  +
+Sie  **diese Diskette zusammen mit der Seriennummer als  rechtmäßiger Benutzer** des CP/M ausweist. +
+Zur Kopierung der Originaldiskette gehen Sie bitte in folgender Reihenfolge vor:
+
+1. Legen Sie eine neue Diskette in das zweite Laufwerk. +
+2. Geben  Sie  den Befehl `FORMAT B`  ein.  Die  Diskette  im     +
+   zweiten Laufwerk wird dadurch formatiert. +
+3. Nach  Wiedererscheinen des Systempropts `A>` geben Sie den     +
+   Befehl  `ID B:S80 DSDD` ein.  Dadurch wird  das  Betriebs   system auf    die zweite Diskette kopiert. +
+4. Als letzter Schritt folgt der Befehl `PIP B:=*.*`. Darauf    +
+   hin  werden alle Programme und Daten der  Originaldiskette     +
+   auf die zweite Diskette kopiert.
+
+Nach  Abschluß der Kopie entnehmen Sie bitte die Originaldiskette dem ersten Laufwerk und legen Sie stattdessen die Kopie  +
+in  dieses Laufwerk.  Drücken Sie nun die beiden mit  `RESET`  +
+(Genie  III) bzw.  `RS` (Genie IIs) bezeichneten  Tasten  der  +
+Tastatur  und  lassen sie wieder los.  Dadurch wird  nun  die  +
+Kopie  gebootet,  was gleichzeitig ein Test für einen erfolgreichen Kopiervorgang ist. +
+Zur Erzeugung weiterer Systemdisketten, wiederholen Sie bitte  +
+mit der neuen Kopie die Schritte 1-3, geben aber beim Schritt  +
+4  `SUBMIT SYSCOPY` ein.  Dadurch werden die Files  in  einer  +
+ganz bestimmten Reihenfolge kopiert,  was den Bootvorgang und  +
+das spätere Arbeiten beschleunigt.
+
+
+
+
+
+
+
+
+
+                       _ZUR  BEACHTUNG:_
+
+Die  Originaldiskette und alle Kopien enthalten Ihre  Seriennummer.  Neben  dem Betriebssystem unterliegen auch alle  auf  +
+der  Originaldiskette  befindlichen Programme und  Daten  dem  +
+Urheberrechtsschutz.  Jegliche Kopien sind nur für Ihren persönlichen Gebrauch bestimmt.  Eine Weitergabe der aufgezeichneten  Daten und Programme in jedweder Form ist verboten  und  +
+wird  als Verstoß gegen das Urhebergesetz strafrechtlich verfolgt. +
+
+// .pa ""
+
+<<<
+_2.3 Service_
+
+Dieses  Handbuch  kann sicherlich  nicht  alle  auftauchenden  +
+Fragen  oder  Probleme restlos klären.  Da das CP/M 2.2X  von  +
+einem  unabhängigen Autor erstellt wurde,  kannen  Ihnen  Ihr  +
+Händler  oder die Fa.  Phoenix nur begrenzte Auskunft  geben.  +
+Falls  Sie also spezielle Fragen zum CP/M 2.2X haben,  wenden  +
+Sie sich bitte schriftlich an:
+
+
+
+
+                         Klaus Kämpf +
+                     Softwareentwicklung +
+                        Jakobstr. 236 +
+                         5100 Aachen
+
+
+
+
+
+
+Alle Anfragen sollten folgende Daten beinhalten:
+
+- Seriennummer +
+- Versionsnummer und  +
+- Versionsdatum Ihres Betriebsystems. +
+- Angeschlossene Laufwerke und Peripheriegeräte
+
+Versionsnummer  und  Versionsdatum  sind  auf  der  Originaldiskette  als  INFO-Zeile  gespeichert.   Die  Versionsnummer  +
+alleine  erhalten  Sie  auch  durch  Eingabe  von  <CLEAR>  M  +
+<RETURN>.  Das System meldet dann eine 2 (für Genie IIs) oder  +
+3 (für Genie III) und,  durch Komma getrennt,  die  Versionsnummer zurück. +
+
+// .pa ""
+
+<<<
+_2.4 Zusatzprodukte_
+
+Zum CP/M 2.2X sind über die oben angegeben Adresse auch  noch  +
+die folgenden Zusatzprogramme erhältlich:
+
+
+PDRIVE.COM                                            DM 79.- +
+                  Programm zur Anpassung eines Fremdformates.  +
+                  Durch  Eingabe der STAT DSK:-Parameter  und  +
+                  des  physikalischen   Aufzeichnungsformates  +
+                  können  Sie  sich  selbst  weitere  Formate  +
+                  erstellen.
+
+
+IG.COM +
+GC.COM +
+CG.COM                                                DM 99.- +
+                  Programmpaket  zum  Übertragen von  Dateien  +
+                  zwischen  den  Betriebssystemen  CP/M   und  +
+                  GDOS.  GDOS-Disketten  können direkt  unter  +
+                  CP/M bearbeitet werden.
+
+
+IM.COM +
+MC.COM +
+CM.COM                                                DM 99.- +
+                  Programmpaket  zum  Übertragen von  Dateien  +
+                  zwischen  den  Betriebssystemen  CP/M   und  +
+                  MSDOS  (IBM  PC) oder TOS (Atari  ST).  Die  +
+                  verschiedenen Diskettenformate werden auto                  matisch erkannt, einfach Fremddiskette ein                  legen und los geht`s ... +
+
+// .pa ""
+
+<<<
+_2.5 Benötigte Hardware_
+
+
+_2.5.1 Beim Genie III_
+
+Das  CP/M 2.2X ist auf den normalen Genie III (alte oder neue  +
+Tastatur und 2 80-Spur Laufwerke) sofort lauffähig. Die Genie  +
+III Pluskarte wird nicht unterstützt.
+
+
+_2.5.2 Beim Genie IIs_
+
+Zum  Arbeiten mit CP/M 2.2X muß das Genie IIs  mit  folgenden  +
+Karten bestückt sein:
+
+CPU-Karte, entweder 6 oder 8 Mhz
+
+VIDEO-Karte
+
+I/O-Karte, Lautsprecher optional
+
+GRAFIK-Karte, wird für das 80x24 Bildformat benötigt
+
+FLOPPY-Karte, mindestens zwei Laufwerke müssen vorhanden sein
+
+SIO/PIO-Karte, optional, SIO wird vom CP/M 2.2X unterstützt
+
+192k-Karte, wird z.Zt. noch nicht unterstützt
+
+HOST II/IIIs-Karte, wird nicht unterstützt +
+
+// .pa ""
+
+<<<
+
+// .pn " 2"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            0-#"

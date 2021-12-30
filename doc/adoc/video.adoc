@@ -1,0 +1,400 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Anhang B                                   Videokommandos"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung           B-#"
+_B.  Videokommandos_
+
+Die  CP/M  2.2X Versionen für die Geräte  Genie  IIs  (Speedmaster)  und  Genie III unterscheiden sich vor allem  in  der  +
+Anzahl  der unterstützten Videokommandos.  Daher sind die  im  +
+folgenden  aufgeführten Control- und Escapesequenzen mit  (2)  +
+für   Genie  IIs  und  (3)  für  Genie  III   gekennzeichnet.  +
+Videokommandos  ohne  zusätzliche  Kennung  sind  auf  beiden  +
+Geräten gültig.
+
+
+_B.1  Controlsequenzen_
+
+Als Controlsequenzen werden die Videobefehle bezeichnet,  die  +
+nur ein Byte benötigen. Jeder Befehl ist durch die Controlsequenz,  den  hexadezimalen Wert,  den dezimalen Wert und  die  +
+Abkürzung gemäß dem ASCII-Standard.
+
+
+CTRL-G   07    7  BEL    Bell
+
+     Piepston ausgeben.
+
+
+CTRL-H   08    8  BS     Backspace
+
+     Backspace, Cusor ein Zeichen nach links ohne das Zeichen  +
+     zu  löschen.  Um  das Zeichen an der  Cursorposition  zu  +
+     löschen, müssen die drei Codes Backspace,Space,Backspace  +
+     benutzt werden.
+
+
+CTRL-I   09    9  HT     Horizontal Tab
+
+     TAB,  Cursor zur nächsten Tabulatorposition.
+
+
+CTRL-J   0A   10  LF     Linefeed
+
+     Cursor eine Zeile nach unten. Nach Erreichen der unters     ten  Zeile,  wird der Bildschirminhalt eine  Zeile  nach  +
+     oben verschoben. (vgl. SYN)
+
+
+CTRL-K   0B   11  VT     Cursor Up
+
+     Cursor eine Zeile nach oben. Nach Erreichen der obersten  +
+     Zeile, wird dieser Code ignoriert. +
+
+// .pa ""
+
+<<<
+CTRL-L   0C   12  FF     Cursor Forward
+
+     Cursor ein Zeichen nach rechts. Nach Erreichen der letz     ten Bildschirmposition, wird dieser Code ignoriert.
+
+
+CTRL-M   0D   13  CR     Carriage Return
+
+     Cursor zum Anfang der aktuellen Zeile.  Um den Cursor an  +
+     den  Anfang der nächsten Zeile zu positionieren,  müssen  +
+     die beiden Codes CR und LF ausgegeben werden.
+
+
+  +
+CTRL-V   16   22  SYN    Cursor Down
+
+     Cursor eine Zeile nach unten. Nach Erreichen der unters     ten  nicht  geschützten Zeile,  wird dieser Code  ingno     riert. (vgl. LF)
+
+
+CTRL-Z   1A   26  SUB    Clear Screen
+
+     Bildschirm  löschen und Cursor in die linke obere  Ecke.  +
+     Dieser Code wirkt nur auf die ungeschützten Zeilen.
+
+
+CTRL-Ä   1B   27  ESC    Escape
+
+     ESC  hat keine eigene Funktion,  sondern dient zur  Ein     leitung  der  im  Abschnitt  B.2  beschriebenen  Escape     Sequenzen.
+
+
+CTRL-ß   1E   30  RS     Home
+
+     Cursor in die linke obere Ecke.
+
+
+CTRL-_   1F   31  VS     New Line
+
+     Entspricht der Sequenz CR und LF. +
+
+// .pa ""
+
+<<<
+_B.2  Escapesequenzen_
+
+Als Escapesequenzen werden alle Terminalkommandos bezeichnet,  +
+die ein `darstellbares` Zeichen beinhalten.  Als  Unterscheidung  zu den darstellbaren Zeichen wird der Escape-Code (ESC,  +
+1B hex, 27 dezimal) vorangestellt. +
+Neben  der Escapesequenz gemäß dem ASCII-Standard  sind  auch  +
+die  entsprechenden hexadezimalen und dezimalen Werte  aufgeführt. 
+
+
+ESC )  1B 29  27 41      Half Intensity On
+
+     Inverse  Schrift  ein.  Leerzeichen werden nicht  inver     tiert.
+
+
+ESC (  1B 28  27 40      Half Intensity Off
+
+     Inverse Schrift aus. (entspricht ESC G0)
+
+
+ESC M  1B 4D  27 77      Transmit Terminal ID
+
+     Gerätebezeichnung und BIOS-Versionsnummer  zurückmelden.  +
+     Die  Rückmeldung  besteht aus 5 Zeichen,  der  Gerätebe     zeichnung (`2` für Genie IIIs und Speedmaster,  `3`  für  +
+     Genie III),  einem Komma, der Versionshauptnummer, einem  +
+     Punkt  und der Versionsunternummer.  Eine typische Rück     meldung  auf  dem Genie III wäre die  folgende  Zeichen     kette: `3,1.0` (Genie III, BIOS-Version 1.0)
+
+
+ESC P  1B 50  27 80      Page Print with CR LF            (3)
+
+     Bildschirm ausdrucken. Dieser Befehl druckt den gesamten  +
+     Bildschirminhalt über den aktuellen LST:-Kanal aus.
+
+
+ESC N  1B 4E  27 78      Page Edit                        (3)
+
+     Seiteneditierung einschalten. Der `Bereich` der Editier     befehle  wird  bis zum Ende der  Bildschirmseite  ausge     dehnt. In der Statuszeile wird INSP oder EDTP angezeigt.
+
+
+ESC O  1B 4F  27 79      Line Edit                        (3)
+
+     Zeileneditierung einschalten. Der `Bereich` der Editier     befehle wird durch das Ende der Cursorzeile begrenzt. In  +
+     der Statuszeile wird INSL oder EDTL angezeigt.
+
+
+
+ESC E  1B 45  27 69      Insert Line
+
+     Zeile  einfügen.  Die  aktuelle Zeile und alle  tieferen  +
+     Zeilen  werden nach unten verschoben.  Die letzte  Bild     schirmzeile fällt weg und die aktuelle Zeile durch Leer     zeichen ersetzt.
+
+
+ESC R  1B 52  27 82      Delete Line
+
+     Zeile löschen. Die aktuelle Zeile wird gelöscht und alle  +
+     tieferen Zeilen nach oben verschoben.  Die letzte  Bild     schirmzeile wird durch Leerzeichen ersetzt.
+
+
+ESC Q  1B 51  27 81      Insert Character                 (3)
+
+     Zeichen einfügen.  Das Zeichen an der Cursorposition und  +
+     alle Zeichen rechts davon werden eine Spalte nach rechts  +
+     verschoben.  Je nach aktuellem Editierbereich (siehe ESC  +
+     N  und  ESC  O) geht das letzte Zeichen der  Zeile  bzw.  +
+     Seite  verloren.  An der Cursorposition wird  ein  Leer     zeichen eingesetzt.
+
+
+ESC W  1B 57  27 87      Delete Character                 (3)
+
+     Zeichen löschen.  Das Zeichen an der Cursorposition wird  +
+     gelöscht  und alle Zeichen rechts davon eine Spalte nach  +
+     links  verschoben.   Je  nach  aktuellem  Editierbereich  +
+     (siehe ESC N und ESC O) wird am Zeilen- bzw.  Seitenende  +
+     ein Leerzeichen eingesetzt.
+
+
+ESC T  1B 54  27 84      Clear End of Line
+
+     Löschen bis zum Zeilenende.  Alle Zeichen rechts von der  +
+     Cursorposition  bis zum Zeilenende werden mit dem  durch  +
+     ESC e gewählten Zeichen (Genie III) bzw. dem Leerzeichen  +
+     (Genie IIs und Speedmaster) ersetzt.
+
+
+ESC t  1B 74  27 106     Clear to End of Line to Null     (3)
+
+     Löschen bis zum Zeilenende.  Alle Zeichen rechts von der  +
+     Cursorposition  bis zum Zeilenende werden mit dem  Null     code ersetzt. +
+
+// .pa ""
+
+<<<
+ESC Y  1B 59  27 89      Clear to End of Page
+
+     Löschen bis zum Seitenende.  Alle Zeichen rechts von der  +
+     Cursorposition  bis zum Seitenende werden mit dem  durch  +
+     ESC e gewählten Zeichen (Genie III) bzw. dem Leerzeichen  +
+     (Genie IIs und Speedmaster) ersetzt.
+
+
+ESC y  1B 79  27 121     Clear to End of Page to Null     (3)
+
+     Löschen bis zum Seitenende.  Alle Zeichen rechts von der  +
+     Cursorposition  bis zum Seitenende werden mit dem  Null     code ersetzt.
+
+
+ESC *  1B 2A  27 42      Clear All to Null
+
+     Seite  löschen.  Die gesamte Bildschirmseite wird  durch  +
+     den  Nullcode (Leerzeichen beim Genie IIs)  ersetzt  und  +
+     der  Cursor  in die Homeposition (linke obere Ecke)  ge     bracht.
+
+
+ESC +  1B 2B  27 43      Clear Unprotected                (3)
+
+     Seite löschen.  Die gesamte Bildschirmseite wird mit dem  +
+     durch ESC e gewählten Zeichen bzw.  dem Leerzeichen  er     setzt  und  der Cursor in die Homeposition (linke  obere  +
+     Ecke) gebracht.
+
+
+ESC e x  1B 65  27 101   Load Substitute for Space        (3)
+
+     Leerzeichen durch x ersetzen. Das an der Stelle x einge     setzte  Zeichen ersetzt in allen folgenden Befehlen  das  +
+     Leerzeichen. 
+
+
+ESC . x  1B 2E  27 46      Set Cursor Attribute
+
+     Cursorzeichen wählen.  Der Parameter x bestimmt das Cur     sorsymbol nach folgender Tabelle:
+
+     ASCII  Dez.  Hex.  Cursorzeichen       +
+       0     48    30   Cursor aus +
+       1     49    31   Blinkender Block                  (3) +
+       2     50    32   Stehender Block +
+       3     51    33   Blinkender Strich                 (3) +
+       4     52    34   Stehender Strich
+
+     Beim Genie IIs wird die Funktion `Blinken` nicht  unter     stützt.  D.h. die Einstellung `blinkend` wird als `steh
+
+     end` ausgewertet. +
+ 
+
+ESC = z s 1B 3D  27 61      Cursor Address in Page
+
+     Der  Cursor  wird  zu der durch die Parameter  z  und  s  +
+     bestimmten Zeilen- und Spaltenposition  gebracht.  Falls  +
+     einer  der  Parameter die  Seitengrenzen  überschreitet,  +
+     wird  er durch den maximal erlaubten Wert  ersetzt.  Der  +
+     jedem  Parameter entsprechende Zeilen- bzw.  Spaltenwert  +
+     ist in der ASCII-Tabelle im Anhang E aufgeführt.
+
+
+ESC ?  1B 3F  27 63      Read Cursor Address in Page
+
+     Die  aktuelle Cursorposition wird als Zeilen- und  Spal     tenwert zurückgemeldet.  Der Zusammenhang zwischen rück     gemeldeten  ASCII-Werten und dem entsprechenden  Zeilen-  +
+     bzw.  Spaltenwert  ist in der ASCII-Tabelle im Anhang  E  +
+     aufgeführt. 
+
+
+ESC G x  1B 47  27 71    Set Video Attribute
+
+     Zeichenattribut wählen.  Für den Parameter x werden fol     gende Werte erkannt:
+
+     ASCII  Dez.  Hex.  Attribut +
+       0     48    30   Keines, normale Zeichendarstellung +
+       4     52    34   Invers, invertierte Zeichendarstel- +
+                        lung +
+       8     56    38   Underline, Zeichen werden unter- +
+                        strichen ausgegeben               (2) +
+       <     60    3C   Underline und Invers zusammen.    (2)
+
+
+ESC Z x  1B 5A  27 90    Transmit User/Status Line        (3)
+
+     Benutzer- oder Statuszeile zurückmelden. Je nach Parame     ter  x  werden  die 80 Zeichen  der  Benutzer- oder  der  +
+     Statuszeile zurückgemeldet. Für x gilt:
+
+     ASCII  Dez.  Hex.  Zurückgemeldete Zeile   +
+       0     48    30   Benutzerzeile +
+       1     49    31   Statuszeile
+
+
+ESC f  1B 66  27 102     Load User Line                   (3)
+
+     Benutzerzeile  laden.  Alle  folgenden Zeichen  bis  zum  +
+     Endezeichen CR (13 dez,  0D hex) werden in die Benutzer     zeile  übernommen.  Falls  mehr als 80  Zeichen  geladen 
+
+     werden,  so wird das 80. Zeichen mit dem zuletzt gelade     nen Zeichen ersetzt. +
+     Eine  Darstellung  der Benutzerzeile in  der  25.  Bild     schirmzeile erfolgt erst nach dem ESC g Code.
+
+
+ESC g  1B 67  27 103     Display User Line                (3)
+
+     Benutzerzeile  anzeigen.  Die durch ESC f geladenen Zei     chen werden in der 25. Bildschirmzeile angezeigt.
+
+
+ESC h  1B 68  27 104     Display Status Line              (3)
+
+     Statuszeile anzeigen.  In der 25.  Bildschirmzeile  wird  +
+     die Statuszeile angezeigt.
+
+
+ESC U  1B 55  27 85      Enter Monitor Mode               (3)
+
+     Monitormodus  aktivieren.  Alle Befehlssequenzen  werden  +
+     bis  zum  Empfang des ESC u bzw.  ESC X Codes nicht  als  +
+     Befehle, sondern als Zeichen interpretiert. Die Befehls     codes  00  bis 31 (dez) werden dabei als  Kürzel  darge     stellt. (siehe ASCII-Tabelle)
+
+
+ESC X  1B 58  27 88      Exit Monitor Mode                (3)
+
+     Monitormodus ausschalten.  Alle Befehlssequenzen  werden  +
+     als Befehle interpretiert.
+
+
+ESC q  1B 71  27 113     Insert Mode On                   (3)
+
+     Einfügemodus  einschalten.  Alle folgenden Zeichen über     schreiben  nicht das an der  Cursorposition  befindliche  +
+     Zeichen,  sondern  werden dort eingefügt.  Alle  Zeichen  +
+     rechts  von  der Cursorposition bis zum Ende  der  Zeile  +
+     bzw.  Spalte  werden ein Zeichen nach rechts verschoben.  +
+     In der Statuszeile erscheint INSL oder INSP.
+
+
+ESC r  1B 72  27 114     Insert Mode Off                  (3)
+
+     Einfügemodus ausschalten.  Alle folgenden Zeichen  über     schreiben  das an der Cursorposition befindliche Zeichen  +
+     (Normalfall).  In  der Statuszeile erscheint  EDTL  oder  +
+     EDTP. +
+
+// .pa ""
+
+<<<
+ESC v  1B 76  27 118     Vertical Wrap On
+
+     Vertikalen Überlauf einschalten.  Beim Überschreiten des  +
+     Zeilenendes,  wird  die Zeichenausgabe in  der  nächsten  +
+     Bildschirmzeile fortgesetzt.
+
+
+ESC w  1B 77  27 119     Vertical Wrap Off
+
+     Vertikalen  Überlauf  ausschalten.  Beim  Erreichen  der  +
+     letzten  Zeilenposition (80.  Spalte) bleibt der  Cursor  +
+     dort stehen und alle folgenden Zeichen werden auf dieser  +
+     Position dargestellt. Der Anfang der nächsten Zeile wird  +
+     erst über die beiden Befehlscodes CR und LF erreicht.
+
+
+ESC 6  1B 36  27 54      Send Line                        (3)
+
+     Zeile  zurückmelden.  Die aktuelle Cursorzeile wird  zu     rückgemeldet.
+
+
+ESC _ x  1B 5F  27 95
+
+*    Systemparameter  setzen.  Über  diese  nicht  Televideo-  +
+     kompatible Escapesequenz werden verschiedene  Systemein     stellungen  verändert  werden.  Zur Zeit werden für  den  +
+     Parameter x folgenden Werte erkannt:
+
+     ASCII  Dez.  Hex.  Ausgeführte Aktion +
+       0     48    30   25. Bildschirmzeile einschalten.  (3) +
+       1     49    31   25. Bildschirmzeile ausschalten.  (3) +
+       2     50    32   Deutscher Zeichensatz             (2) +
+       3     51    33   US-ASCII Zeichensatz              (2) +
+       4     52    34   Funktionstasten aktivieren. +
+       5     53    35   Funktionstasten ausschalten. Bei aus                        geschalteten   Funktionstasten   wird  +
+                        nicht  der  über FKEY  gewählte  Text  +
+                        ausgegeben,  sondern  der im  TASTEN- +
+                        Programm  eingestellte Wert  erzeugt.         +
+       6     54    36   Uhranzeige  in der  Statuszeile  ein                        schalten.                         (3) +
+       7     55    37   Uhranzeige  in  der Statuszeile  aus                        schalten.                         (3) +
+
+// .pa ""
+
+<<<
+_B.3 Beispiel_
+
+Beispielprogramm für das Genie III zum Einlesen von Datum und  +
+Zeit in ein BASIC-Programm:
+
+10 PRINT CHR$(27)"Z0"; : REM Statuszeile rückmelden +
+20 A$ = INPUT$(80) : REM 80 Zeichen von Tastatur einlesen +
+30 TIME$ = RIGHT$(A$,8) +
+40 DATE$ = LEFT$( RIGHT$(A$,22), 12) +
+50 PRINT TIME$ : REM Ausgabe der Uhrzeit +
+60 PRINT DATE$ : REM Ausgabe des Datums +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<

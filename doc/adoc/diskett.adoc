@@ -1,0 +1,244 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 6                                  Massenspeicher"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            6-#"
+_6. Massenspeicher_
+
+_6.1 Einleitung_
+
+Anders  als  die in den vorherigen Kapiteln behandelten  Ein/  +
+Ausgabekanäle, sind die Massenspeicher nicht zeichen- sondern  +
+blockorientiert.  Dies bedeutet, daß die Datenübertragung von  +
+und  zu den Massenspeichern (Disketten) in Blöcken zu je  128  +
+Zeichen (Bytes) erfolgt.  Ein Datenblock wird im weiteren als  +
+RECORD bezeichnet, da der Begriff Block anderweitig verwendet  +
+wird. +
+Das  CP/M-Betriebsystem unterstützt bis zu 16 derartige  Massenspeicher  unter den Bezeichnungen A:  bis P:,  unter  CP/M  +
+2.2X  können  jedoch  nur bis zu 4 Laufwerke  mit  den  CP/M- +
+Bezeichnungen A: bis D: angeschlossen werden.
+
+
+_6.2 Diskettenlaufwerke_
+
+Beim CP/M 2.2X können bis zu vier 5 1/4 Zoll oder 8  Zoll  +
+Diskettenlaufwerke  angeschlossen werden.  Vom  CBIOS  unterstützt  werden  sämtlichen  Datenformate von  single  Density  +
+(einfache Dichte),  single sided (einseitig) bis double  Density (doppelte Dichte),  double sided (doppelseitig). +
+Dadurch ist es möglich,  beliebige Diskettenformate von anderen  CP/M-Rechnern zu lesen und zu schreiben.  Die  Zuweisung  +
+eines  Datenformats auf ein Diskettenlaufwerk geschieht  über  +
+den PD-Befehl, der im Kapitel 10.10 beschrieben ist. Anhang C  +
+gibt  einen Überblick über die zur Zeit möglichen  Diskettenformate. +
+8 Zoll Formate sind jedoch nur am Genie III getestet  worden,  +
+ein   einwandfreies  Funktionieren  kann  jedoch  bei  beiden  +
+Geräten  nicht  garantiert  werden.   Aufgrund  der   höheren  +
+Datenrate bei 8 Zoll Laufwerken,  ist der störungfrei Betrieb  +
+insbesondere  vom Diskcontroller und dem verwendeten Laufwerk  +
+abhängig.
+
+
+_6.2.1 Diskettenfehler_
+
+Anders als bei sonst üblichen CP/M Systemen,  werden vom CP/M  +
+2.2X sämtliche möglichen Diskettenfehler abgefangen. +
+Bereits bei der Anwahl eines Laufwerks wird getestet, ob sich  +
+darin eine Diskette befindet.  Ist dies nicht der Fall,  wird  +
+dies dem Benutzer durch die Fehlermeldung
+
+`BDOS Err on x: Select`
+
+mitgeteilt.  Dieselbe Meldung erscheint auch,  wenn  versucht  +
+wurde, ein nicht vorhandenes Laufwerk anzuwählen. Dabei steht  +
+x: für eine der sechzehn möglichen Laufwerksbezeichnungen. +
+Der Benutzer muß diese Fehlermeldung durch Drücken der ENTER-
+
+Taste  quittieren.  Danach führt das System selbsttätig  eine  +
+Warmstart aus und wählt das Hauptlaufwerk (siehe Kapitel 7.1)  +
+an.
+
+Tritt  beim  Schreiben oder Lesen einer Diskette  ein  Fehler  +
+auf,  so kann das System auf zwei Arten reagieren. Bei ausgeschalteter  Fehlermeldung (siehe Kapitel 7.1) wird der Fehler  +
+nur mit
+
+`BDOS Err on x: Bad Sector`
+
+quittiert.  Drücken  der ENTER-Taste führt zu einer Wiederholung  der fehlerhaften Diskettenoperation,  BREAK bricht  den  +
+Vorgang ab und führt einen Warmstart aus.
+
+
+
+_6.2.2 Erweiterte Fehlermeldung beim Genie III_
+
+Wesentlich  komfortabler ist die Fehlerbehandlung bei  eingeschalteter Fehlermeldung.  Hier wird die Fehlerursache explizit in der 25.  Bildschirmzeile angegeben. +
+Aufgrund    des    knappen   Speicherplatzes    werden    die  +
+erweiterten Fehlermeldungen nur durch Kürzel dargestellt, die  +
+jedoch im folgenden erläutert werden:
+
+Als erster  erscheint `R:` (Lesefehler) oder `W:` (Schreibfehler)  +
+und zeigt damit die letzte Diskettenoperation an. Die nächste  +
+Meldung bezeichnet die Fehlerart:
+
+`2` : Daten verloren
+
+Beim Lesen/Schreiben des Sektors lief der Diskettenkontroller  +
+aus der Synchronisation.  Fehlerursache ist entweder die  gedrückte LSP-Taste oder eine falsche Einstellung des betroffenen Diskettenlaufwerks.
+
+`3` : Prüfzahlfehler
+
+Die  beim Lesen errechnete Prüfsumme für diesen Sektor stimmt  +
+nicht  mit der aufgezeichneten Prüfsumme  überein.  Fehlerursache kann neben schlechtem Diskettenmaterial auch ein unsauberes Laufwerk sein.  In seltenen Fällen kann auch eine elektrische Störung einen Prüfzahlfehler hervorrufen.
+
+
+`4` : Sektor nicht gefunden
+
+Der  angegebene Sektor konnte auf der Diskette nicht  lokalisiert werden.  Ursache ist fast immer eine falsche Formateinstellung.  Bei  einer unsauber eingelegten Diskette  kann  es  +
+ebenfalls zu einem solchen Fehler kommen.
+
+
+
+`5` : Schreibfehler
+
+Der  angegebene Sektor konnte nicht geschrieben werden.  Fehlerursache ist meist ein defektes Laufwerk.
+
+
+`6` : Schreibgeschützt
+
+Die  Diskette ist über einen Aufkleber auf der  linken  Seite  +
+schreibgeschützt.  Bitte  beachten Sie,  daß 8 Zoll-Disketten  +
+schreibgeschützt  sind,  wenn der Aufkleber  nicht  vorhanden  +
+ist.
+
+
+Nach  der  Laufwerksbezeichnung über `A` bis `D` wird in  der  +
+25.  Zeile auch die Position des fehlerhaften Sektors  ausgegeben. +
+`V` steht für die Vorderseite und `R` für die Rückseite.  Für  +
+die  Spur  werden drei Werte ausgegeben.  Der erste Wert  bezeichnet die vom Betriebsystem angeforderte  Spurnummer.  Der  +
+zweite  Wert ist die physikalsische Spurnummer.  Dadurch kann  +
+insbesondere  bei der Verarbeitung von 40-Spur Disketten  auf  +
+80-Spur  Laufwerken und bei verschiedenen doppelseitigen  Zugriffsarten  die Fehlerursache bestimmt  werden.  Die  dritte  +
+Spurnummer  ist  die  Nummer  unter  der  die  gesuchte  Spur  +
+formatiert  sein sollte.  Manche CP/M Formate addieren  einen  +
+bestimmten  Wert  zu  der Spurnummer (z.B.  Kontron  PSI  80)  +
+wodurch  die  Spurnummer  z.B.  nicht mit  0  sondern  mit  3  +
+beginnen  und  nicht bei 39 bzw.  79 sondern bei 42  bzw.  82  +
+enden. In diesen Fällen ist die Angabe der dritten Spurnummer  +
+auch recht hilfreich.
+
+Die  zuletzt ausgegebene Sektornummer ist die vom  CBIOS  errechnete physikalische Sektornummer,  nicht die vom Betriebssystem angeforderte Recordnummer.
+
+Nach  der Ausgabe der erweiterten Fehlermeldungen,  kann über  +
+die CLEAR-Taste der weitere Verlauf bestimmt werden:
+
+_CLEAR:_  Die zuletzt ausgeführte Diskettenoperation wird  wiederholt. Dies ist besonders bei Prüfzahlfehlern zu empfehlen,  +
+da nach mehreren Versuchen der fehlerhafte Sektor meist  doch  +
+noch  zu  lesen  ist.  Auch  bei  falscher  Formateinstellung  +
+(`Record  not  found`) kann vor dem Drücken  der  CLEAR-Taste  +
+eine Diskette mit dem richtige Format eingelegt werden.
+
+_SHIFT-CLEAR:_  Die Diskettenoperation wird abgebrochen und der  +
+Fehler  an das Betriebssystem gemeldet.  Der weitere  Verlauf  +
+ist wie bei ausgeschalteter Fehlermeldung. +
+
+// .pa ""
+
+<<<
+_CTRL-CLEAR:_ Die Diskettenoperation wird abgebrochen,  es  erfolgt jedoch keine Fehlermeldung an das Betriebssystem. Diese  +
+Art  der  Fehlerbehandlung ist besonders bei der Rettung  von  +
+Daten  von physikalisch beschädigten Disketten zu  empfehlen.  +
+Dadurch  kann,  obwohl vielleicht ein oder  mehrere  Sektoren  +
+beschädigt sind,  ein Großteil der aufgezeichneten Daten doch  +
+noch gerettet werden.  Hier ist aber Vorsicht geboten, da mit  +
+den fehlerhaft gelesenen Sektoren weitergearbeitet wird.
+
+
+_6.2.3 Erweiterte Fehlermeldung beim Genie IIs_
+
+Die  Fehlermeldung  erscheint  grundsätzlich  am  Anfang  der  +
+aktuellen Cursorzeile und wird mit einem Piepston (ASCII Bell  +
+Character) dem Benutzer mitgeteilt.
+
+Die  Fehlermeldung selber besteht aus 20 Zeichen in folgender  +
+Reihenfolge:
+
+LFES TTT/KKK/PPP SSS
+
+Die einzelnen Zeichen haben folgende Bedeutung:
+
+L	Das Laufwerk, auf dem der Fehler auftrat +
+	L steht für die Laufwerkskennung `A` .. `P`
+
+F	Zuletzt ausgeführte Funktion: +
+	Lesen (`R` für READ) oder Schreiben (`W` für WRITE)
+
+E	Der Fehlercode, eine Zahl zwischen 0 und 7: +
+	0	Funktion war noch nicht beendet +
+	1	Eine Datenanforderung wurde nicht erfüllt +
+	2	Daten verloren (**Das System muß mit 5.2 bzw +
+		8 MHz laufen !!**) +
+	3	Prüfzahlfehler +
+	4	Sektor nicht gefunden (Immer ein Zeichen für +
+		ein falsch gewähltes Format) +
+	5	Schreibfehler (Laufwerk defekt) +
+	6	Schreibgeschützt +
+	7	Laufwerk war nicht bereit
+
+S	Die Seite, auf die zuletzt zugegriffen wurde +
+	S steht für `V` (Vorderseite) oder `R` (Rückseite)
+
+TTT     Die vom CP/M angeforderte Spurnummer,  i.a. eine Zahl  +
+        zwischen 000 und 159
+
+KKK     Die  vom System nach der aktuellen  Formateinstellung  +
+        berechnete  physikalische  Spurnummer.  Bei  40  Spur          +
+        Formaten  in  80  Track Laufwerken (fast)  immer  die  +
+        Hälfte von TTT
+
+
+PPP     Die  vom  System an der  physikalischen  Spurposition  +
+        KKK, Seite S erwartete Spurnummer von der Formatierung.
+
+SSS	Die vom System erwartete physikalische Sektornummer.
+
+
+Die Werte TTT,  KKK,  PPP und SSS sind im allgemeinen nur für  +
+`Insider`  interessant und dienen vornehmlich  zum  Austesten  +
+von Formateinstellungen.
+
+
+
+Nach  einer Fehlermeldung wartet das System auf eine Reaktion  +
+des Benutzers in Form eines Tastendrucks:
+
+CLEAR           falls  die  fehlerhafte  Funktion  wiederholt  +
+                werden soll.  Sehr zu empfehlen bei Prüfzahl                fehlern,  bei genügend häufiger  Wiederholung  +
+                wird  ein fehlerhafter Sektor meist doch noch  +
+                gelesen.
+
+SHIFT-CLEAR     falls  die fehlerhafte  Funktion  abgebrochen  +
+                werden  soll.  In diesem Fall wird der Fehler  +
+                an das CP/M weitergegeben,  was sich dann mit  +
+                `BDOS Error on ...` meldet.
+
+P1-CLEAR        falls der Fehler übergangen werden  soll.  Zu  +
+                empfehlen  bei stark beschädigten  Disketten,  +
+                von  denen aber noch Daten `gerettet`  werden  +
+                sollen.  Über  P1-Clear kann ein Abbruch  vom  +
+                CP/M aus verhindert werden. +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<

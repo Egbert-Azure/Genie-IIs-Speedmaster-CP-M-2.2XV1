@@ -1,0 +1,594 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Anhang C                                     Fremdformate"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            C-#"
+_C.  Fremdformate_
+
+_C.1 Unterstützte Fremdformate_
+
+Die nachfolgende Liste ist eine alphabetische Aufstellung der  +
+in  der  ausgelieferten CP/M 2.2X Version unterstützten  Formate.  Sie erhebt keinen Anspruch auf Richtigkeit oder  Vollständigkeit. +
+Die  mit  (*n*) gekennzeichneten Formate  sind  nicht  direkt  +
+lesbar  und benötigen ein spezielles Zusatzprogramm.  n steht  +
+für  eine Ziffer und kennzeichnet damit eines  der  folgenden  +
+Programme:
+
+1    AP3TOCPM und CPMTOAP3 +
+2    Programmpaket GDOS <=> CP/M +
+3    Programmpaket MSDOS <=> CP/M
+
+
+Es wurde versucht,  bereits durch die Namensgebung das Format  +
+soweit  als  möglich  zu  charakterisieren.   Zur   genaueren  +
+Beschreibung werden zusätzlich die folgenden Kürzel benutzt:
+
+SS   **S**ingle **S**ided, einseitig +
+DS   **D**ouble **S**ided, doppelseitig +
+SD   **S**ingle **D**ensity, einfache Dichte +
+DD   **D**ouble **D**ensity, doppelte Dichte +
+80   80 Spuren +
+40   40 Spuren (meist am Ende des Namens) +
+V    **V**oderseite, es wird nur diese Seite benutzt +
+R    **R**ückseite, es wird nur diese Seite benutzt +
+F    **F**ront, wie V +
+B    **B**ack, wie R
+
+
+Name                Genauere Bezeichnung +
+------------------------------------------------------------- +
+ALPHATRONIC P2UV    Alphatronic P2, Vorderseite +
+ALPHATRONIC P2UR    Alphatronic P2, Rückseite +
+ALPHATRONIC P3      Alphatronic P3 (*1*) +
+ALPHATRONIC PC      Alphatronic PC +
+ALTOS 80 DSDD       Altos +
+BASF ADPS           BASF CP/M System +
+BBZHI               unbekannt +
+CMP240              CMP 40 Spur (nicht näher bekannt) +
+CMP280              CMP 80 Spur (  "     "      "   ) +
+CPC VORTEX DD 40    Schneider CPC, Format der Fa. Vortex +
+                    40 Spur, einseitig, doppelte Dichte +
+CPC VORTEX DSDD     Schneider CPC, Format der Fa.Vortex +
+                    80 Spur, doppelseitig, doppelte Dichte +
+CT PROF             Prof-80 Standardformat (CP/M System +
+                    der Zeitschrift C`t) +
+CT PROF KURZ        Prof-80, verbessertes Format
+
+D80 DSDD            80 Spur Datenformat (doppelseitig) +
+DEC RAINBOW 100     DEC Rainbow 100 (8/16Bit System) +
+DETEWE COBOS 100    DeTeWe COBOS 100 +
+ECG MEGADISK        Megadisk Format für Osborne +
+ECMA 70 V           ECMA-Standardformat, 80 Spur +
+                    Nur Vorderseite +
+ECMA 70 R           ECMA-Standardformat, 80 Spur +
+                    Nur Rückseite +
+ELZET 80 DSDD       Elzet-80 Standardformat +
+EPSON QX-10 40      EPSON QX-10, 40 Spur +
+FIBU                unbekannt +
+FRANZIS DD 40       Franzisverlag, Standardformat +
+FREEDOM SSDD        Freedom CP/M, einseitig, doppelte Dichte +
+                    80 Spur +
+FREEDOM SSDD 40     Freedom CP/M, einseitig, doppelte Dichte +
+                    40 Spur +
+FUJITSU 8/16        Fujitsu 8/16 Bit Microcomputer +
+GDOS 80DSDD         GDOS 80 Spur, doppelte Dichte, doppel- +
+                    seitig (*2*) +
+GENIE I 80 DSDD     Genie I, 64K CP/M, 80 Spur, doppelseitig +
+                    doppelte Dichte +
+GENIE I DD 40       Genie I, 64K CP/M, doppelte Dichte +
+                    40 Spur +
+GENIE III A DD      Genie III CP/M 2.2A, einseitig, doppelte +
+                    Dichte +
+GENIE III A DSDD    Genie III CP/M 2.2A, doppelseitig, +
+                    doppelte Dichte +
+GENIE III B 2K      Genie III CP/M 2.2B, 2k Blockgröße +
+GENIE III B 4K      Genie III CP/M 2.2B, 4k Blockgröße +
+GENIE III B 4KDS    Genie III CP/M 2.2B, 4k Blockgröße, +
+                    doppelseitig +
+GENIE III C         Genie III CP/M 2.2C, Standardformat +
+GENIE III S80       Genie III, Systemformat des alten +
+                    CP/M 2.2X +
+IBM 3740            8" CP/M Standardformat  +
+IBM CP/M-86         IBM PC, CP/M-86 Standardformat +
+IMS 8000 8"TDOS     IMS-8000, 8 Zoll-Format, Betriebs- +
+                    system TDOS +
+IMS 8000 CPM 1      IMS-8000, 8 Zoll-Format, Betriebs- +
+                    system CP/M +
+IMS 8000 CPM 2      IMS-8000, 8 Zoll-Format, Betriebs- +
+                    system CP/M +
+ITT 3030            ITT 3030 +
+J&K ZDOS 80 DSDD    Janich&Klass CP/M-Plus, 80 Spur, doppel- +
+                    seitig, doppelte Dichte +
+KAYPRO 4/10 40      Kaypro IV und Kaypro 10, Standardformat +
+KAYPRO II           Kaypro II, Standardformat +
+KD 3000             KD 3000, Steuerungsrechner +
+LNW80 DD 40         LNW-80, (TRS-80 kompatibel) 64k CP/M +
+MC 68K DSDD         Standardformat des MC-68k Rechners +
+                    (Franzis-Verlag) +
+MEGABYTE 8          8" High-Capacity (kein best. System)
+
+MICRO K 64 DSDD     CP/M-Format des Micro-K 64  +
+MICRODECISION 40    Microdecision Standardformat, 40 Spur +
+MONTEZUMA 40        Tandy Model III Montezuma CP/M, 40 Spur +
+MORROW 40           Morrow Design, Standardformat, 40 Spur +
+MSDOS               IBM PC, MS-DOS, 40 Spur (*3*) +
+MZ 3500 EOS 40      Sharp MZ 3500, EOS System +
+MZ 80B 40           Sharp MZ 80B +
+NASCOM C XDOS       Nascom C, XDOS, 80 Spur +
+NCR DMV DS          NCR Decision Mate V, doppelseitig, +
+                    80 Spur +
+NCR DMV DS 40       NCR Decision Mate V, doppelseitig, +
+                    40 Spur +
+NCR DMV SS          NCR Decision Mate V, einseitig, 80 Spur +
+NCR DMV SS 40       NCR Decision Mate V, einseitig, 40 Spur +
+NIXDORF 8810/30     Nixdorf 8810/30 +
+OLIVETTI 40         Olivetti, 40 Spur +
+OMIKRON 40          Tandy Model I Omikron CP/M 1.4, 40 Spur +
+OMIKRON             Tandy Model I Omikron CP/M 1.4, 80 Spur +
+OMIKRON B           Tandy Model I Omikron CP/M 1.4, 80 Spur +
+                    Nur Rückseite +
+OMIKRON F           Tandy Model I Omikron CP/M 1.4, 80 Spur +
+                    Nur Vorderseite +
+OSBORNE 1 40        Osborne I, einfache Dichte, 40 Spur +
+OSBORNE DD 40       Osborne I, doppelte Dichte, 40 Spur +
+PHILIPS P3800       Philips P3800 +
+PHILIPS P2012       Philips P2012 +
+RAIR DSDD 40        Rair,  doppelseitig,  doppelte Dichte, +
+                    40 Spur +
+ROSE                Standardformat der Fa. Kersting/Rose +
+S40 DD              40 Spur Standard-Systemformat +
+                    (einseitig) +
+S80 DSDD            80 Spur Standard-Systemformat +
+                    (doppelseitig) +
+SORD M23            Sord M23, Standardformat +
+SP 40 DD            Speedmaster, altes CP/M +
+SP 40 DD 256        Speedmaster, altes CP/M +
+SP 40 DSDD          Speedmaster, altes CP/M +
+SP 40 DSDD 256      Speedmaster, altes CP/M +
+SP 80 DD            Speedmaster, altes CP/M +
+SPECTRA 328 DSDD    Spectra-Video 328, doppelseitig, doppelte +
+                    Dichte +
+SPECTRA 328 SSDD    Spectra-Video 328, einseitig, doppelte +
+                    Dichte +
+TANDY II/12 HDEN    Tandy Model II oder 12, 8 Zoll High +
+                    Density +
+TAYLORIX 8          Taylorix, 8 Zoll Standardformat +
+TELEVIDEO DS 40     Televideo, 40 Spur, doppelte Dichte +
+TELEVIDEO SS 80     Televideo, 80 Spur, einfache Dichte +
+TOS                 Atari ST, TOS, 80 Spur (*3*) +
+TURBODOS DS         Turbosdos, doppelseitig +
+WAVE-MATE 8"DSDD    Wavemate Bullet, 8 Zoll Standardformat +
+WAVEMATE BULLET     Wavemate Bullet, Standardformat
+
+_C.2 Weitere Formate_
+
+Die  Installation  weiterer Fremdformate kann auf  zwei  verschiedenen  Wegen geschehen.  Entweder durch das getrennt erhältliche Programm PDRIVE.COM, mit dem beliebige CP/M-Formate  +
+eingestellt werden können oder über den Autor.
+
+Falls  Sie  ein weiteres Fremdformat an Ihr CP/M 2.2X  System  +
+angepasst haben möchten, gehen Sie bitte folgendermaßen vor:
+
+Beschreiben  Sie die Fremddiskette mit möglichst  vielen  und  +
+langen Textdateien. Die Diskette muß **über 50 %** belegt sein. +
+Fügen  Sie  einen Ausdruck des Inhaltsverzeichnisses und  der  +
+STAT DSK:-Parameter dieser Diskette bei. +
+Schicken Sie diese Diskette zusammen mit einer im Format  S80  +
+DSDD **formatierten** Diskette an folgende Adresse:
+
+
+                         Klaus Kämpf +
+                     Softwareentwicklung +
+                        Jakobstr. 236 +
+                         5100 Aachen
+
+
+
+Die  Kosten  pro Anpassung liegen zur Zeit  bei  DM  30.- pro  +
+Fremddiskette. +
+Die Rücksendung erfolgt als Brief.  Falls Sie die Rücksendung  +
+als  Einschreiben oder Wertbrief erhalten wollen,  fügen  Sie  +
+bitte entsprechend Rückporto bei. (Einschreiben 2.- DM, Wertbrief 4.- DM) +
+Sie  erhalten  dann auf der zweiten Diskette ein  neues  File  +
+PDRIVE.SYS, daß Sie einfach auf Ihre Systemdiskette kopieren. 
+
+
+_C.3 Systembedingte Grenzen der Formate_
+
+Das  CP/M 2.2 Betriebssystem legt sich bei jedem Diskettenzugriff  eine Tabelle an,  die Aufschluß über den  Füllungsgrad  +
+der  Diskette  geben.  Da das CP/M  die  Diskette  blockweise  +
+verwaltet,  ist  die  Länge dieser Tabelle abhängig  von  der  +
+Anzahl der Blöcke auf der Diskette. Um einen möglichst großen  +
+Benutzerspeicher zu erhalten, wurde die Länge dieser Tabellen  +
+begrenzt. Damit ergeben sich für die Unterstützung von Fremdformaten folgende Grenzen:
+
+Maximal **512** Blöcke pro Diskette.  Bei der maximalen Blockläge  +
+von 16384 Bytes pro Block (16k) ergibt sich damit eine  maximale Laufwerkskapazität von 8 Megabyte.
+
+Maximal  **256**  `Checked Directory Entries`.  Damit  ist  jeder  +
+Block durch einen Directory-Eintrag zu erreichen.
+
+
+Maximal **52 physikalische** Sektoren pro Spur. 
+
+
+Aufgrund des verwendeten Diskettencontrollers können die CP/M  +
+Disketten der folgenden Geräte nicht direkt gelesen werden:
+
+Apple (und kompatible) +
+Victor/Sirius (CP/M-86) +
+
+// .pa ""
+
+<<<
+_C.4 Aufbau des PDRIVE.SYS_
+
+Das  Datenfile  PDRIVE.SYS beinhaltet alle Informationen  der  +
+verschiedenen Fremdformate. +
+Für  jedes der 128 möglichen Fremdformate stehen  16  Zeichen  +
+für  die  Formatbezeichnung zur  Verfügung.  Die  eigentliche  +
+Information über das Fremdformat gliedert sich in vier Teile:
+
+1. Der Disk Parameter Block (DPB) +
+2. Das Pdrive-Byte +
+3. Formatierungsparameter +
+4. Die Sektortabelle
+
+Die  32  Bytes,  die  in der Speicheraufteilung als  DPB  für  +
+Diskettenlaufwerke ausgewiesen werden, sind wie folgt belegt:
+
+Relative    Anzahl der  Nutzung +
+Bytenummer  Bytes +
+------------------------------------------------------------- +
+00h - 10h (17 Bytes)  DPB nach CP/M-Plus +
+11h       ( 1 Byte )  PD-Byte (s.u.) +
+12h       ( 1 Byte )  Anzahl der Sektoren pro Spur pro Seite +
+13h       ( 1 Byte )  Anzahl der Spuren pro Seite (40/80) +
+14h	  ( 1 Byte )  Size 0=5 1/4,1=8,2=3,3= 8 auf 5 1/4 +
+15h       ( 1 Byte )  Offset für Spurnummer +
+16h	  ( 1 Byte )  00 = vom CP/M lesbar +
+                      FF = benötigt spezielles Programm +
+17h	  ( 1 Byte )  Nummer des ersten Sektors auf der +
+                      Vorderseite (0 oder 1) +
+                      FF = Vorderseite unbenutzt +
+18h	  ( 1 Byte )  Nummer des ersten Sektors auf der +
+                      Rückseite (0 oder 1) +
+                      FF = Rückseite unbenutzt +
+19h	  ( 1 Byte )  Skew-Faktor für Formatierung +
+1Ah - 1Ch ( 3 Bytes)  reserviert +
+1Dh 	  ( 1 Byte )  Anzahl der Spuren des  Laufwerks +
+1Eh       ( 1 Byte )  Nummer des Eintrags (0-127,für PD) +
+1Fh	  ( 1 Byte )  reserviert +
+20h - 5Fh (64 Bytes)  Sektorversatz- (Skew-) Tabelle +
+60h - 6Fh (16 Bytes)  frei +
+70h - 7Fh (16 Bytes)  Name des Formates +
+          ---------- +
+          128 Bytes +
+          ==========
+
+
+
+Der  Disk  Parameter  Block beinhaltet alle  Daten  über  den  +
+logischen Aufbau des Formats.  Dazu gehören z.B.  Blockgröße,  +
+Anzahl der Blöcke,  Anzahl der Directory-Einträge etc. Nähere  +
+Informationen  dazu  entnehmen Sie bitte  der  entsprechenden  +
+Literatur (siehe Anhang F).
+
+Das Pdrive-Byte kennzeichnet das physikalsiche  Diskettenformat und ist folgendermaßen aufgebaut:
+
+Bit Nr:   Information +
+------------------------------------------------------------ +
+  0       Aufzeichnungsdichte +
+          0=single Density, 1=double Density
+
+  1       Aufzeichnungsart +
+          0=normale Aufzeichnung, 1=invertierte Aufzeichnung
+
+  2       Anzahl der benutzten Laufwerksseiten +
+          0=einseitig, 1=doppelseitig
+
+  3,4,5   Art des doppelseitigen Zugriffs +
+          000= Zugriff nach Sektortabelle +
+               (Die  Vorder- und Rückseite bilden eine  logi               sche Spur) +
+          001= Ungerade Spurnummern auf der Rückseite +
+          010= Vorderseite Spur 0 bis Spur 79 +
+               Rückseite Spur 0 bis Spur 79 +
+          011= Sektor-Offset auf der Rückseite +
+               (Die  Sektornummern  werden durchgezählt  aber  +
+               die  Rückseite  als  getrennte  logische  Spur  +
+               verwaltet) +
+          100= Vorderseite Spur 0 bis 79 +
+               Rückseite Spur 79 bis 0 +
+          101= Gerade Spurnummern auf der Rückseite +
+          110= reserviert +
+          111= reserviert
+
+  6       Nummer der Spurkennung auf der Diskette +
+          0 =  Die  Spurnummer ist gleich der  physikalischen  +
+               Kopfposition +
+          1 =  Die  Spurnummer ist gleich der logischen  (vom  +
+               CP/M angeforderten) Nummer
+
+  7       unbenutzt, reserviert
+
+
+
+Die  Sektortabelle dient dem logischen Versatz  beim  Zugriff  +
+auf die Sektoren. Dadurch kann der Diskettenzugriff erheblich  +
+beschleunigt  werden.  Die Sektortabelle umfasst 64 Bytes für  +
+maximal 64 Sektornummern.  Im Gegensatz zu normalen CP/M  2.2  +
+Systemen, sind beim CP/M 2.2X in der Sektortabelle die physikalischen Sektornummern aufgeführt. +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<
+
+// .pn " 1"
+
+// ?? dot "he" " Anhang D                                 Tastaturtabellen"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            D-#"
+_D. Tastaturtabellen_
+
+_D.1 Nummern und Belegungen der einzelnen Tasten_
+
+Die  folgende  Tabelle gibt Aufschluß über die  Nummer  jeder  +
+Taste und ihre Belegung.
+
+Die  Codes  01H  bis 7FH (1 bis 127 dez)  werden  unverändert  +
+übergeben. 00H bedeutet die Sperrung der betroffenen Taste(nkombination). 80H bis 8FH (128 bis 143 dez) stehen für die 16  +
+Funktionstasten.
+
+
+Tasten-   Tasten-        Werte beim Tastendruck +
+nummer    beschriftung   Taste   SHIFT     CTRL  SHIFT&CTRL +
+----------------------------------------------------------- +
+ 00H,  0   `@`           60H      40H      00H     00H +
+ 01H,  1   `A`           61H      41H      01H     01H +
+ 02H,  2   `B`           62H      42H      02H     02H +
+ 03H,  3   `C`           63H      43H      03H     03H +
+ 04H,  4   `D`           64H      44H      04H     04H +
+ 05H,  5   `E`           65H      45H      05H     05H +
+ 06H,  6   `F`           66H      46H      06H     06H +
+ 07H,  7   `G`           67H      47H      07H     07H +
+ 08H,  8   `H`           68H      48H      08H     08H +
+ 09H,  9   `I`           69H      49H      09H     09H +
+ 0AH, 10   `J`           6AH      4AH      0AH     0AH +
+ 0BH, 11   `K`           6BH      4BH      0BH     0BH +
+ 0CH, 12   `L`           6CH      4CH      0CH     0CH +
+ 0DH, 13   `M`           6DH      4DH      0DH     0DH +
+ 0EH, 14   `N`           6EH      4EH      0EH     0EH +
+ 0FH, 15   `O`           6FH      4FH      0FH     0FH +
+ 10H, 16   `P`           70H      50H      10H     10H +
+ 11H, 17   `Q`           71H      51H      11H     11H +
+ 12H, 18   `R`           72H      52H      12H     12H +
+ 13H, 19   `S`           73H      53H      13H     13H +
+ 14H, 20   `T`           74H      54H      14H     14H +
+ 15H, 21   `U`           75H      55H      15H     15H +
+ 16H, 22   `V`           76H      56H      16H     16H +
+ 17H, 23   `W`           77H      57H      17H     17H +
+ 18H, 24   `X`           78H      58H      18H     18H +
+ 19H, 25   `Y`           79H      59H      19H     19H +
+ 1AH, 26   `Z`           7AH      5AH      1AH     1AH +
+ 1BH, 27   `Ä`           7BH      5BH      1BH     1BH +
+ 1CH, 28   `Ö`           7CH      5CH      1CH     1CH +
+ 1DH, 29   `Ü`           7DH      5DH      1DH     1DH +
+ 1EH, 30   `ß`           7EH      5EH      1EH     1EH +
+ 1FH, 31   `^`           7FH      5FH      1FH     1FH +
+
+// .pa ""
+
+<<<
+Tasten-   Tasten-        Werte beim Tastendruck +
+nummer    beschriftung   Taste   SHIFT     CTRL  SHIFT&CTRL +
+----------------------------------------------------------- +
+ 20H, 32   `0/ `         30H      20H      30H     30H +
+ 21H, 33   `1/!`         31H      21H      31H     31H +
+ 22H, 34   `2/"`         32H      22H      32H     32H +
+ 23H, 35   `3/#`         33H      23H      33H     33H +
+ 24H, 36   `4/$`         34H      24H      34H     34H +
+ 25H, 37   `5/%`         35H      25H      35H     35H +
+ 26H, 38   `6/&`         36H      26H      36H     36H +
+ 27H, 39   `7/``         37H      27H      37H     37H +
+ 28H, 40   `8/(`         38H      28H      38H     38H +
+ 29H, 41   `9/)`         39H      29H      39H     39H +
+ 2AH, 42   `:/*`         3AH      2AH      3AH     3AH +
+ 2BH, 43   `;/+`         3BH      2BH      3BH     3BH +
+ 2CH, 44   `,/<`         2CH      3CH      3CH     3CH +
+ 2DH, 45   `-/=`         2DH      3DH      3DH     3DH +
+ 2EH, 46   `./>`         2EH      3EH      3EH     3EH +
+ 2FH, 47   `//?`         2FH      3FH      3FH     3FH +
+ 30H, 48   `ENTER`       0DH      0DH      0DH     0DH +
+ 31H, 49   `CLEAR`       1BH      00H      00H     00H +
+ 32H, 50   `BREAK`       03H      03H      03H     03H +
+ 33H, 51   HOCHPFEIL     05H      12H      17H     00H +
+ 34H, 52   TIEFPFEIL     18H      03H      1AH     00H +
+ 35H, 53   LINKSPFEIL    08H      01H      7FH     00H +
+ 36H, 54   RECHTSPFEIL   04H      06H      07H     00H +
+ 37H, 55   LEERTASTE     20H      09H      F6H     00H +
+ 38H, 56   `SHIFT`       00H      00H      00H     00H +
+ 39H, 57   `CTRL`        00H      00H      00H     00H +
+ 3EH, 62   `P2`          00H      00H      00H     00H +
+ 3FH, 63   `P1`          00H      00H      00H     00H +
+ 40H, 64   `F1`          80H      88H      80H     88H +
+ 41H, 65   `F2`          81H      89H      81H     89H +
+ 42H, 66   `F3`          82H      8AH      82H     8AH +
+ 43H, 67   `F4`          83H      8BH      83H     8BH +
+ 44H, 68   `F5`          84H      8CH      84H     8CH +
+ 45H, 69   `F6`          85H      8DH      85H     8DH +
+ 46H, 70   `F7`          86H      8EH      86H     8EH +
+ 47H, 71   `F8`          87H      8FH      87H     8FH +
+
+// .pa ""
+
+<<<
+_D.2 Belegung des separaten Zehnerblocks_
+
+Die folgenden Tasten liegen im separaten Zehnerblock: +
+(Nur Genie III)
+
+Tasten-   Tasten-        Werte beim Tastendruck +
+nummer    beschriftung   Taste   SHIFT     CTRL  SHIFT&CTRL +
+----------------------------------------------------------- +
+ 48H, 72   `0`           30H      30H      00H     00H +
+ 49H, 73   `1`           31H      31H      00H     00H +
+ 4AH, 74   `2`           32H      32H      00H     00H +
+ 4BH, 75   `3`           33H      33H      00H     00H +
+ 4CH, 76   `4`           34H      34H      00H     00H +
+ 4DH, 77   `5`           35H      35H      00H     00H +
+ 4EH, 78   `6`           36H      36H      00H     00H +
+ 4FH, 79   `7`           37H      37H      00H     00H +
+ 50H, 80   `8`           38H      38H      00H     00H   +
+ 51H, 81   `9`           39H      39H      00H     00H +
+ 52H, 82   `00`          30H      30H      30H     30H +
+ 53H, 83   `ALPHA LOCK`  00H      00H      00H     00H +
+ 54H, 84   `,`           2CH      2CH      00H     00H +
+ 55H, 85   `-`           2DH      2DH      00H     00H +
+ 56H, 86   `.`           2EH      2EH      00H     00H +
+
+// .pa ""
+
+<<<
+_D.3 Belegung der Sondertasten_
+
+Die folgende Tabelle gibt nochmals eine kurze Übersicht  über  +
+die Spezialtasten und ihre Funktion.  Zusätzlich ist noch die  +
+entsprechende CTRL-Sequenz aufgeführt.
+
+
+Tastenkombination       Wert Funktion           entspricht +
+------------------------------------------------------------     +
+           BREAK        03H  Warmstart          CTRL-C +
+SHIFT     -BREAK        03H  dito
+
+           CLEAR        1BH  Escape             CTRL-Ä +
+SHIFT     -CLEAR        1BH  dito
+
+           ENTER        0DH  Carriage Return    CTRL-M +
+SHIFT     -ENTER        0DH  dito
+
+           LEERTASTE    20H  Leerzeichen        SHIFT-0 +
+SHIFT     -LEERTASTE    09H  Tabulator          CTRL-I
+
+           HOCHPFEIL    05H  Eine Zeile höher   CTRL-E +
+SHIFT     -HOCHPFEIL    17H  Eine Seite zurück  CTRL-W
+
+           TIEFPFEIL    18H  Eine Zeile tiefer  CTRL-X +
+SHIFT     -TIEFPFEIL    03H  Eine Seite vor     CTRL-C
+
+           LINKSPFEIL   08H  Ein Zeichen nach +
+                             links              CTRL-H +
+SHIFT     -LINKSPFEIL   01H  Ein Wort nach +
+                             links              CTRL-A
+
+           RECHTSPFEIL  04H  Ein Zeichen nach +
+                             rechts             CTRL-D +
+SHIFT     -RECHTSPFEIL  06H  Ein Wort nach +
+                             rechts             CTRL-F +
+
+// .pa ""
+
+<<<
+
+// .pn " 1"
+
+// ?? dot "he" " Anhang E                                     Zeichens{tze"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            E-#"
+_E. Zeichensätze_
+
+Die  beiden folgenden Tabellen geben Aufschluß über den  Zeichensatz  bei  den Geräten Genie III und Genie IIs.  Für  die  +
+Werte  20H  bis 6FH (32 bis 111) ist auch  der  entsprechende  +
+Zeilen- bzw.  Spaltenwert  für die Escapesequenz zur  Cursorpositionierung angegeben. +
+Die  Zeichen  mit Werten zwischen A0H und FFH  werden  invers  +
+dargestellt.
+
+
+_E.1 Zeichensatz des Genie III_ +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<
+_E.2 Zeichensatz des Genie IIs_ +
+
+// .pa ""
+
+<<<
+
+// .pa ""
+
+<<<
+_E.3 ASCII-Tabelle_
+
+
+
++-----------------------------------------------------------+ +
+!                    Höherwertiges Digit                    ! +
+!       0     1      2      3      4      5      6      7   !  +
++-----------------------------------------------------------+ +
+! 0 !  NUL   DLE    SPC     0      @      P      `      p +
+! 1 !  SOH   DC1     !      1      A      Q      a      q +
+! 2 !  STX   DC2     "      2      B      R      b      r +
+! 3 !  ETX   DC3     #      3      C      S      c      s +
+! 4 !  EOT   DC4     $      4      D      T      d      t +
+! 5 !  ENG   NAK     %      5      E      U      e      u +
+! 6 !  ACK   SYN     &      6      F      V      f      v +
+! 7 !  BEL   ETB     `      7      G      W      g      w +
+! 8 !  BS    CAN     (      8      H      X      h      x +
+! 9 !  HT    EM      )      9      I      Y      i      y +
+! A !  LF    SUB     *      :      J      Z      j      z +
+! B !  VT    ESC     +      ;      K      Ä      k      ä +
+! C !  FF    FS      ,      <      L      Ö      l      ö +
+! D !  CR    GS      -      =      M      Ü      m      ü +
+! E !  SO    RS      .      >      N      ^      n      ß +
+! F !  SI    VS      /      ?      O      _      o     DEL +
++---+ +
+
+// .pa ""
+
+<<<
+
+// .pn " 1"
+
+// ?? dot "he" " Anhang F                                Literaturhinweise"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            F-#"
+_F. Literaturhinweise_
+
+F.1 Literatur zum CP/M 2.2
+
+- Vom Umgang mit CP/M (2.2), Bernd Pol, IWT Verlag +
+- CP/M mit MP/M, Rodney Zaks, Sybex Verlag +
+- *** originalhandbuch cp/m 2.2 dri/m&t +
+- *** cp/m 2.2 sourcelisting, röckrath
+
+F.2 Literatur zum Genie III und Genie IIs
+
+- Technisches Handbuch zum Genie IIs, Phoenix GmbH +
+- Schaltpläne zum Genie III, Phoenix GmbH +
+- Genie III User`s Manual & Utilities, EACA Ltd. +
+- Programmierung des Z80, Rodney Zaks, Sybex Verlag +
+- Datenblätter Z80-CPU, -SIO, -PIO, Zilog +
+- Datenblatt HD46505, 6845 CRTC, Hitachi oder Motorola +
+
+// .pa ""
+
+<<<

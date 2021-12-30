@@ -1,0 +1,700 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 10                                Dienstprogramme"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung          10-#"
+_10. CP/M Dienstprogramme_
+
+_10.0 Einleitung_
+
+Nachfolgend  sind alle mitgelieferten Dienstprogramme  aufgeführt. +
+Diese  Dienstprogramme  sind speziell auf das  Genie  III/IIs  +
+CP/M 2.2X zugeschnitten und nur dort lauffähig.
+
+Am  Anfang jeder Beschreibung steht die Syntax,  mit der  das  +
+entsprechende Programm aufgerufen werden kann. +
+Mögliche Parameter sind in eckigen Klammern (`<` und `>`) und  +
+in Kleinschrift angegeben.  <lw> bezeichnet dabei einen Laufwerksnamen  im  Bereich A bis D (mit oder ohne  nachfolgenden  +
+Doppelpunkt).
+
+Die eckigen Klammern dürfen nicht mit eingegeben werden. +
+
+// .pa ""
+
+<<<
+_10.1  AUTO.COM_
+
+
+Syntax:    AUTO +
+oder       AUTO <befehl>
+
+Anwendung: Ausführung eines bestimmtes Programms oder Befehls  +
+           nach  dem  Kaltstart,  ohne Einwirkung  durch  den  +
+           Benutzer.  Wirkung:  Der als Parameter aufgeführte  +
+           wird beim nächsten Bootvorgang der  Systemdiskette  +
+           automatisch  ausgeführt.  Ist kein Parameter ange           geben,  so  wird beim nächsten Booten kein  Befehl  +
+           ausgeführt  und das System meldet sich sofort  mit  +
+           dem Prompt A>.
+
+Bemerkung: Das AUTO-Programm ändert immer den Autobefehl  des  +
+           gefundenen Konfigurationsfile CONFIG.SYS +
+           Der als Parameter eingegebene Befehl darf  maximal  +
+           31  Zeichen umfassen.  Sollen mehere Befehle nach           einander  ausgeführt werden,  so ist dies nur  mit  +
+           Programm SUBMIT und einer entsprechenden  Befehls           datei  (.SUB  als Extension)  möglich.  Der  AUTO- +
+           Befehl muss dann AUTO SUBMIT filename.SUB lauten.
+
+Beispiele: AUTO DIR B: +
+           Nach  dem nächsten Booten der Systemdiskette  wird  +
+           automatisch das Inhaltsverzeichnis der Diskette im  +
+           Laufwerk B angezeigt. +
+           AUTO DATUM +
+           Nach  dem  Booten wird sofort das  aktuelle  Datum  +
+           angezeigt. +
+           AUTO SUBMIT START +
+           Nach dem Booten wird automatisch der Befehl SUBMIT  +
+           START  ausgeführt.  Dadurch  kann über  den  AUTO- +
+           Befehl  auch  die Ausführung mehrerer Befehle  er           reicht  werden.  Im File START.SUB müssen die  ge           wünschten Befehle stehen. +
+           AUTO +
+           Nach dem Booten wird kein Befehl  ausgeführt,  das  +
+           System meldet sich direkt mit dem Prompt A>. +
+
+// .pa ""
+
+<<<
+_10.2  BOOT.COM_
+
+
+Syntax:    BOOT
+
+Anwendung: Kaltstart (Booten) des Betriebssystems
+
+Wirkung:   Die  im eingebauten EPROM  vorhanden  Boot-Routine  +
+           wird  aufgerufen.  Das  Verhalten des Gerätes  ist  +
+           somit wie nach dem Einschalten.
+
+Bemerkung: Dieses  Programm  soll nur zum  softwaremäßig  ge           steuerten Bootvorgang dienen. Im der Regel erfolgt  +
+           ein Kaltstart des Systems durch Drücken der beiden  +
+           RESET-Tasten. +
+
+// .pa ""
+
+<<<
+_10.3  CONFIG.COM_
+
+
+Syntax:    CONFIG
+
+Anwendung: Änderung   oder  Anzeige  des  Konfigurationsfiles  +
+           CONFIG.SYS der Systemdiskette.
+
+Wirkung:   Die  Systemtabelle  des  Konfigurationsfiles  wird  +
+           eingelesen und die veränderbaren Parameter einzeln  +
+           abgefragt.  Durch Drücken der ENTER-Taste kann die  +
+           Einstellung  des gezeigten Parameters  unverändert  +
+           gelassen  werden.  Am Ende der Konfiguration  wird  +
+           die Systemtabelle wieder abgespeichert.
+
+Bemerkung: Die neue Konfiguration wird nicht in den  Speicher  +
+           übernommen,  sondern wird erst nach dem Booten der  +
+           geänderten  Systemdiskette wirksam.  Genauere Hin           weise auf dieses Programm und die einzelnen  Para           meter befinden sich im Kapitel 7. +
+
+// .pa ""
+
+<<<
+_10.4  DATUM.COM                               (nur Genie III)_
+
+
+Syntax:    DATUM +
+oder       DATUM <w> <tt>.<mm>.<jj>
+
+Anwendung: Programmierung  oder  Anzeige  von  Wochentag  und  +
+           Datum in die eingebaute Hardwareuhr. +
+Wirkung:   DATUM zeigt den aktuellen Wochentag und das  Datum  +
+           in der Form `Heute ist Montag, der 1. Januar 1985`  +
+           an. Anders als in der Statuszeile werden hier also  +
+           Wochentag  und  Monat  ausgeschrieben.  Durch  die  +
+           Angabe  eines neuen Wochentags und Datums kann die  +
+           vorhandene Einstellung verändert werden. +
+           Der  Parameter <w> bestimmt den Wochentag  im  Be           reich  1  (für Montag) bis 7  (für  Sonntag).  Das  +
+           Datum  folgt  durch ein Leerzeichen vom  Wochentag  +
+           getrennt. Tag, Monat und Jahr bestehen jeweils aus  +
+           zwei Ziffern im Bereich jeweils 01 bis 31,  01 bis  +
+           12 und 00 bis 99.
+
+Bemerkung: Durch  die Batteriepufferung der Hardwareuhr  wird  +
+           das  Datum automatisch beim Übergang von  23:59:59  +
+           auf  00:00:00  weitergezählt.   Eine  selbsttätige  +
+           Erkennung von Schaltjahren findet nicht statt. +
+
+// .pa ""
+
+<<<
+_10.5  FKEY.COM_
+
+
+Syntax:    FKEY
+
+Anwendung: Änderung der bestehenden Funktionstastenbelegung.
+
+Wirkung:   FKEY  lädt die Funktionstastentabelle (FKYTAB) des  +
+           Konfigurationsfiles   CONFIG.SYS  und  zeigt   die  +
+           Belegung der Funktionstasten an.  +
+           Nach dem Programmstart und dem Einlesen der FKYTAB  +
+           werden  die  16  Funktionstastenbelegungen  +
+           angezeigt.  Das Ende jeden Textes ist durch  einen  +
+           weissen  Block markiert,  Controlcodes werden  als  +
+           invertierte  Buchstaben  entsprechend  der  ASCII- +
+           Tabelle dargestellt.  <ENTER> z.B., ASCII-Carriage  +
+           Return,  entspricht  der Tastenkombination  CTRL-M  +
+           und wird als invertiertes `M` angezeigt. +
+           Durch  die beiden Pfeiltasten Hochpfeil und  Tief           pfeil  kann  eine der 16 Belegungen zur  Änderung  +
+           ausgewählt werden. Das Zeichen `>` zeigt dabei die  +
+           Funktionstaste  an,  die durch Drücken der  ENTER- +
+           Taste zur Änderung herangezogen wird.  BREAK spei           chert  die  aktuelle Belegung  auf  dem  gewählten  +
+           Laufwerk,  CLEAR bricht das Programm ohne Übernahme  +
+           der Änderungen ab. +
+           Nachdem  eine  Funktionstaste  ausgewählt   wurde,  +
+           befindet sich das Programm im Änderungsmodus.  Der  +
+           blinkende  Cursor zeigt auf das erste Zeichen  des  +
+           Funktionstastentexts.  In  der untersten Zeile ist  +
+           die Anzahl der noch freien Zeichen angegeben.  Der  +
+           dargestellte  Text kann nun überschrieben  werden,  +
+           oder neue Zeichen nach Aktivierung des  Einfügemo           dus eingefügt werden. Durch die Pfeiltasten Links           pfeil  und  Rechtspfeil wird der Cursor  innerhalb  +
+           des Textes bewegt. Tiefpfeil löscht das Zeichen an  +
+           der Cursorposition,  CLEAR den gesamten  Text.  Um  +
+           auch  die  Eingabe von Controlcodes  zu  erlauben,  +
+           erfolgt  eine spezielle  Tastaturabfrage.  Dadurch  +
+           ist  es möglich,  alle Controlcodes,  insbesondere  +
+           den ENTER-Code CR,  mit in den Funktionstastentext  +
+           zu integrieren.  Der Änderungsmodus wird durch die  +
+           BREAK-Taste  beendet und man befindet sich  danach  +
+           wieder im Auswahlmodus.
+
+Bemerkung: FKEY   arbeitet   immer  nur  mit  der   auf   der  +
+           Systemdiskette   befindlichen   Konfigurationsfile  +
+           CONFIG.SYS     und     speichert     die      neue  +
+           Funktionstastenbelegung  nach  der  Änderung  auch  +
+           wieder dort ab. Die Aktivierung der neuen Belegung  +
+           wird am Ende des Programms explizit abgefragt. +
+           Im Auswahlmodus werden die Pfeiltasten nach ca. 1-
+
+           2 Sekunden automatisch wiederholt. SHIFT-Hochpfeil  +
+           verschiebt  die  Markierung zum ersten und  SHIFT- +
+           Tiefpfeil zum letzten Text. +
+
+// .pa ""
+
+<<<
+_10.6  FORMAT.COM_
+
+
+Syntax:    FORMAT <lw> </V> </W> </VW> +
+oder       FORMAT
+
+Anwendung: Das  Programm FORMAT dient zur Formatierung  einer  +
+           Diskette.
+
+Wirkung:   Bei  der Formatierung wird die Diskette in  Spuren  +
+           und  Sektoren eingeteilt,  die dem  Betriebssystem  +
+           die Orientierung auf der Diskette bei Schreib- und  +
+           Leseoperationen ermöglicht. +
+           FORMAT  formatiert die Diskette im Laufwerk  <lw>.  +
+           Ist  kein Laufwerk angegeben,  so wird  der  Lauf           werksname  gesondert abgefragt.  Die  Formatierung  +
+           erfolgt immer in dem für dieses Laufwerk gewählten  +
+           Format.
+
+Bemerkung: Mit Hilfe des Formatprogramms können alle vom CP/M  +
+           2.2X unterstützten Formate bearbeitet werden. +
+           Das  FORMAT-Programm beginnt bei der  Formatierung  +
+           einer Diskette immer auf der Spur 0.  Während  der  +
+           Formatierung  wird die bearbeitete Spurnummer  und  +
+           Diskettenseite  angezeigt.  Im Normalfall wird die  +
+           Formatierung  nicht nochmals  überprüft,  da  dies  +
+           einen  ziemlichen Zeitverlust bedeutet.  Über  den  +
+           Parameter   `/V`  kann  jedoch  eine   Überprüfung  +
+           erzwungen  werden.  Wird dabei ein Fehler erkannt,  +
+           so  erfolgt die Ausgabe eines kurzen Pieptons  und  +
+           die  Formatierung der fehlerhaften Spur wird  wie           derholt. +
+           Durch  Drücken der BREAK-Taste ist  jederzeit  der  +
+           Abbruch einer begonnen Formatierung möglich.
+
+           Über  den Parameter `/W` wird explizit auf die  zu  +
+           formatierende   Diskette  gewartet,   ohne  diesen  +
+           Parameter beginnt die Formatierung sofort. Ist das  +
+           aktuelle   und  das  zur   Formatierung   gewählte  +
+           Laufwerk  identisch,  so  wird der Parameter  `/W`  +
+           automatisch  gesetzt  und  die  Diskette  getrennt  +
+           angefordert.
+
+Beispiele: FORMAT +
+           Das  FORMAT-Programm wird gestartet und fragt nach  +
+           dem Laufwerk,  das formatiert werden soll. An die           ser Stelle ist durch Drücken der BREAK-Taste  oder  +
+           CTRL-C  ein  sofortiger  Programmabbruch  möglich.  +
+           Nach der Eingabe einer korrekten Laufwerksbezeich           nung wird sofort mit der Formatierung begonnen. +
+           FORMAT B +
+           Die  Diskette  im Laufwerk B wird in dem durch  PD 
+
+           für  dieses Laufwerk gewählten Format  formatiert.  +
+           Der Beginn der Formatierung erfolgt  sofort,  ohne  +
+           zusätzliche Bestätigung.  Ein Abbruch ist nur über  +
+           die BREAK-Taste möglich. +
+           FORMAT B/V +
+           Die  Diskette  im Laufwerk B wird  formatiert  und  +
+           jede  Spur einzeln auf eine korrekte  Formatierung  +
+           hin überprüft. +
+           FORMAT B/W +
+           Das  Format-Programm wartet mit  der  Formatierung  +
+           bis   die  gewünschte  Diskette  ins  Laufwerk   B  +
+           eingelegt wurde. +
+
+// .pa ""
+
+<<<
+_10.7  ID.COM_
+
+
+Syntax:    ID <lw>:<formatname>
+
+Anwendung: Aufbringen   eines   Boot-Laders  mit   der    der  +
+           Formatkennung  <formatname>  auf die  im  Laufwerk  +
+           <lw> eingelegte Diskette.
+
+Wirkung:   ID   formatiert  die  Spur  0,   Vorderseite   und  +
+           Rückseite,   der  gewählten  Diskette  mit  je  10  +
+           Sektoren  a 256 Bytes (Single Density) und  bringt  +
+           den  Bootsektor  (SYSBOOT.SYS),   den   CPM-Loader  +
+           (LOADER.SYS)   und  die  Formatkennung   (benötigt  +
+           PDRIVE.SYS) auf. +
+           Die Spur 1 (Vorder- und Rückseite) wird mit je  10  +
+           Sektoren  a 512 Bytes (Double Density)  formatiert  +
+           und das CP/M 2.2 Betriebsystem (CPM22X.SYS) darauf  +
+           kopiert. +
+           Bootfähig wird eine Diskette jedoch erst, wenn die  +
+           beiden  Systemfiles CONFIG.SYS und BIOS22X.SYS auf  +
+           die Diskette kopiert werden.
+
+Bemerkung: Der Syntax des ID-Befehls entspricht genau dem des  +
+           PD-Befehls.    Der  ID-Befehl  beeinflusst  jedoch  +
+           nicht  die  den Laufwerken  zugewiesenen  Formate,  +
+           sondern  legt  nur auf der Diskette des  gewählten  +
+           Laufwerks zwei Systemspuren an.  Hat das  gewählte  +
+           Format  weniger als zwei reservierte Systemspuren,  +
+           wie z.B.  das D80 DSDD Format, so ist eine Kennung  +
+           nicht möglich. +
+           Genauso  wie  der PD-Befehl,  prüft auch  das  ID- +
+           Programm die Verträglichkeit zwischen Laufwerk und  +
+           Format  bezüglich  5 1/4 oder 8  Zoll.  Soll  eine  +
+           bootfähige  Diskette erstellt werden,  so muß  die  +
+           Kennung  mit einem Laufwerk gleichen Typs wie  das  +
+           Bootlaufwerk erfolgen.  Ist z.B.  die Kennung  mit  +
+           einem   als   40-Spur  gekennzeichneten   Laufwerk  +
+           erfolgt, so kann diese Diskette nicht in einem 80- +
+           Spur Laufwerk gebootet werden.
+
+ACHTUNG: +
+           Fremde  Systemdisketten können nach der  Anwendung  +
+           des  ID-Befehls nicht mehr auf dem fremden  System  +
+           gebootet, wohl aber bearbeitet werden. +
+           Der Benutzer ist für die korrekte  Formatzuweisung  +
+           auf die entsprechende Diskette verantwortlich. Die  +
+           Bearbeitung  einer Diskette mit einer fehlerhaften  +
+           Formatkennung kann zu unvorhersehbaren  Reaktionen  +
+           und  im  Extremfall  zu  Datenverlust  auf  dieser  +
+           Diskette führen. +
+           Überprüfen Sie daher vor der  Formatzuweisung,  ob 
+
+           die  Diskette tatsächlich das entsprechende Format  +
+           hat. 
+
+Beispiele: ID B:S80 DSDD +
+           Die im Laufwerk B: befindliche Diskette erhält die  +
+           Formatkennung S80 DSDD +
+
+// .pa ""
+
+<<<
+_10.8  INFO.COM_
+
+
+Syntax:    INFO
+
+Anwendung: Angabe  eines  Informationstextes zur  schnelleren  +
+           Identifizierung  der  gebooteten   Systemdiskette.  +
+           Insbesondere   bei  für  verschiedene  Anwendungen  +
+           konfigurierten  Systemen ist  diese  Informations           zeile äußerst nützlich.
+
+Wirkung:   Nach  Aufruf,  fragt das Programm nach einer Text           zeile,  die bis zu 80 Zeichen umfassen kann. Diese  +
+           Informationszeile  wird beim nächsten  Bootvorgang  +
+           nach dem LOGO ausgegeben.
+
+Bemerkung: Wie  auch beim AUTO-Programm wird die Änderung der  +
+           Informationszeile  nur in dem gefundenen  Konfigu           rationsfile CONFIG.SYS ausgeführt. +
+           Wird  bei  der  Konfiguration  der  entsprechenden  +
+           Systemdiskette  die Anzeige des LOGOs unterbunden,  +
+           so  wird  beim Booten  nur  die  Informationszeile  +
+           ausgegeben.  Dies  kann insbesondere für  Benutzer  +
+           die nicht mit dem System vertraut sind, eine große  +
+           Hilfe bedeuten. +
+
+// .pa ""
+
+<<<
+_10.9  IOBYTE.COM_
+
+
+Syntax:    IOBYTE
+
+Anwendung: Anzeige des aktuellen IOBYTE-Wertes.
+
+Wirkung:   Der  Wert der Speicherstelle 0003H (=CP/M  IOBYTE)  +
+           wird dezimal ausgegeben.
+
+Bemerkung: Dieses  Programm  dient zur Festlegung  des  Para           meters IOBYTE bei der Systemkonfiguration mithilfe  +
+           von  CONFIG.COM.  Das IOBYTE steuert die  Schnitt           stellenzuordnung  der  verschiedenen   CP/M-Haupt           kanäle  CON,PUN,RDR und LST.  Diese Zuordnung  ist  +
+           normalerweise festgelegt (siehe Kapitel *.*), kann  +
+           aber mit dem STAT-Programm verändert werden.  Soll  +
+           eine  neugewählte Einstellung auch nach dem nächs           ten  Kaltstart noch gültig sein,  so muß der  neue  +
+           IOBYTE-Wert bei der Systemkonfiguration eingegeben  +
+           werden. +
+
+// .pa ""
+
+<<<
+_10.10 PD.COM_
+
+
+Syntax:    PD +
+oder       PD <lw>:<formatname> +
+oder       PD S <lw>:<formatname>
+
+Anwendung: Auswahl eines Diskettenformats zum Lesen,  Schrei           ben  und Formatieren von Disketten in  Fremdforma           ten.  Welche Formate möglich sind, ist in der Tab           elle im Anhang C angegeben.
+
+Wirkung:   PD  zeigt  die aktuellen  Formateinstellungen  der  +
+           acht möglichen Diskettenlaufwerke an. 
+
+           PD  <lw>:<formatname> weist dem  Diskettenlaufwerk  +
+           <lw>  das  Format mit dem Namen  <formatname>  zu,  +
+           speichert  die  neue  Belegung  jedoch  **nicht**   in  +
+           CONFIG.SYS ab.
+
+           PD S <lw>:<formatname> weist dem Diskettenlaufwerk  +
+           <lw> das Format mit dem Namen <formatname> zu  und  +
+           speichert  die neue Belegung jedoch in  CONFIG.SYS  +
+           ab.  Damit  steht  die gewählte Belegung nach  dem  +
+           nächsten Kaltstart wieder zur Verfügung.
+
+Bemerkung: PD benutzt zur Verwaltung der verschiedenen Forma           te  das  Datenfile PDRIVE.SYS.  Wird  dieses  File  +
+           nicht auf dem aktuellen Laufwerk gefunden, so wird  +
+           automatisch  das  Laufwerk A:  angewählt  und  die  +
+           Datei dort gesucht. +
+           Ist  PDRIVE.SYS nicht erreichbar,  so erfolgt eine  +
+           entsprechende Fehlermeldung.
+
+           PD  prüft  bei der Formatzuweisung ab,  ob  dieses  +
+           Format mit dem gewählten Laufwerk verträglich ist.  +
+           So  ist  z.B.  nicht möglich,  einem  5  1/4  Zoll  +
+           Laufwerk  ein  8  Zoll Format oder einem  40  Spur  +
+           Laufwerk ein 80 Spur Format zuzuweisen.
+
+Beispiele: PD B:D80 DSDD +
+           Alle  weiteren Diskettenoperationen mit dem  Lauf           werk B: erfolgen im Format `D80 DSDD` +
+           PD +
+           Die  zur Zeit aktuellen Formate der vier möglichen  +
+           Diskettenlaufwerke werden angezeigt. +
+
+// .pa ""
+
+<<<
+_10.11 SIO.COM                                 (nur Genie IIs)_
+
+
+Syntax:    SIO +
+oder       SIO <kanal>,<baudrate>,<parität>,<wortlänge>, +
+               <stopbits>,<richtung>,<protokoll>,<wait>, +
+               <btx>,<save>
+
+Anwendung: Initialisierung  der seriellen Schnittstellen  auf  +
+           neue  Parameter oder Anzeige der derzeit  gültigen  +
+           Parameter beider SIO-Schnittstellen.
+
+Wirkung:   Ohne  Paramter,  zeigt SIO die aktuellen  Einstel           lungen  der  beiden seriellen  Kanäle,  durch  die  +
+           unten  aufgeführten  Parameter. +
+           Eine Änderung der Einstellung kann die Eingabe der  +
+           möglichen Parameter in beliebiger Reihenfolge  und  +
+           beliebig oft erfolgen.
+
+           <kanal>:     A oder B +
+                        A: Alles weitere bezieht sich auf SIO  +
+                        Kanal A (Default,  falls weder A noch  +
+                        B angegeben sind) +
+                        B: Alles weitere bezieht sich auf SIO  +
+                        Kanal B
+
+           <baudrate>:  50,  75,  110,  134.5, 150, 300, 600,  +
+                        1200,  1800,  2400, 3600, 4800, 7200,  +
+                        9600 oder 19200 +
+                        Die  Baudrate bestimmt  die  Übertra                        gungsgeschwindigkeit  in Bits pro Se                        kunde (Baud).  Die eingestellt  Baud                        rate  wird  sowohl beim  Empfang  als  +
+                        auch beim Senden von Zeichen benutzt. 
+
+           <parität>:   EVEN, ODD oder NO +
+                        Die  Parität  bestimmt die  Erzeugung  +
+                        des Paritätsbits. Dieses Bit wird bei  +
+                        der seriellen Übertragung zur Fehler                        prüfung  benutzt.  Eine  einwandfreie  +
+                        Übertragung  ist  nur  gewährleistet,  +
+                        wenn beide kommunizierenden  Schnitt                        stellen   mit  der  gleichen  Parität  +
+                        arbeiten.
+
+           <wortlänge>: 5, 6, 7 oder 8 +
+                        Die Wortlänge bestimmt die Anzahl der  +
+                        gültigen  Bits pro übertragenem  Zei                        chen. Für Textübertragung sind 7 oder  +
+                        8 Bit. +
+
+// .pa ""
+
+<<<
+           <stopbits>:  1, 1.5 oder 2 +
+                        Die Anzahl der Stopbits bestimmt  die  +
+                        Zahl  der Bits die nach einem Zeichen  +
+                        zu  Synchronisationszwecken  gesendet  +
+                        werden.  Wie auch bei der Parität ist  +
+                        eine gleiche Einstellung der Stopbits  +
+                        bei beiden kommunizierenden  Schnitt                        stellen erforderlich. +
+                        1.5  Stopbits  werden nur  bei  einer  +
+                        Wortlänge von 5 Bits erzeugt.
+
+           <richtung>:  IN:  oder  OUT:  (Der Doppelpunkt ist  +
+                        notwendig !) +
+                        IN:  Die nächste Protokollangabe  ist  +
+                        für  das  Protokoll bei der  Eingabe.  +
+                        (damit  wird also das **sendende**  Gerät  +
+                        gesteuert; z.b. angehalten, falls das  +
+                        CP/M  keine weiteren Daten  entgegen                        nehmen kann) +
+                        OUT:  Die nächste Protokollangabe ist  +
+                        für  das  Protokoll bei  der  Ausgabe  +
+                        (damit  zeigt das  **empfangende**  Gerät  +
+                        z.b.  Drucker an, ob es weitere Daten  +
+                        übernehmen kann)
+
+           <protokoll>: NONE, RTS, DTR oder XON +
+                        Das  eingestellte  Protokoll  steuert  +
+                        den  Datenaustausch über die serielle  +
+                        Schnittstelle,  um Zeichenverluste zu  +
+                        verhindern.  Diese spezielle Übertra                        gungssteuerung  wird auch als  `Hand                        shaking`  bezeichnet,   da  sich  die  +
+                        beiden kommunizierenden  Schnittstel                        len  über das eingestellte  Protokoll  +
+                        über  die Zeichenübertragung verstän                        digen. +
+                        XON:  Aktivierung des Software-Proto                        kolls durch die ASCII-Zeichen XON und  +
+                        XOFF: +
+                        XON (ASCII DC1, 11H) = Datenfreigabe +
+                        XOFF (ASCII DC3, 13H) = Datensperrung +
+                        Bei OUT:  XON,  wartet das CP/M  nach  +
+                        EMPFANG  eines XOFF mit der  weiteren  +
+                        Datenausgabe  solange,  bis  ein  XON  +
+                        empfangen   wird.   Damit  ist   eine  +
+                        Druckeransteuerung möglich.  Beachten  +
+                        Sie,   daß   beim  XON-Protokoll  der  +
+                        Datenein- und  ausgabekanal  der  SIO  +
+                        benutzt wird.  Die RS-232  Steuerlei                        tungen  DTR und RTS werden auf  aktiv  +
+                        gehalten,  CTS  und DCD werden  nicht  +
+                        abgefragt.
+
+                        RTS:  Die  Steuerung erfolgt über die  +
+                        RTS-Leitung (bei IN:  RTS) bzw.  CTS- +
+                        Leitung (bei OUT: RTS). Über die RTS- +
+                        Leitung wird dem **sendenden** Gerät mit                        geteilt,  ob  das CP/M weitere  Daten  +
+                        übernehmen,  das  **sendende** Gerät also  +
+                        weiter senden kann.  Durch Abfrag der  +
+                        CTS-Leitung wird festgestellt, ob das  +
+                        **empfangende**  Gerät weitere Daten  an                        nehmen,  das CP/M also weiter  **senden**  +
+                        kann.  Die  Leitung  DTR  wird  aktiv  +
+                        gehalten, DCD wird nicht abgefragt. +
+                        RTS:  Die  Steuerung erfolgt über die  +
+                        DTR-Leitung (bei IN:  DTR) bzw.  DCD- +
+                        Leitung (bei OUT: DTR). Über die DTR- +
+                        Leitung  wird  dem  **sendenden**   Gerät  +
+                        mitgeteilt, ob das CP/M weitere Daten  +
+                        übernehmen,  das  **sendende** Gerät also  +
+                        weiter senden kann.  Durch Abfrag der  +
+                        DCD-Leitung wird festgestellt, ob das  +
+                        **empfangende**  Gerät weitere Daten  an                        nehmen,  das CP/M also weiter  **senden**  +
+                        kann.  Die  Leitung  RTS  wird  aktiv  +
+                        gehalten, CTS wird nicht abgefragt. +
+                        NONE:   Kein  Protokoll.  Die  RS-232  +
+                        (V24)  Steuerleitungen  DTR  und  RTS  +
+                        werden  auf aktiv gehalten,  CTS  und  +
+                        DCD werden nicht abgefragt.
+
+           <wait>:      WAIT oder NOWAIT +
+                        Bei  WAIT  wird das  nächste  Zeichen  +
+                        erst  dann  an  den   Schnittstellen                        controller  gegeben,  wenn  das  vor                        herige   Zeichen  vollständig  ausge                        sendet ist.  Bei NOWAIT kann  bereits  +
+                        während  ein  Zeichen gesendet  wird,  +
+                        das nächste Zeichen an den Controller  +
+                        übergeben werden.
+
+           <btx>:       BTX oder NOBTX +
+                        BTX:  Aktivierung  des BTX-Modus (ge                        trennte  Baudraten  für  Senden   und  +
+                        Empfangen auf Kanal A).  Bei BTX gilt  +
+                        die  Baudrate  von  Kanal A  für  den  +
+                        Empfang und die Baudrate von Kanal  B  +
+                        für das Senden. Kanal B hat in dieser  +
+                        Einstellung  die Baudrate von Kanal B  +
+                        für Empfang und Senden. +
+                        NOBTX:  Aufhebung des BTX-Modus.  Die  +
+                        Baudrate des Kanal A gilt wieder  für  +
+                        Empfangen   und  Senden  auf   diesem  +
+                        Kanal.
+
+
+           <save>:      SAVE +
+                        Die    neue   Einstellung   wird   im  +
+                        CONFIG.SYS-File   gespeichert.   Nor                        malerweise  greift  das  SIO-Programm  +
+                        nur  lesend auf die  CONFIG.SYS-Datei  +
+                        zur Anzeige aller Parameter  zu.  Die  +
+                        neue Einstellung wird zwar aktiviert,  +
+                        jedoch nicht gespeichert.  Spätestens  +
+                        nach  dem  nächsten  SIO-Aufruf  oder  +
+                        Kaltstart,    wird    die   in    der  +
+                        CONFIG.SYS-Datei   gespeicherte  Ein                        stellung wieder übernommen. Der Para                        meter  SAVE speichert die  neue  Ein                        stellung  im CONFIG.SYS-File  ab,  so  +
+                        daß  diese  auch  nach  dem  nächsten  +
+                        Kaltstart wieder zur Verfügung steht. +
+
+// .pa ""
+
+<<<
+_10.12 UHR.COM                                 (nur Genie III)_
+
+
+Syntax:    UHR
+
+Anwendung: Ausgabe von Wochentag, Datum und Uhrzeit
+
+Wirkung:   Dieses  kleine  Programm liest aus den letzten  23  +
+           Stellen der Statuszeile den Wochentag,  das  Datum  +
+           und die Uhrzeit aus und gibt diese aus.
+
+Bemerkung: Dieses Programm ist vornehmlich zur Markierung von  +
+           Druckerprotokollen gedacht. Bei Directory-Ausdruk           ken oder ähnlich über CTRL-P kann durch vorherigen  +
+           Aufruf von UHR, der Ausdruck mit Datum und Uhrzeit  +
+           versehen werden. +
+
+// .pa ""
+
+<<<
+_10.13 V24.COM                                 (nur Genie III)_
+
+
+Syntax:    V24 +
+oder       V24 <baudrate>,<parität>,<wortlänge>,<stopbits>, +
+               <protokoll>,<wait>
+
+Anwendung: Initialisierung  der seriellen  Schnittstelle  auf  +
+           neue  Parameter oder Anzeige der derzeit  gültigen  +
+           Schnittstellenparameter.
+
+Wirkung:   V24  zeigt die aktuelle Einstellung der  seriellen  +
+           Schnittstelle   durch   die   unten   aufgeführten  +
+           Parameter.  Die  Änderung der Einstellung kann die  +
+           Eingabe  der  möglichen  Parameter  in  beliebiger  +
+           Reihenfolge und beliebig oft erfolgen.
+
+           <baudrate>:  50,  75,  110,  134.5, 150, 300, 600,  +
+                        1200,  1800,  2400, 3600, 4800, 7200,  +
+                        9600, 19200 oder 38400 +
+                        Die  Baudrate bestimmt  die  Übertra                        gungsgeschwindigkeit  in Bits pro Se                        kunde (Baud).  Die eingestellt  Baud                        rate  wird  sowohl beim  Empfang  als  +
+                        auch beim Senden von Zeichen benutzt. 
+
+           <parität>:   EVEN, ODD oder NO +
+                        Die  Parität  bestimmt die  Erzeugung  +
+                        des Paritätsbits. Dieses Bit wird bei  +
+                        der seriellen Übertragung zur Fehler                        prüfung  benutzt.  Eine  einwandfreie  +
+                        Übertragung  ist  nur  gewährleistet,  +
+                        wenn beide kommunizierenden  Schnitt                        stellen   mit  der  gleichen  Parität  +
+                        arbeiten.
+
+           <wortlänge>: 5, 6, 7 oder 8 +
+                        Die Wortlänge bestimmt die Anzahl der  +
+                        gültigen  Bits pro übertragenem  Zei                        chen. Für Textübertragung sind 7 oder  +
+                        8 Bit.
+
+           <stopbits>:  1, 1.5 oder 2 +
+                        Die Anzahl der Stopbits bestimmt  die  +
+                        Zahl  der Bits die nach einem Zeichen  +
+                        zu  Synchronisationszwecken  gesendet  +
+                        werden.  Wie auch bei der Parität ist  +
+                        eine gleiche Einstellung der Stopbits  +
+                        bei beiden kommunizierenden  Schnitt                        stellen erforderlich. +
+                        1.5  Stopbits  werden nur  bei  einer  +
+                        Wortlänge von 5 Bits erzeugt.
+
+
+           <protokoll>: NONE, RTS, DTR oder XON +
+                        Das  eingestellte  Protokoll  steuert  +
+                        den  Datenaustausch über die serielle  +
+                        Schnittstelle,  um Zeichenverluste zu  +
+                        verhindern.  Diese spezielle Übertra                        gungssteuerung  wird auch als  `Hand                        shaking`  bezeichnet,   da  sich  die  +
+                        beiden kommunizierenden  Schnittstel                        len  über das eingestellte  Protokoll  +
+                        über  die Zeichenübertragung verstän                        digen. +
+                        NONE  unterstützt kein Protokoll  und  +
+                        setzt die V24-Steuerleitungen DTR und  +
+                        RTS auf `high`. +
+                        DTR  benutzt  den  DTR- bzw.  DSR-An                        schluß  der  Schnittstelle  für   die  +
+                        Steuerung.  Dies  ist  beim  Anschluß  +
+                        eines Druckers üblich. +
+                        RTS  benutzt  den  RTS- bzw.  CTS-An                        schluß  für die Steuerung.  Dies  ist  +
+                        beim Datenaustausch mit anderen Rech                        nern üblich. +
+                        XON ist das bei der Übertragung  über  +
+                        Akustikkoppler    (Telefon)   übliche  +
+                        Protokoll,   wird  jedoch  nur   beim  +
+                        Senden   erkannt.   Wurde  ein   XOFF  +
+                        empfangen,   so   wird  das   nächste  +
+                        Zeichen erst nach einem XON gesendet.  +
+                        Dadurch  kann  die `Gegenstelle`  das  +
+                        Senden von Zeichen steuern.
+
+           <wait>:      WAIT oder NOWAIT +
+                        Bei  WAIT  wird das  nächste  Zeichen  +
+                        erst  dann  an  den   Schnittstellen                        controller  gegeben,  wenn  das  vor                        herige   Zeichen  vollständig  ausge                        sendet ist.  Bei NOWAIT kann  bereits  +
+                        während  ein  Zeichen gesendet  wird,  +
+                        das nächste Zeichen an den Controller  +
+                        übergeben werden. +
+
+// .pa ""
+
+<<<
+_10.14 ZEIT.COM                                (nur Genie III)_
+
+
+Syntax:    ZEIT +
+oder       ZEIT <std>:<min>
+
+Anwendung: Einstellung oder Anzeige der aktuellen Uhrzeit.
+
+Wirkung:   ZEIT gibt die aktuelle Uhrzeit in Stunden, Minuten  +
+           und Sekunden aus.  Zum Setzen der Uhrzeit muß  die  +
+           gewünschte   Stunde   und   Minute   als   jeweils  +
+           zweistellige  Zahl als Parameter angegeben werden.  +
+           Da die Uhr beim Programmieren einer neuen  Uhrzeit  +
+           die  Sekunden automatisch auf 00 setzt,  wird  die  +
+           eingegebene Zeit erst nach Drücken der ENTER-Taste  +
+           gesetzt. +
+           Die Zeiteinstellung ist im allgemeinen nur  einmal  +
+           notwendig, da die Hardwareuhr eine eigene Batterie  +
+           besitzt und auch bei ausgeschaltetem Gerät weiter           läuft. Bei einer fehlerhaften Justage der Uhr kann  +
+           es  jedoch zu Gleichlaufproblemen kommen,  die bis  +
+           zu  einer Minute pro Monat  ausmachen  können.  In  +
+           diesen  Fällen  muß die Programmierung der Uhr  in  +
+           regelmäßige Abständen wiederholt werden. +
+
+// .pa ""
+
+<<<

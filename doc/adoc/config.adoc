@@ -1,0 +1,383 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 7                            Systemkonfigurierung"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung            7-#"
+_7. Systemkonfigurierung_
+
+_7.1 CONFIG_
+
+Durch  den Befehl CONFIG wird das Programm  zur  Systemkonfiguration  aufgerufen.  Dabei  muß das zu ändernde  Konfigurationsfile  CONFIG.SYS  auf dem aktuellen Laufwerk  vorhanden  +
+sein. +
+Nach  dem  Einladen des Files CONFIG.SYS  von  der  gewählten  +
+Systemdiskette  wird  jeder  veränderbare  Parameter  einzeln  +
+abgefragt  und  dabei  in Klammern die  aktuelle  Einstellung  +
+ausgegeben.  Durch Drücken der ENTER-Taste wird die  aktuelle  +
+Einstellung beibehalten und der nächste Parameter abgefragt. +
+Soll die Einstellung verändert werden,  so ist der neue  Wert  +
+einzugeben.
+
+Eine  Übersicht über die so veränderbaren Parameter gibt  die  +
+folgende  Aufstellung,  die  möglichen Werte sind jeweils  in  +
+Klammern angegeben:
+
+
+Logo anzeigen  (J/N)
+
+Als  LOGO werden die Meldungen bezeichnet,  die beim Bootvorgang  ausgegeben werden.  Bei abgeschaltetem LOGO wird  diese  +
+Ausgabe unterdrückt und das System meldet sich direkt mit dem  +
+Prompt  A>.  Eine  Abschaltung des LOGO ist insbesondere  bei  +
+Ausnutzung der INFO-Zeile (siehe Kapitel 10.8) zu empfehlen.
+
+
+Interrupts aktivieren (J/N)
+
+Bei  aktivierten Interrupts wird 40 mal pro Sekunde das  laufende Programm unterbrochen und zur Speicherstelle 56 (0038H)  +
+gesprungen (Z80 Interrupt Mode 1). +
+Im Normalfall wird dadurch die Uhranzeige in der  Statuszeile  +
+aktualisiert und eine Tastaturabfrage durchgeführt. Damit ist  +
+es  möglich,  auch während der Ausführung eines Programms bereits Zeichen einzutippen,  die dann automatisch  zwischengepuffert werden.  Diese Art der Tastaturabfrage ist im Kapitel  +
+3.1.3 unter der Bezeichnung `Type-ahead` beschrieben. Da aber  +
+manche  Programme  diese Speicherstellen  für  eigene  Zwecke  +
+benutzen,  kann die Erzeugung von Interrupts unterbunden werden.  Dies  ist auch bei zeitkritischen Programmen zu empfehlen, da die Interruptroutine eine gewisse Zeit benötigt. Beim  +
+Bootvorgang  werden dann zwar immer noch die genannten  Speicherstellen  initialisiert,  jedoch nicht mehr  benutzt.  Bei  +
+abgeschalteten Interrupts ist es erforderlich, die Zeiten der  +
+automatischen  Tastenwiederholung  zu  ändern  (siehe  weiter  +
+unten).
+
+
+
+Alte Tastatur (J/N)
+
+Hier kann zwischen der alten und der neue (Siemens-) Tastatur  +
+gewählt werden (Nur Genie III).
+
+
+Statuszeile anzeigen (J/N)
+
+Dieser Parameter kann ebenfalls durch die Escapesequenz ESC _  +
+verändert  werden.  Bei  abgeschalteter Statuszeile wird  die  +
+Anzeige  der  Zeilen auf dem Bildschirm von 25*80  auf  24*80  +
+begrenzt. (Nur Genie III)
+
+
+Automatischer Zeilenvorschub (J/N)
+
+Automatischer  Zeilenvorschub bedeutet,  daß nach dem  Erhalt  +
+des Videobefehls CR (Cursor zum Anfang der Zeile) automatisch  +
+der Befehl LF (Cursor in die nächste Zeile) ausgeführt  wird.  +
+Diese  Funktion  wird im Allgemeinen nicht  benutzt,  da  das  +
+CP/M  2.2  Betriebssystem und alle unter CP/M laufenden  Programme  die Sequenz CR LF selbst erzeugen.  Bei  Nutzung  des  +
+CP/M  2.2X  als `Terminalprogramm` für einen anderen  Rechner  +
+kann diese Funktion jedoch gebraucht werden.
+
+
+Zeilenüberlauf (J/N)
+
+Bei  aktiviertem  Zeilenüberlauf wird der Cursor  nach  Überschreiten der 80.  Spaltenposition automatisch auf den Beginn  +
+der  nächsten Zeile gesetzt.  Falls vorrangig mit BASIC  oder  +
+dBase II gearbeitet werden soll, ist der Zeilenüberlauf abzuschalten. In diesem Fall bleibt der Cursor nach Erreichen der  +
+letzten  Zeilenposition dort stehen und wird erst  durch  die  +
+beiden Videobefehle CR und LF in die nächste Zeile befördert.  +
+Weitere  Hinweise dazu stehen im Kapitel 4.4 (Videomodi)  und  +
+im Anhang B unter ESC v und ESC w.
+
+
+Funktionstasten aktivieren (J/N)
+
+Die Funktionstasten F1 bis F8 (Genie III) bzw.  P2-0 bis P2-7  +
+(Genie IIs), erzeugen normalerweise mehrere Zeichen, die über  +
+das FKEY-Programm gewählt werden können. +
+Zur Nutzung der Funktionstasten für eigenen Programme, können  +
+die Tasten F1 bis F8 deaktiviert werden, wodurch sie nur noch  +
+ein  Zeichen erzeugen.  F1 (P2-0) erzeugt 80H (128 dez.),  F2  +
+(P2-1)  81H (129 dez.) usw.  bis F8 (P2-7) mit 87H (135 dez).  +
+Zusammen  mit Shift werden um 8 höhere Werte erzeugt  (Shift- +
+F1 bzw. Shift P2-0  erzeugt 88H, 136 dez.).
+
+
+
+Zeilenvorschub zum Drucker senden (J/N)
+
+Über diesen Parameter kann die Druckeransteuerung beeinflusst  +
+werden.  Der Normalfall im CP/M ist J,  wobei der angeschlossene Drucker auf `Auto-Linefeed Off` (siehe  Druckerhandbuch)  +
+eingestellt werden muß. +
+Dadurch  ergibt sich bei der Druckerbehandlung  eine  größere  +
+Flexibilität,  da  z.B.  eine Zeile mehrfach gedruckt  werden  +
+kann. +
+Falls man auch mit dem Betriebssystem GDOS arbeitet,  muß der  +
+gesonderte Zeilenvorschub an den Drucker unterbunden  werden,  +
+da  das  GDOS-Betriebssystem beim Drucker `Auto-Linefeed  On`  +
+voraussetzt.   Gibt  man  dann  trotzdem  einen  zusätzlichen  +
+Zeilenvorschub an den Drucker,  so erhält man einen doppelten  +
+Zeilenabstand.
+
+  +
+Zeichen einfügen (J/N)
+
+Über  diesen Parameter kann zwischen den Videomodi Edit (Eingabe  von  `N`) und Insert (Eingabe von `J`) gewählt  werden.  +
+Der hier eingestellte Modus wird nach dem Start des  Betriebsystems  angewählt und entsprechend in der Statuszeile  angezeigt  (EDT oder INS).  Näheres über diese Videomodi  ist  im  +
+Kapitel 4.4 beschrieben. (Nur Genie III)
+
+
+Seitenmodus (J/N)
+
+Über  diesen Parameter kann zwischen den Videomodi Line (Eingabe  von  `N`) und Page (Eingabe von `J`) gewählt  werden.  +
+Der  hier eingestellte Modus wird nach dem Start des Betriebsystems  angewählt und entsprechend in der Statuszeile  angezeigt  (L oder P).   Näheres über diese Videomodi ist im  Kapitel 4.4 beschrieben. (Nur Genie III)
+
+
+Rückmeldung mit Leerzeichen (J/N)
+
+Wie  im  Kapitel 4.9 (Rückmeldung von  Werten)  angesprochen,  +
+kann  die  Videoroutine bestimmte Werte an das Programm  über  +
+die Tastaturroutine zurückmelden.  Bei der Verwendung  dieser  +
+Möglichkeit  innerhalb  eines BASIC-Programms wird jedoch  in  +
+der  Regel das erste Zeichen `verschluckt`.  Um dennoch  alle  +
+Werte zu erhalten kann durch das Voranstellen eines  Leerzeichens  vor die Rückmeldung dieser Datenverlust umgangen  werden. (Nur Genie III)
+
+
+Tastenklick einschalten (J/N)
+
+Bei  eingeschaltetem  Tastenklick  wird bei  jedem  erkannten 
+
+Tastendruck  ein kurzes Klickgeräusch über  den  Lautsprecher  +
+ausgegeben.
+
+
+Tastenwiederholung einschalten (J/N)
+
+Falls  eine  Taste eine bestimmte Zeit lang gedrückt  bleibt,  +
+wird der Tastencode wiederholt. Die Funktionstasten F1 bis F8  +
+sind von dieser Funktion ausgeschlossen. +
+Die  Zeit,  wielange eine Taste bis zur  ersten  Wiederholung  +
+gedrückt bleiben muß und die anschliessende Wiederholungsfrequenz lässt sich getrennt einstellen (s.u.).
+
+
+Fehlermeldung einschalten (J/N)
+
+Wie  bereits  in Kapitel 6.2.1 angesprochen,  werden im  CP/M  +
+2.2X  Diskettenfehler ausführlicher mitgeteilt als  bei  normalen  CP/M Systemen.  Bei ausgeschalteter Fehlermeldung verhält  sich  das CP/M 2.2X wie ein normales  CP/M  System  und  +
+meldet Diskettenfehler nur mit `Bad Sector`. +
+Die genaue Beschreibung der verschiedenen Fehlermeldungen ist  +
+in Kapitel 6.2.2 bzw. 6.2.3 gegeben.
+
+
+Pufferanzeige einschalten (J/N)
+
+Zur  besseren Kontrolle kann der Inhalt des in Kapitel  3.1.3  +
+angesprochenen Type-ahead Puffers in der 25.  Bildschirmzeile  +
+sichtbar  gemacht  werden.  Dies ist insbesondere  bei  `verschluckten` Tasten zur Lokalisierung des Problems sehr  hilfreich. (Nur Genie III)
+
+
+Monitormodus einschalten (J/N)
+
+Mit  diesem  Parameter kann der im Kapitel  4.8  beschriebene  +
+Monitormodus direkt nach dem Kaltstart aktiviert werden. +
+(Nur Genie III)
+
+
+Uhrzeit anzeigen (J/N)
+
+Die  Uhrzeit  wird bei jedem Tastendruck und jedem  Interrupt  +
+neu angezeigt.  Bei zeitkritischen Anwendungen, kann dies zur  +
+Verlangsamung  der Verarbeitungsgeschwindigkeit  führen.  Aus  +
+diesem  Grund  kann  die  Anzeige  der  Uhrzeit  mit   diesem  +
+Parameter unterbunden werden. (Nur Genie III) +
+
+// .pa ""
+
+<<<
+Lautsprecher einschalten (J/N)
+
+Dieser  Parameter  wirkt nicht auf den  Lautsprecher  direkt,  +
+sondern  nur auf den ASCII-Code Control-G  (BELL,  07H),  der  +
+normalerweise einen kurzen Piepton erzeugt. Beim Arbeiten mit  +
+DFÜ kann diese Tonausgabe,  die über Software realisiert ist,  +
+zum  Verlust  von Zeichen führen.  In diesem Fall sollte  der  +
+BELL-Code mit diesem Parameter ausgeschaltet werden.
+
+
+ASCII Zeichensatz aktivieren (J/N)
+
+Damit  kann  der nach dem Bootvorgang (Kaltstart)  aktivierte  +
+Zeichensatz gewählt werden. Die Eingabe von `J` wählt den US- +
+ASCII Zeichensatz mit eckigen und geschwungenen Klammern, `N`  +
+den deutschen Zeichensatz mit Umlauten. (Nur Genie IIs)
+
+
+Anzahl der Schreib/Leseversuche (1 bis 255)
+
+Der  eingegebene  Wert bestimmt die Anzahl  der  Schreib- und  +
+Leseversuche  auf einer Diskette bis zur Fehlermeldung.  Nach  +
+jedem  Diskettenfehler wird dieser Zähler um eins  erniedrigt  +
+und  beim Erreichen des Wertes 0 der Fehler an  den  Benutzer  +
+gemeldet.  Wird bei der erweiterten Fehlermeldung durch Drükken der CLEAR-Taste eine Wiederholung des Zugriffs gefordert,  +
+so wird die hier gewählte Anzahl von Versuchen neu gestartet.
+
+
+IOBYTE (0 bis 255)
+
+Das  IOBYTE  bestimmt die in Kapitel 5.1.5 angesprochene  Zuweisung  von logischen zu physikalischen  Kanälen.  Normalerweise wird das IOBYTE über den STAT-Befehl geändert, der aber  +
+nach jedem Kaltstart neu eingegeben werden muß.  Im CP/M 2.2X  +
+kann die Belegung des IOBYTEs vorgewählt werden,  so daß  die  +
+Kanalzuweisung direkt aktiv ist. +
+Die  aktuelle  Belegung  des  IOBYTE kann  mit  dem  Programm  +
+IOBYTE.COM  festgestellt werden.  Wollen Sie  eine  bestimmte  +
+Kanalzuordnung  fest  abspeichern,  so stellen Sie diese  mit  +
+STAT  ein  und rufen dann IOBYTE auf,  das  Ihnen  den  neuen  +
+IOBYTE-Wert dann mitteilt.
+
+
+Cursor Type (0 bis 255)
+
+Hier  kann  das nach dem Kaltstart  zu  aktivierende  Cursor- +
+Attribut  gewählt werden.  Bei diesem Parameter gibt es einen  +
+wichtigen Unterschied zwischen Genie IIs und Genie III.  Beim  +
+Genie   III  wird  der  hier  gewählte   Wert,   direkt   zur  +
+Programmierung des Bildschirm-Controllers benutzt. Daher sind  +
+zwar  alle  Werte zwischen 0 und 255  möglich,  jedoch  nicht 
+
+unbedingt  sinnvoll.  Genauere Hinweise können dem Datenblatt  +
+des Controllers entnommen werden.
+
+Sinnvolle Werte beim Genie III sind:
+
+     43   Cursor aus (unsichtbar) +
+     96   Cursor blinkender Block +
+      0   Cursor stehender Block +
+    107   Cursor blinkender Strich +
+     11   Cursor stehender Strich
+
+Beim  Genie IIs wird der gewählte Wert als Parameter für  die  +
+Escape-Sequenz  `ESC .  x` (Cursor-Attribut setzen)  benutzt.  +
+Sinnvolle  Werte sind daher nur die Zahlen zwischen 0 und  4,  +
+alle anderen Werte schalten den Cursor ab.
+
+Sinnvolle Werte beim Genie IIs sind:
+
+      0   Cursor aus (unsichtbar) +
+      1   Cursor stehender Block +
+      2   Cursor stehender Block +
+      3   Cursor stehender Strich +
+      4   Cursor stehender Strich
+
+
+Hauptlaufwerk (A bis D)
+
+Normalerweise ist das Laufwerk A:  allgemeines Bezugslaufwerk  +
+im CP/M 2.2. Bei manchen Anwendungen ist das aber nicht immer  +
+gewünscht oder sinnvoll. Mit Hilfe dieses Parameters kann ein  +
+beliebiges Laufwerk als Hauptlaufwerk deklariert werden.
+
+
+Zeit bis zur ersten Wiederholung (1 bis 9999)
+
+Dieser  Wert  gibt die Anzahl der  Tastaturabfragen  bis  zum  +
+Beginn der automatischen Tastenwiederholung an. Da die Tastatur  per  Software  abgefragt wird,  ist die  Zeitspanne  vom  +
+Drücken der Taste bis zum Beginn der Wiederholung nicht immer  +
+konstant.  Je  nach  laufendem Programm können  sich  größere  +
+Unterschiede ergeben. +
+Bei  aktivierten Interrupts ist dieser Zeitunterschied  nicht  +
+allzu groß, da die Tastatur konstant alle 25 msec (40 mal pro  +
+Sekunde)  abgefragt wird.  Durch Wahl dieses Wertes kann  die  +
+Tastenwiederholung  optimal an die jeweilige Anwendung  angepasst werden. In der Regel liegt dieser Wert zwischen 100 und  +
+400.
+
+
+Zeit bis zur nächsten Wiederholung (1 bis 9999)
+
+Analog  zum  vorherigen Parameter wird hier  die  Anzahl  der 
+
+Tastaturabfragen  bis  zur nächsten  Wiederholung,  also  die  +
+Wiederholfrequenz,  bestimmt.  Auch  hier ist bei aktiviertem  +
+Interrupt etwa die Verdoppelung des Wertes notwendig.
+
+Die in der ausgelieferten Version voreingestellten Werte sind  +
+nur etwaige Anhaltspunkte, die durch etwas Ausprobieren optimiert  werden  sollten.  In bisherigen Versuchen  haben  sich  +
+Werte zwischen 10 und 50 als gut herausgestellt.
+
+
+Entprellzeit 1 (1 bis 9999)
+
+Die  Tastaturroutine  ist so ausgelegt,  daß sie  eine  Taste  +
+immer  zweimal überprüft um damit Tastenprellen zu  erkennen.  +
+Entprellzeit  1  gibt die Zeit an,  die zwischen  den  beiden  +
+Tastenabfragen liegt.  Sollte es zu Tastenprellen kommen,  so  +
+muß dieser Wert erhöht werden.
+
+
+Entprellzeit 2 (1 bis 9999)
+
+Nach  einem erkannten Tastendruck wartet die  Tastaturroutine  +
+eine  gewisse Zeitspanne,  bis der Tastencode  zurückgemeldet  +
+wird.  Dies trägt zum Entprellen der Tastatur bei,  kann aber  +
+bei zu schnellem Tippen auch zum Verlust von Zeichen  führen.  +
+In diesem Fall muß die Entprellzeit 2 verringert werden.
+
+
+Anzahl der Spuren (40/80 für 5 1/4 Zoll, 77 für 8 Zoll)
+
+Über  diese Frage wird die Anzahl der  physikalischen  Spuren  +
+der  jeweils  vier möglichen 5 1/4 und 8 Zoll  Laufwerke  bestimmt.  Diese Angabe ist sehr wichtig,  da daraus die  Laufwerksansteuerung  bei der Bearbeitung von 40 Spur Formaten in  +
+den eingebauten 80 Spur Laufwerken abgeleitet wird.
+
+
+Kopfzugriffszeit (0 bis 3)
+
+Mit  diesem  Parameter wird für jedes  Diskettenlaufwerk  die  +
+Zeit bestimmt,  in der der Schreib/Lesekopf dieses  Laufwerks  +
+von Spur zu Spur bewegt wird. Für 5 1/4 Zoll Laufwerke gelten  +
+folgende Werte:
+
+
+0 :  5 msec +
+1 : 10 msec +
+2 : 20 msec +
+3 : 40 msec
+
+Die  eingebauten Laufwerke arbeiten mit der  schnellsten  Zugriffszeit  und  das System ist auch  entsprechend  voreinge
+
+stellt.
+
+Für 8 Zoll Laufwerke gelten die folgenden Zeiten:
+
+0 :  3 msec +
+1 :  5 msec +
+2 : 10 msec +
+3 : 20 msec
+
+Im Allgemeinen ist auch hier der schnellste Wert sinnvoll, +
+ältere  Laufwerke können aber evtl.  auch nur 5-10 msec  verkraften.
+
+
+Die  nächsten Parameter werden nur beim Genie III  CP/M  2.2X  +
+abgefragt und  dienen der Einstellung des Bildschrimformates.  +
+Sie  entsprechen  genau den Registern 0 - 7  des  Bildschirm- +
+Controllers  CRTC  6845.   Hier  sollten  die  mit  GDOS  2.4  +
+(VIDEO.BAS)  ermittelten  Werte  eingegeben  werden.  Weitere  +
+Informationen  über  den CRTC 6845 können dem  entsprechenden  +
+Datenblatt entnommen werden.
+
+Horizontal Total Register (80 - 255) +
+Horizontal Displayed Register (80) +
+Horizontal Sync Position Register (80 - 255) +
+Sync Width Register (0 - 255) +
+Vertical Total Register (25 - 255) +
+Vertical Total Adjust Register (0 - 255) +
+Vertical Displayed Register (24 - 25) +
+Vertical Sync Position Register (24 - 255) +
+
+// .pa ""
+
+<<<

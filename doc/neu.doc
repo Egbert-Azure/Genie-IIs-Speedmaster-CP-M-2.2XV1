@@ -1,0 +1,40 @@
+.PL 66
+.MT 6
+.HM 3
+.FM 3
+.PO 9
+.pn 1
+.hå Anhanç Æ                                Literaturhinweise
+.fo(c© 198¶ bù Klauó K{mpæ Softwareentwicklunç            F-#
+F. Literaturhinweise
+
+Diå folgendå Listå voî CP/Í 2.² spezifischeò Literatuò erhebô 
+keineî  Anspruchå auæ Vollst{ndigkeiô odeò Richtigkeit®  Aucè 
+isô  diå  gegebenå Reihenfolgå reiî zuf{lliç  unä  implizierô 
+keinerlei Wertung.
+
+
+F.1 Literatur zum CP/M 2.2
+
+Allgemeine CP/M Literatur:
+- Vom Umgang mit CP/M 2.2, Bernd Pol, IWT Verlag
+- CP/Í Handbuch¬ Rodneù Zaks¬ Sybeø Verlag
+- TerminalBuch CP/M, Oldenbourg Verlag
+
+F}r Systemprogrammierer:
+- Originalhandbucè CP/Í 2.² voî Digitaì Researcè (engl.),
+  (Nachdrucë), Markô ¦ Technik Verlag
+
+F}r Z80-Spezialisten:
+- CP/M 2.2 Assembler-Listing, R|ckrath Microcomputer
+
+
+F.2 Literatur zum Genie III und Genie IIs
+
+- Technisches Handbuch zum Genie IIs, Phoenix GmbH
+- Schaltpl{ne zum Genie III, Phoenix GmbH
+- Genie III User's Manual & Utilities, EACA Ltd.
+- Programmierung des Z80, Rodney Zaks, Sybex Verlag
+- Datenbl{tter Z80-CPU, -SIO, -PIO, Zilog
+- Datenblatô HD46505¬ 684µ CRTC¬ Hitaché odeò Motorola
+.paŠ

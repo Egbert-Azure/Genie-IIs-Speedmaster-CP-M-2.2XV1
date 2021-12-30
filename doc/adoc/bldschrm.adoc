@@ -1,0 +1,507 @@
+
+// page_length " 66"
+
+// margin_top " 6"
+
+// header_margin " 3"
+
+// footer_margin " 3"
+
+// .po " 10"
+
+// .pn " 1"
+
+// ?? dot "he" " Kapitel 4                                      Bildschirm"
+
+// .fo "(c) 1986 by Klaus K{mpf Softwareentwicklung           4-#"
+_4. Der Bildschirm_
+
+_4.1 Grundlagen_
+
+Wie  bereits in der Einleitung angesprochen,  orientiert sich  +
+das  CP/M bei der Zeichenein- und ausgabe an  Terminals.  Bei  +
+älteren Rechnern ist ein solches Terminal eine eigenständige  +
+Einheit,  die mit dem eigentlichen Rechner über eine serielle  +
+Schnittstelle verbunden ist.  Der Datentransport zum Terminal  +
+geschieht dabei seriell,  Zeichen für Zeichen.  Jedes Zeichen  +
+hat einen bestimmten Wert,  der durch die ASCII-Tabelle festgelegt  ist (Anhang E.3).  Da insgesamt nur 128  verschiedene  +
+Werte übertragen werden können,  bleiben nach Abzug der  darstellbaren  Zeichen nur 32 Werte für spezielle  Kontrollfunktionen (Werte 00H bis 1FH, 0 bis 31 dez).
+
+Das  Terminal ist nun nichts anderes als ein Befehlsempfänger  +
+mit einer eigenen `Programmiersprache`, bestehend aus den 128  +
+verschiedenen Zeichen des ASCII-Codes.  Jedes empfangene Zeichen wird auf dem Bildschirm dargestellt und die Position für  +
+das  nächste  Zeichen eine Spalte  nach  rechts  bewegt.  Die  +
+Stelle, an der das nächste Zeichen ausgegeben wird, ist durch  +
+den sogenannten Cursor (Positionszeiger) gekennzeichnet. 
+
+Für  jeden  empfangenen  Wert zwischen 32 und  127  wird  das  +
+entsprechende  Zeichen der ASCII-Tabelle dargestellt.  Besondere Funktionen,  wie z.B. Cursorbewegungen, können durch die  +
+Werte 00H bis 1FH ausgelöst werden. Bei den meisten Anwendungen  reichen diese 32 Funktionen aus,  da sie  eine  minimale  +
+Kontrolle  der Ausgabe erlauben.  Da diese Werte auch von der  +
+Tastatur über die CTRL-Taste erzeugt werden können,  bezeichnet man sie meist als _Controlcodes_.
+
+Für  weitere Funktionen reichen die 32 Werte aber nicht  aus.  +
+Daher  wurde der Wert 27 (1BH) als Escape (`Ausbruch`)  definiert, der ein Ausbrechen aus den 32 festdefinierten Controlcodes  erlaubt.  Nach dem ESC-Code folgen grundsätzlich  noch  +
+ein  oder  mehrere Werte.  Aus diesem Grunde  bezeichnet  man  +
+solche Zeichenfolgen auch als _Escapesequenzen_.
+
+Mit Hilfe der Escapesequenzen können nun alle  Sonderfunktionen,  die  ein Terminal hat,  auf einfache Weise  angesteuert  +
+werden. Alle CP/M-Programme die eine komfortable Zeichenausgabe  haben,  benutzen solche Escapesequenzen zum Bildaufbau.  +
+Insbesondere bei `Full-Screen`-Operationen wie sie  z.B.  bei  +
+der  Textverarbeitung  gebraucht werden,  kann der  Programmablauf  durch  Ausnutzung der über Escapesequenzen  ansprechbaren Möglichkeiten eines Terminals  beschleunigt werden.
+
+
+Alle  besseren CP/M Programme haben daher ein spezielles  Installationsprogramm  mit  dessen  Hilfe das Programm  an  das 
+
+angeschlossene Terminal angepasst werden kann. +
+Zur  optimalen Nutzung der Möglichkeiten des Genie III  wurde  +
+im Genie CP/M 2.2X das Terminal **Televideo 950** emuliert.
+
+
+_4.2 Bildschirmformat_
+
+Die  Bildschirmanzeige im Genie III CP/M 2.2X wird  aus  25  +
+Zeilen zu je 80 Zeichen gebildet,  beim Genie IIs sind es  24  +
+Zeilen  zu 80 Zeichen.  Zur Zeichenausgabe werden  in  beiden  +
+Geräten  die  ersten 24 Zeilen herangezogen,  die  25.  Zeile  +
+dient   beim  Genie  III  als  Sonderzeile  zur   Darstellung  +
+besonderer Informationen.
+
+
+_4.3 Zeichendarstellung_
+
+Die Zeichendarstellung geschieht auf den beiden Geräten Genie  +
+IIs und Genie III vollkommen unterschiedlich. +
+Das Genie III hat einen eigenständigen Bildschirmspeicher von  +
+2kBytes  (2048  Bytes)  Größe.   Da  nur  25  *  80   Zeichen  +
+darstellbar  sind,  werden  48  Bytes  nicht  benutzt.  Jedem  +
+Zeichen steht also ein Byte zur Verfügung, was die Anzahl der  +
+darstellbaren  Zeichen auf 256 beschränkt.  In jeder der 1920  +
+Bildschirmpositionen steht ein Wert zwischen 0 und 255.  Nach  +
+der  ASCII-Tabelle  sind die Werte zwischen 32 und  127  fest  +
+definiert.  Damit  lassen sich alle Buchstaben  in  Groß- und  +
+Kleinschreibung,  sowie  alle Sonderzeichen  darstellen.  Die  +
+Werte  128  bis  255 entsprechen denen von 0 bis 127  in  der  +
+inversen Darstellung.
+
+Im   Genie   IIs   wird  die   Bildschirmausgabe   über   den  +
+Graphikspeicher   abgewickelt.   Dies  bedeutet  zwar   einen  +
+erheblich   höheren   Rechenaufwand,   gibt   jedoch   (fast)  +
+unbeschränkte  Möglichkeiten bei der  Zeichendarstellung.  Im  +
+Genie IIs wurden daher zwei Zeichensätze eingebaut,  zwischen  +
+denen man jederzeit durch P2-Leertaste umschalten kann. +
+Der  erste Zeichensatz ist der Deutsche mit Umlauten und  dem  +
+Paragraphenzeichen.  Der zweiten Zeichensatz ist US-ASCII mit  +
+eckigen  und  geschwungenen Klammern,  insbesondere  bei  der  +
+Programmierung in Pascal und C unentbehrlich.
+
+
+_4.4 Videomodi_
+
+_4.4.1 Linemodus/Pagemodus                   (nur Genie III)_
+
+Die  wichtigsten  Escapesequenzen  zur Gestaltung  von  Bildschirmdarstellungen dienen dem Einfügen (Insert) und  Löschen  +
+(Delete) von Zeilen bzw. Zeichen. +
+Eine  derartige  Behandlung von Zeilen beeinflusst immer  das  +
+gesamte  Bild.  Beim Einfügen einer Zeile werden alle  Zeilen 
+
+unterhalb  davon nach unten verschoben.  Die Information  der  +
+letzten  Zeile des Bildes geht dabei verloren.  Beim  Löschen  +
+einer  Zeile  werden alle Zeilen unterhalb  davon  nach  oben  +
+verschoben  und in der freiwerdenden letzten  Bildschirmzeile  +
+Leerzeichen eingefügt. +
+Das  Einfügen und Löschen von einzelnen Zeichen hat jedoch je  +
+nach aktuellem Videomodus unterschiedliche Konsequenzen.
+
+Es kann dabei entweder im Zeilen- (Line, kurz L) oder Seiten-  +
+(Page,  kurz P) modus gearbeitet werden. Im Zeilenmodus wirkt  +
+sich  ein  Löschen oder Einfügen eines Zeichens nur  bis  zum  +
+Ende der betroffenen Zeile aus. Beim Einfügen geht das letzte  +
+Zeichen verloren, beim Löschen wird in der letzten Spalte ein  +
+Leerzeichen eingesetzt. Die anderen Zeilen des Bildes bleiben  +
+unbeeinflusst.  Im  Gegensatz zum Zeilenmodus,  der  nur  die  +
+Zeichen  bis zum Ende einer Zeile verschiebt,  wirkt sich  im  +
+Seitenmodus die Behandlung von Zeichen bis zum Ende der Seite  +
+aus.  Beim Einfügen eines Zeichens im Seitenmodus werden alle  +
+Zeichen  rechts  davon  bis zum Ende der  Seite  nach  rechts  +
+verschoben.  Das  letzte Zeichen einer Zeile taucht dabei als  +
+erstes  Zeichen  der nächsten Zeile wieder  auf.  Das  letzte  +
+Zeichen  der letzten Zeile geht verloren.  Genauso auch  beim  +
+Löschen  eines Zeichens im Seitenmodus.  Alle Zeichen  rechts  +
+vom  gelöschten  Zeichen bis zum Ende der Seite  werden  eine  +
+Position  nach links verschoben.  Das jeweils  erste  Zeichen  +
+jeder  Zeile taucht als letztes Zeichen der vorherigen  Zeile  +
+wieder auf.  Am Ende der Seite wird die freiwerdende Position  +
+mit dem Leerzeichen gefüllt.
+
+
+_4.4.2 Editmodus/Insertmodus                 (nur Genie III)_
+
+Zwei andere Modi beeinflussen die Ausgabe von Zeichen auf dem  +
+Bildschirm.  Der  sogenannte Editiermodus (Überschreib-Modus,  +
+kurz EDT) ist im Normalfall aktiv. Hier wird jedes ankommende  +
+Zeichen  dargestellt und die Cursorposition eine Spalte  nach  +
+rechts bewegt.  Falls auf der letzten Cursorposition  bereits  +
+ein Zeichen stand, wird es überschrieben. +
+Der  zweite  Modus ist der Insertmodus  (Einfüge-Modus,  kurz  +
+INS).  Dabei wird jedes darzustellende Zeichen an der Cursorposition  eingefügt und das vorher dort  befindliche  Zeichen  +
+nach  rechts  verschoben.  Wie weit sich  diese  Verschiebung  +
+auswirkt,  hängt  davon ab,  ob der Zeilen- oder  Seitenmodus  +
+aktiviert ist.
+
+Welcher  Modus  der jeweiligen Modipaare  eingeschaltet  ist,  +
+wird  in  der Statuszeile durch einen der vier  verschiedenen  +
+Kürzel EDTL, EDTP, INSL oder INSP angezeigt. +
+
+// .pa ""
+
+<<<
+_4.4.3 Zeilenüberlauf_
+
+Ein weiterer Modus,  der Zeilenüberlauf (Vertical Wrap),  bestimmt das Verhalten der Bildschirmausgabe bei Erreichen  der  +
+letzten Zeilenposition.  Im Normalfall ist der Zeilenüberlauf  +
+eingeschaltet  und nach der Ausgabe eines Zeichens in der 80.  +
+Spalte  wird der Cursor automatisch in die erste  Spalte  der  +
+nächsten  Zeile  gesetzt.  Nach Schreiben der  letzten  Bildschirmposition  wird der gesamte Bildschirminhalt eine  Zeile  +
+nach  oben  verschoben und der Cursor an den Anfang der  frei  +
+werdenden  letzten Zeile gesetzt.  Da dabei die  erste  Bildschirmzeile  verloren geht,  kann man den Zeilenüberlauf auch  +
+abschalten und das `Hochlaufen` des Bildes  unterdrücken.  In  +
+diesem  Fall wird der Cursor nicht mehr in die nächste  Zeile  +
+verschoben,  sondern bleibt in der letzten Spalte stehen. Die  +
+erste  Spalte der nächsten Zeile wird erst durch Empfang  der  +
+beiden Codes CR (0DH,  13 dez) und LF (0AH, 10 dez) erreicht.  +
+Um  eine  flüssige Zeichenausgabe zu  gewährleisten,  muß  in  +
+diesem  Fall  die Anzahl der ausgegebenen Zeichen  pro  Zeile  +
+mitgezählt werden und nach dem jeweils 80.  Zeichen CR und LF  +
+eingeschoben  werden.  Dies geschieht z.B.  im BASIC oder bei  +
+dem Datenbankprogramm dBase II.
+
+
+_4.5 Die 25. Zeile                           (nur Genie III)_
+
+_4.5.1 Verwendung als Statuszeile_
+
+In  der  Statuszeile werden alle für den  Benutzer  wichtigen  +
+Informationen dargestellt, dazu gehören:
+
+- das gewählte Diskettenlaufwerk +
+- der gewählte Benutzerbereich +
+- der Videomodus +
+- der Wochentag +
+- das Datum +
+- die Uhrzeit
+
+Alle diese Informationen werden in der Reihenfolge,  wie  sie  +
+hier aufgezählt sind, von links nach rechts dargestellt. +
+Die  eigentliche  Statuszeile wird im Speicher aufgebaut  und  +
+bei jeder Änderung in die 25.  Bildschirmzeile  kopiert.  Das  +
+heißt, daß auch bei anderer Nutzung der 25. Zeile die Statuszeile immer aktualisiert wird. +
+Beim  Rückmelden  der Statuszeile (vgl.  Anhang B,  ESC Z  1)  +
+werden  auch nicht die 80 Zeichen  der  25.  Bildschirmzeile,  +
+sondern  die  80 Zeichen der intern  verwalteten  Statuszeile  +
+ausgegeben. +
+
+// .pa ""
+
+<<<
+_4.5.2 Verwendung als Benutzerzeile_
+
+Bei  manchen Anwendungen kann es sich als nützlich  erweisen,  +
+auch den Status des ablaufenden Programms dem Benutzer mitzuteilen. Zu diesem Zweck wurde die Benutzerzeile eingerichtet.  +
+Über eine bestimmte Escapesequenz (siehe Anhang B) können bis  +
+zu  80 Zeichen als Benutzerzeile gespeichert werden,  die Anzeige erfolgt erst über eine weitere Escapesequenz.  Dies hat  +
+den Vorteil, daß die Benutzerzeile `im Hintergrund` aufgebaut  +
+werden kann und erst nach Eintrag aller Informationen  dargestellt  wird.  Auch der Inhalt der Benutzerzeile kann an  das  +
+laufende Programm rückgemeldet werden.
+
+
+_4.5.3 Abschalten der 25. Zeile_
+
+Die  25.  Zeile  kann entweder bei  der  Systemkonfigurierung  +
+(Kap.  7)  oder  über  eine Escapesequenz (siehe  unten  oder  +
+Anhang B) abgeschaltet werden.
+
+
+_4.6  Zeichenattribute_
+
+Im  Gegensatz zum emulierten Terminal Televideo 950,  wird im  +
+Genie  III  - technisch  bedingt -  nur ein  Attribut  unterstützt,  die inverse Darstellung. Im Genie IIs CP/M 2.2X wird  +
+zusätzlich das Attribute **Unterstrichen** verarbeitet. +
+Bei  der  Installation von CP/M-Programmen auf  das  Terminal  +
+Televideo  950  zeigt sich jedoch,  daß  diese  das  Attribut  +
+`halbe  Helligkeit`  dem  Attribut  `Invers`  vorziehen.  Aus  +
+diesem Grund werden auch die Escapesequenzen für die Ein- und  +
+Ausschaltung   der  halben  Helligkeit  erkannt,   aber   als  +
+Invertierung  verarbeitet.   Dabei  ergibt  sich  jedoch  ein  +
+Problem. Das Leerzeichen wird in voller und halber Helligkeit  +
+identisch angezeigt und manche Programme verzichten daher bei  +
+der Ausgabe von Leerzeichen auf die Rücknahme des Attributes.  +
+Aus  diesem  Grunde wird das Attribut `halbe Helligkeit`  nur  +
+bei darstellbaren Zeichen als Invertierung interpretiert, das  +
+Leerzeichen  jedoch  ohne  Attribut  verarbeitet.   Dies  ist  +
+insbesondere  bei der Installation des Programms Multiplan zu  +
+beachten !
+
+
+_4.7 Cursorattribute_
+
+Das Genie III bietet wegen seines eigenständigen  Bildschirm- +
+Controllers,    bei   der   Darstellung   des   Cursorsymbols  +
+verschiedene  Möglichkeiten.   Aus  diesen  Darstellungsarten  +
+wurden folgende vier gewählt, die auch vom Televideo-Terminal  +
+unterstützt werden: +
+
+// .pa ""
+
+<<<
+- blinkender Block +
+  Der  Cursor wird als blinkender weisser Block  dargestellt.    +
+  In  dieser Art ist er bei invertierter Schrift am besten zu    +
+  erkennen. +
+- stehender Block +
+  Der Cursor wird als ständig sichtbarer weisser Block darge   +
+  stellt. +
+- blinkender Strich +
+  Der Cursor wird als blinkender Unterstrich dargestellt. +
+- stehender Strich +
+  Der Cursor wird als stehender Unterstrich dargestellt.
+
+Ein  weiteres wählbares Cursorattribut schaltet die  Darstellung des Cursors ab, der Cursor ist dann nicht sichtbar. +
+Da  beim Genie IIs die gesamte Bildschirmausgabe per Software  +
+gesteuert wird, ist das Attribut `blinken` bei der Cursordarstellung nicht wirksam und wird wie `stehend` interpretiert.
+
+
+_4.8 Monitormodus                           (nur Genie III)_
+
+Normalerweise  können nur die Werte zwischen 32 und 127  bzw.  +
+160 und 255 zur Anzeige gebracht werden. Um jedoch den gesamten  Zeichensatz von 256 Zeichen auszunutzen,  ist auch den  +
+Werte  zwischen  0 und 31 je ein  Zeichen  zugewiesen.  Diese  +
+Werte  können  nur über den sogenannten  Monitormodus  dargestellt  werden.  Jedes  der 32 Zeichen stellt ein  spezielles  +
+Graphikzeichen  dar,   das  gemäß  des  ASCII-Standards   den  +
+jeweiligen Controlcode ersetzt.
+
+Diese  besondere Ausgabeart dient vor allem der  Installation  +
+von Fremdprogrammen.  Bei eingeschaltetem Monitormodus werden  +
+die  empfangenen Controlcodes und Escapesequenzen nicht  mehr  +
+als  Befehle interpretiert,  sondern  direkt  angezeigt.  Der  +
+Monitormodus  ist über eine Escapesequenz ein- und ausschaltbar.
+
+Eine  genaue Übersicht über die verwendeten Kürzel zeigt  die  +
+Zeichensatztabelle im Anhang E.
+
+
+_4.9 Rückmeldung von Werten_
+
+Eine Besonderheit der Videoroutine ist die Möglichkeit,  auch  +
+Werte  zurückzumelden.  Diese  Rückmeldung geschieht über  den  +
+Tastaturkanal,  d.h.  daß rückgemeldete Zeichen wie  Eingaben  +
+von  der Tastatur behandelt werden.  Neben der aktuellen Cursorposition  können beim Genie III auch komplette Zeilen  auf  +
+diese Art übergeben werden. +
+Besonders interessant ist beim Genie III die Rückmeldung  bei  +
+der  Status- und Benutzerzeile.  Ein laufendes Programm  kann  +
+durch  Anforderung der Statuszeile z.B.  jederzeit das  Datum 
+
+und die Uhrzeit abfragen. Ein entsprechendes Beispielprogramm  +
+in BASIC ist am Ende von Anhang B gegeben. +
+Jede  Rückmeldung wird mit dem Controlcode CR (0DH,  13  dez)  +
+abgeschlossen,  um eine Eingabe (z.B.  im BASIC über `INPUT`)  +
+zu  ermöglichen.  Da  im Basic zwischen je zwei Befehlen  die  +
+Tastatur  abgefragt wird,  kommt es zwischen der Ausgabe  der  +
+Escapesequenz über `PRINT` und der Übernahme der rückgemeldeten  Werte durch `INPUT` oder `INKEY` zum Verlust eines  Zeichens.  Aus  diesem Grunde gibt es in der Systemkonfiguration  +
+(Kapitel 7.1) die Möglichkeit, vor jede Rückmeldung ein Leerzeichen zu setzen, daß vom Basic dann abgefangen wird.
+
+
+_4.10 Steuersequenzen_
+
+Auf  den  nächsten  Seiten wird nur  eine  Kurzübersicht  der  +
+möglichen  Videobefehle in der Form von Controlcodes und  Escapesequenzen  gegeben.  Für jeden Befehl ist auf der  linken  +
+Seite der Controlcode bzw. die Escapesequenz, der (die) hexadezimale und dezimale Wert(e) sowie die Kurzschreibweise nach  +
+dem ASCII-Standard aufgeführt. Auf der rechten Seite befindet  +
+sich  die  Bezeichnung in Englisch und eine deutsche  Kurzbeschreibung. Eine ausführliche Behandlung der Befehle befindet  +
+sich im Anhang B. +
+Da  sich die CP/M 2.2X Versionen für die Geräte Genie III und  +
+Genie  IIs in den unterstützten Control- und  Escapesequenzen  +
+unterscheiden,  sind  die Sequenzen,  die nur auf  einem  der  +
+Geräte wirksam sind,  zusätzlich gekennzeichnet. (2) bedeuten  +
+`nur Genie IIs` und (3) `nur Genie III`.
+
+
+_4.10.1 Cursorbewegungen_
+
+     CTRL-H   08    8  BS     Backspace +
+                              Cursor ein Zeichen nach links
+
+     CTRL-I   09    9  HT     Horizontal Tab +
+                              Cursor zum nächsten Tab
+
+     CTRL-J   0A   10  LF     Linefeed +
+                              Cursor eine Zeile nach unten
+
+     CTRL-K   0B   11  VT     Cursor Up +
+                              Cursor eine Zeile nach oben
+
+     CTRL-L   0C   12  FF     Cursor Forward +
+                              Cursor ein Zeichen nach rechts
+
+     CTRL-M   0D   13  CR     Carriage Return +
+                              Cursor zum Anfang der Zeile +
+
+// .pa ""
+
+<<<
+     CTRL-V   16   22  SYN    Cursor Down +
+                              Cursor eine Zeile nach unten
+
+     CTRL-ß   1E   30  RS     Home +
+                              Cursor in die linke obere Ecke
+
+     CTRL-_   1F   31  VS     New Line +
+                              Cursor zum Anfang der nächsten +
+                              Zeile
+
+     ESC =  1B 3D  27 61      Cursor Address in Page +
+                              Neue  Cursorposition  innerhalb  +
+                              der Seite wählen
+
+
+_4.10.2 Löschbefehle_
+
+     CTRL-Z   1A   26  SUB    Clear Screen +
+                              Seite mit dem Leerzeichen  fül                              len, Cursor home
+
+     ESC T  1B 54  27 84      Clear to End of Line +
+                              Bis   zum  Zeilenende  mit  dem  +
+                              Leerzeichen auffüllen
+
+(3)  ESC t  1B 74  27 106     Clear to End of Line to Null +
+                              Bis zum Zeilenende löschen
+
+     ESC Y  1B 59  27 89      Clear to End of Page +
+                              Bis  zum  Seitenende  mit   dem  +
+                              Leerzeichen auffüllen
+
+(3)  ESC y  1B 79  27 121     Clear to End of Page to Null +
+                              Bis zum Seitenende löschen
+
+     ESC *  1B 2A  27 42      Clear All to Null +
+                              Seite löschen
+
+(3)  ESC +  1B 2B  27 43      Clear Unprotected +
+                              Ganze Seite mit dem Leerzeichen  +
+                              auffüllen
+
+
+
+_4.10.3 Editierbefehle_
+
+     ESC E  1B 45  27 69      Insert Line +
+                              Zeile einfügen
+
+     ESC R  1B 52  27 82      Delete Line +
+                              Zeile löschen
+
+
+(3)  ESC Q  1B 51  27 81      Insert Character +
+                              Zeichen einfügen
+
+(3)  ESC W  1B 57  27 87      Delete Character +
+                              Zeichen löschen
+
+
+_4.10.4 Wahl des Videomodus_
+
+(3)  ESC N  1B 4E  27 78      Page Edit +
+                              Seiteneditierung aktivieren
+
+(3)  ESC O  1B 4F  27 79      Line Edit +
+                              Zeileneditierung aktivieren
+
+(3)  ESC q  1B 71  27 113     Insert Mode On +
+                              Einfügemodus einschalten
+
+(3)  ESC r  1B 72  27 114     Insert Mode Off +
+                              Einfügemodus ausschalten
+
+     ESC v  1B 76  27 118     Vertical Wrap On +
+                              Zeilenüberlauf einschalten
+
+     ESC w  1B 77  27 119     Vertical Wrap Off +
+                              Zeilenüberlauf ausschalten
+
+
+_4.10.5 Wahl des Attributes_
+
+     ESC )  1B 29  27 41      Half Intensity On +
+                              Invertierung (ohne Leerzeichen)  +
+                              einschalten
+
+     ESC (  1B 28  27 40      Half Intensity Off +
+                              Invertierung ausschalten
+
+     ESC .  1B 2E  27 46      Set Cursor Attribute +
+                              Cursorsymbol wählen
+
+     ESC G  1B 47  27 71      Set Video Attribute +
+                              Zeichenattribut wählen
+
+
+_4.10.6 Status- und Benutzerzeile_
+
+(3)  ESC g  1B 67  27 103     Display User Line +
+                              Benutzerzeile anzeigen
+
+(3)  ESC h  1B 68  27 104     Display Status Line +
+                              Statuszeile anzeigen
+
+
+(3)  ESC f  1B 66  27 102     Load User Line +
+                              Benutzerzeile laden
+
+
+_4.10.7 Monitormodus_
+
+(3)  ESC U  1B 55  27 85      Enter Monitor Mode +
+                              Monitormodus einschalten
+
+(3)  ESC X  1B 58  27 88      Exit Monitor Mode +
+                              Monitormodus ausschalten
+
+
+_4.10.8 Setzen der Systemparameter_ +
+         Nicht Televideo kompatibel !
+
+     ESC _   1B 5F  27 95     Systemparameter setzen
+
+
+
+_4.10.9 Rückmeldung von Werten_
+
+(3)  ESC 6  1B 36  27 54      Send Line +
+                              Cursorzeile rückmelden
+
+     ESC ?  1B 3F  27 63      Read Cursor Address in Page +
+                              Cursorposition rückmelden
+
+     ESC M  1B 4D  27 77      Transmit Terminal ID +
+                              Versionsnummer   und  Speicher                              größe rückmelden
+
+(3)  ESC Z  1B 5A  27 90      Send User/Status Line +
+                              Benutzer- oder      Statuszeile  +
+                              rückmelden
+
+
+
+_4.10.10 Sonderfunktionen_
+
+     CTRL-G    07     7  BEL  Bell +
+                              Piepston ausgeben
+
+(3)  ESC P  1B 50  27 80      Page Print with CR LF +
+                              Bildschirm ausdrucken
+
+(3)  ESC e  1B 65  27 101     Load Substitute +
+                              Leerzeichen ersetzen +
+
+// .pa ""
+
+<<<
