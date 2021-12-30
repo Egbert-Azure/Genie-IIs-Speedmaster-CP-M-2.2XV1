@@ -1,0 +1,111 @@
+;********************************************************
+;*							*
+;*	COPY22X.MAC  Copy Genie III 2.2X BIOS to SYStrks*
+;*	Genie IIIs Version 1.0 vom 24.01.86		*
+;*	Copyright (c),(p) Klaus K{mpf 1986		*
+;*							*
+;********************************************************
+;
+	.z80
+	org	100h
+;
+?boot	equ	0000h
+?bdos	equ	0005h
+?bios	equ	0fc00h
+@buffer	equ	?boot+80h
+;
+;
+getchr	equ	01h
+putchr	equ	02h
+prtstr	equ	09h
+getbuf	equ	0ah
+open	equ	0fh
+close	equ	10h
+read	equ	14h
+setdma	equ	1ah
+;
+bell	equ	07h
+lf	equ	0ah
+cr	equ	0dh
+esc	equ	1bh
+;
+;
+	jp	entry
+;
+	defb	cr
+	defm	'COPY22X.COM Copyright (c),(p) Klaus K{mpf 1986'
+	defb	cr,lf
+	defm	'Genie IIIs Version 1.0 vom 24.01.86'
+	defb	1ah
+;
+bios_fcb:
+	defb	0
+	defm	'BIOSCHR ','COM'
+	defs	4+16
+	defb	0
+;
+entry:
+	ld	sp,stack
+	ld	de,bios_fcb
+	ld	c,open
+	call	?bdos
+
+	ld	hl,buffer-128
+	ld	(read_dma),hl
+	ld	b,36			;read 36 records
+read_loop:
+	push	bc
+	ld	hl,<read_dma: defw 0>
+	ld	de,128
+	add	hl,de
+	ld	(read_dma),hl
+	ex	de,hl
+	ld	c,setdma
+	call	?bdos
+	ld	de,bios_fcb
+	ld	c,read
+	call	?bdos
+	pop	bc
+	djnz	read_loop
+
+	ld	c,'D'-'A'
+	ld	e,0
+	call	?bios+1bh		;Select D:
+	ld	bc,1
+	call	?bios+1eh		;Set Track 1
+	ld	hl,44-1
+	ld	(sec_num),hl
+	ld	hl,buffer-128
+	ld	(write_dma),hl
+	ld	b,36			;write 36 records
+write_loop:
+	push	bc
+	ld	hl,<write_dma: defw 0>
+	ld	de,128
+	add	hl,de
+	ld	(write_dma),hl
+	ld	c,l
+	ld	b,h
+	call	?bios+24h		;set dma
+	ld	hl,<sec_num: defw 0>
+	inc	hl
+	ld	(sec_num),hl
+	ld	c,l
+	ld	b,h
+	call	?bios+21h		;set sector
+	ld	c,1
+	call	?bios+2ah		;write
+	pop	bc
+	djnz	write_loop
+
+	jp	0
+
+	defs	128
+stack:
+	defm	'***********BUFFER***********'
+buffer:
+	defs	36*128,0
+
+	defm	'************END*************'
+
+	end
