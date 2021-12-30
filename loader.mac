@@ -1,46 +1,55 @@
-if1
-	.printl LOADER.MAC	Version 1.31  23.1.87
-	.printl
-endif
-;****************************************************************
-;*								*
-;*	LOADER.MAC  System Bootstrap Loader Module		*
-;*	Genie III  CP/M 2.2XV3  				*
-;*	Copyright (c) Klaus K{mpf Softwareentwicklung		*
-;*					1984,1985,1986,1987	*
-;*	Modification History					*
-;*	1.0  25.02.86  Original Version				*
-;*	1.1  23.03.86  Added 'L' on entry			*
-;*	1.2  23.03.86  Added MCR to systab			*
-;*	1.3  19.04.86  Changed Keyboard table locations		*
-;*		       Changed Loader phase D300 -> D200	*
-;*	1.31 23.01.87  Minor code changes (shortened)		*
-;*								*
-;****************************************************************
+;********************************************************
+;*							*
+;*	LOADER.MAC  System Bootstrap Loader Module	*
+;*	Genie IIs  CP/M 2.2XV3  Version 1.0  19.05.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
+;*					1984,1985,1986	*
+;*	Modification History				*
+;*	0.0  19.04.86  Original Genie III Version	*
+;*	0.1  26.04.86  1st IIs Adaption			*
+;*	0.11 28.04.86  further IIs Adaption		*
+;*      0.2  30.04.86  Graphic 80x24 Adaption		*
+;*	0.21  1.05.86  Charset loading corrected	*
+;*	0.22  4.05.86  new phase CE00 for extended	*
+;*		       terminal support			*
+;*	0.3  15.05.86  Added 2nd charset		*
+;*		       removed clock			*
+;*	0.4  18.05.86  SIO Adaption			*
+;*		       new phase D200			*
+;*	1.0  19.05.86  1st final Version		*
+;*							*
+;********************************************************
 ;
 	.z80
 	.com
 	org	100h
-	.phase 0d200h
+	.phase 0D200h
 ;
-BACK	equ	08h
-LF	equ	0ah
-CR	equ	0dh
+back	equ	08h
+lf	equ	0ah
+cr	equ	0dh
 esc	equ	1bh
 ;
 start:
 	jp	entry
 
-	defb	CR
+	defb	0dh
 	defm	'LOADER.SYS (c) Klaus K{mpf Softwareentwicklung 1986'
-	defb	CR,LF
-	defm	'Genie III CP/M 2.2XV3 Version 1.3 vom 19.4.86'
+	defb	cr,lf
+	defm	'Genie IIs CP/M 2.2XV1 Version 0.4 vom 18.05.86'
+quit_text:
 	defb	1ah
+	defb	0
 entry:
 	ld	sp,stack
 	ld	a,'L'
 	ld	(3c00h),a
 	call	mbios				;init bios, copy dpb,xltab
+
+	ld	de,start_text
+	ld	c,1
+	call	mdos				;print text
+
 	ld	e,0
 	ld	c,2
 	call	mdos				;select drive
@@ -59,6 +68,9 @@ entry:
 	call	mdos				;read 1st record (bios_table)
 	or	a
 	jp	nz,cpm_error
+
+	ld	hl,(bios_table+44)		;get ?video address
+	ld	(?cbios_video),hl
 
 	ld	hl,(bios_table+0)		;get load address
 	ld	(?cbios),hl
@@ -89,12 +101,6 @@ read_bios_loop:
 	ld	b,2				;2 records
 	call	read_config
 
-	ld	a,(systab_table+1)		;Logo on ?
-	or	a
-	ld	de,start_text
-	ld	c,1
-	call	z,mdos				;Y: print text
-
 	ld	hl,(bios_table+4)		;to fkytab
 	ld	b,2				;2 records
 	call	read_config
@@ -106,10 +112,6 @@ read_bios_loop:
 	ld	hl,xltab_table			;to xltab_table
 	ld	b,2				;2 records
 	call	read_config
-
-; ^ Read Bios & Config
-;----------------------------------------------------------
-; v Setup
 
 	call	disable_memio
 
@@ -139,23 +141,38 @@ move_xltab_loop:
 	pop	bc
 	djnz	move_xltab_loop
 
+	call	enable_memio
+
+	ld	b,6				;6 records
+	ld	hl,(bios_table+40)		;to charset
+	call	read_config
+	ld	b,1
+	ld	hl,xltab_table			;unused now !
+	call	read_config			;read 2nd charset
+	ld	hl,(bios_table+40)
+	ld	de,6*128
+	add	hl,de
+	ld	de,xltab_table
+	ex	de,hl
+	ld	bc,64
+	ldir
+;
+; ^ Read Bios & Config
+;----------------------------------------------------------
+; v Setup
+
+	call	disable_memio
+
 	ld	hl,systab_table+20h
 	ld	de,(bios_table+2)		;de=systab start
+	push	de
 	ld	bc,(bios_table+28)		;bc=systab length
 	ldir
 
-	ld	hl,systab_table+60h		;hl=crtc table
-	ld	bc,16*256+0f7h
-	xor	a
-init_crtc_loop:
-	out	(0f6h),a
-	inc	a
-	outi
-	jr	nz,init_crtc_loop
-
-	ld	de,systab_table+0b0h
-	ld	c,1
-	call	mdos				;Print Info text
+	pop	de
+	ld	hl,12h
+	add	hl,de
+	ld	(hl),0				;CHARSET GERMAN	!!
 
 	ld	hl,systab_table+2		;hl=00/c9
 	ld	de,bios_table+10		;de=pointer
@@ -174,35 +191,10 @@ ctrl_config_loop:
 	inc	de
 	djnz	ctrl_config_loop
 
-	ld	hl,systab_table+70h		;hl = v24 table
-	xor	a
-	out	(0efh),a			;8250 Reset
-	ld	a,80h
-	out	(0ebh),a			;Set Dlab
-	ld	c,0e8h				;C = E8
-	outi
-	inc	c				;C = E9
-	outi					;Set divisor latch
-	xor	a
-	out	(0ebh),a			;Reset Dlab
-	out	(c),a				;Reset Int Enable
-	inc	c				;C = EA
-	out	(c),a				;Reset Int Id
-	inc	hl				;inc over receiver mask
-	ld	b,4
-v24_init_loop:
-	inc	c				;C = EB/EC/ED/EE
-	outi
-	jr	nz,v24_init_loop
+	ld	iy,systab_table			;iy -> systab_table
 
-	ld	ix,(bios_table+2)		;ix -> systab
-	ld	a,(systab_table+72h)		;mask
-	ld	(ix+16h),a
-	ld	a,(systab_table+77h)		;handshake
-	ld	(ix+13h),a
-	ld	a,(systab_table+74h)		;modem control rts/dtr
-	ld	(ix+17h),a
-
+	call	sio_init
+	
 	ld	hl,systab_table+80h		;hl = auto command
 	ld	de,(bios_table+8)		;de = keyboard buffer
 	ld	b,0
@@ -219,15 +211,15 @@ end_of_auto:
 	ld	ix,(bios_table+2)
 	ld	(ix+8),b			;set inlen
 
-	ld	a,(systab_table+00h)		;set iobyte
+	ld	a,(iy+00h)			;set iobyte
 	ld	(3),a
 
 	xor	a				;set boot disk to A:
 	ld	(4),a
 
-	ld	a,(systab_table+0ah)		;Ints enabled ?
+	ld	a,(iy+0ah)			;Ints enabled ?
 	or	a
-	jr	nz,set_date			;N: jp
+	jr	nz,no_ints			;N: jp
 	ld	hl,(bios_table+1ah)		;Y: set <EI>
 	ld	(hl),<ei>
 	ld	hl,(bios_table+22h)		;HL -> kbstat
@@ -235,171 +227,99 @@ end_of_auto:
 	ld	(hl),e
 	inc	hl
 	ld	(hl),d
-
-set_date:
-	call	enable_memio
-
-	ld	hl,37e0h
-wait_clock1:
-	ld	a,(hl)
-	rlca
-	jr	c,wait_clock1
-wait_clock2:
-	ld	a,(hl)
-	rlca
-	jr	nc,wait_clock2
-	ld	a,40h
-	out	(0e1h),a
-
-	ld	hl,clktab
-	ld	de,106fh
-	ld	bc,07e0h
-date_loop:
-	ld	a,e
-	out	(c),a
-	add	a,d
-	ld	e,a
-	in	a,(c)
-	and	0fh
-	ld	(hl),a
-	inc	hl
-	djnz	date_loop
-
-	ld	a,(clktab)
-	ld	e,a
-	ld	d,0
-	ld	hl,daytab
-      2:add	hl,de
-	ld	de,(bios_table+30)		;de=datum
-						;(date-field in statln)
-	ldi
-	ldi					;Set Day-of-week
-
-	ld	hl,clktab+2			;hl=clktab+2, de=datum+2
-	res	2,(hl)
-	call	cbnum				;Set Day-of-month
-
-	ld	hl,clktab+4
-	ld	b,(hl)
-	xor	a
-	bit	0,b
-	jr	z,set_month
-	ld	a,10
-set_month:
-	dec	hl
-	add	a,(hl)
-	dec	a
-	ld	c,a
-	ld	b,0
-	ld	hl,montab
-      3:add	hl,bc
-	ld	bc,3
-	inc	de
-	inc	de
-	ldir					;set month
-
-	ld	hl,clktab+6
-	call	cbnum
-
-	ld	hl,systab_table+48h		;hl=search table
-	ld	de,(bios_table+28h)
-	push	hl,de
-	ld	bc,21				;move search/convert/zerotx
-	ldir
-	pop	de,hl
-
-	ld	a,(systab_table+1fh)		;Old or New keyboard ?
-	or	a
-	jr	z,old_keyboard			;jp if old
-
-	push	hl
-	ex	de,hl				;hl->search table
-	ld	de,9
-	push	de
-	add	hl,de
-	ex	de,hl				;de->convert table
-	pop	bc				;bc=9
-	pop	hl				;hl->search_table
-	ldir					;set convert <- search if new
-old_keyboard:
+no_ints:
 
 	ld	hl,systab_table+0a0h		;set ctrl key table
 	ld	de,(bios_table+26h)
 	ld	bc,16
 	ldir
 
-	ld	de,(cursor_position)		;DE = Loader cursor pos.
-	ld	hl,(bios_table+24)		;HL = Bios cursor pos adr.
-	ld	(hl),e
-	inc	hl
-	ld	(hl),d
+	ld	de,quit_text
+	ld	c,1
+	call	mdos				;print text
 
-	call	disable_memio
+	ld	a,(iy+6ah)			;set cursor
+	add	a,'0'
+	ld	(esc_text+2),a
+	ld	a,(iy+32h)			;set charset
+	add	a,'2'
+	ld	(esc_text+5),a
+	ld	hl,esc_text
+	call	print
 
-	ld	de,(bios_table+32)		;DE -> statln position
-	ld	hl,ins_text
-	ld	a,(systab_table+2fh)		;Edit or Insert
+	ld	a,(iy+1)			;Logo on ?
 	or	a
-	jr	z,its_insert
-	ld	hl,edt_text
-its_insert:
-	ld	bc,3
-	ldir
+	ld	hl,start_text
+	call	z,print
 
-	ld	a,(systab_table+30h)		;Page or Line
-	or	a
-	ld	a,'P'+80h
-	jr	z,its_page_edit
-	ld	a,'L'+80h
-its_page_edit:
-	ld	(de),a
+	ld	hl,systab_table+0b0h		;Print Info text
+	call	print
 
 	jp	<?cbios: dw 0>
-;
 ;----------------------------------------------------------
 ;
 enable_memio:
-	ld	a,71h
+	ld	a,0000_0110b
 switch_around:
-	out	(0fah),a
+	out	(0feh),a
 	ret
 disable_memio:
-	ld	a,7fh
+	ld	a,0000_0111b
 	jr	switch_around
 ;
-;----------------------------------------------------------
+print:
+	ld	a,(hl)
+	or	a
+	ret	z
+	push	hl
+	ld	c,a
+	call	<?cbios_video: dw 0>
+	pop	hl
+	inc	hl
+	jr	print
 ;
-clktab:	defs	7,0
-
-cbnum:
-	inc	de
+sio_init:
+	ld	hl,(bios_table+46)		;hl -> @siotab
+	ld	de,systab_table+75h		;de -> sio table+5
+	inc	hl				;hl -> @siotab+1
+	ld	bc,3
+	push	bc
+	ldir
+	inc	hl				;hl -> @siotab+5
+	ld	de,systab_table+7dh
+	pop	bc
+	ldir
+	ld	hl,systab_table+70h
 	ld	a,(hl)
-	add	a,'0'+80h
-	cp	'0'+80h
-	jr	nz,not_zero
-	ld	a,' '+80h
-not_zero:
-	ld	(de),a
-	dec	hl
-	inc	de
-	ld	a,(hl)
-	add	a,'0'+80h
-	ld	(de),a
+	out	(0f1h),a			;Set baudrate
+	ld	a,(systab_table+78h)
+	out	(0f2h),a			;Set BTx
+	ld	c,0d2h				;SIO A first
+	call	sio_init_1
+	inc	hl
+	inc	hl
+	inc	c
+sio_init_1:
+	ld	b,5
+	xor	a
+	inc	hl
+sio_init_loop:
+	inc	a
+	out	(c),a
+	outi
+	jr	nz,sio_init_loop
 	ret
-daytab:
-	defh	'MoDiMiDoFrSaSo'
-montab:
-	defh	'JanFebMrzAprMaiJunJulAugSepOktNovDez'
+;
 ;----------------------------------------------------------
 read_config:
 	ex	de,hl
 	push	bc
 	push	de
 	ld	c,5
-	call	mdos			;set dma
+	call	mdos				;set dma
 	ld	de,fcb_config
 	ld	c,4
-	call	mdos			;read
+	call	mdos				;read
 	pop	hl
 	ld	de,128
 	add	hl,de
@@ -424,12 +344,14 @@ error:
 	call	mdos			;show error text
 	jp	$
 ;
-ins_text:	defh	'INS'
-edt_text:	defh	'EDT'
-;
 start_text:
-	defm	'GENIE III 64k CP/M 2.2XV3, 1.31'
-	defb	CR,LF,0
+	defb	1ah
+	defm	'GENIE IIs  CP/M 2.2X Version 1'
+	defb	0dh,0ah,0
+esc_text:
+	defb	1bh,'.0'		;cursor
+	defb	1bh,'_2'		;charset
+	defb	0
 txt_sys_error:
 	defm	'Err: '
 	defb	0

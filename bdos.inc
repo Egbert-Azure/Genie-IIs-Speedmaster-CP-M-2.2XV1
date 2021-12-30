@@ -402,7 +402,7 @@ check_ctrlp:
 	SUB	(HL)
 	LD	(HL),A
 	POP	HL
-	jp	bios+039h			;JP	read_next1
+	JP	read_next1
 ;CTRL-X					delete line
 check_ctrlx:
 	CP	ctrlx
@@ -2229,7 +2229,7 @@ return_word:
 ;
 set_user_code:
 	AND	01FH
-	jp	bios+036h			;LD	(@user_#),A
+	LD	(@user_#),A
 	RET
 ;
 ?read_random:

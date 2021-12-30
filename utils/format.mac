@@ -1,37 +1,24 @@
-;********************************************************
-;*							*
-;*	FORMAT.MAÃ Formatting routine			*
-;*	Genie III CP/M 2.2XV3 Version 1.0 vom 24.2.86	*
-;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
-;*					1984,1985,1986	*
-;*							*
-;********************************************************
+;****************************************************************
+;*								*
+;*	FORMAT.MAÃ  Formatting routine				*
+;*	Genie IIs CP/M 2.2XV1 Version 1.2 vom 22.06.86		*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung	*
+;*						1984,1985,1986	*
+;*	Modification History					*
+;*	1.0   20.02.86  Original 2.2XV3 Version			*
+;*	1.1   19.05.86  1st IIs Adaption			*
+;*	1.2   22.06.86  now longer test for index hole		*
+;*								*
+;****************************************************************
 
 	.z80
 	.com
 	org	100h
 
-?boot	equ	0000h
-?bdos	equ	0005h
-@buffer	equ	?boot+80h
+	include CPMHEAD.INC
 
 c$seldsk	equ	1bh		;Seldsk function (low byte)
 o$systab	equ	54h		;SYSTAB address pointer
-
-getchr	equ	01h
-prtstr	equ	09h
-getbuf	equ	0ah
-open	equ	0fh
-close	equ	10h
-read	equ	21h
-write	equ	22h
-setdma	equ	1ah
-
-ctrlc	equ	03h
-bell	equ	07h
-lf	equ	0ah
-cr	equ	0dh
-esc	equ	1bh
 
 a$dslc	equ	037e1h
 a$dcmd	equ	037ech
@@ -63,12 +50,13 @@ mask$write	equ	7ch
 	jp	entry
 
 	defb	cr
-	defm	'FORMAT.COM Copyright (c) by Klaus K{mpf Softwareentwicklung'
+	defm	'FORMAT.COM'
+	defb	cr,lf
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung'
 	defm	' 1984,1985,1986'
 	defb	cr,lf
-	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 24.2.86'
-	defb	1ah
-
+	defm	'Genie IIs CP/M 2.2XV1 Version 1.2 vom 22.06.86'
+	defb	ctrlz
 
 entry:
 	ld	sp,stack
@@ -133,7 +121,7 @@ f$fmt$loop:
 ;
 f$2nd$side:
 	nop			;or ret
-	call	back
+	call	back_side
 	call	f$show$trk
 	call	f$build
 	call	f$format
@@ -481,8 +469,19 @@ phys$select:
 	ld	a,cmd$intrpt
 	ld	(a$dcmd),a
 
-	call	re$select
 
+	call	re$select
+	ld	a,cmd$intrpt
+	ld	(a$dcmd),a
+
+	ld	hl,0
+fl$0wait:					;wait for speed-up
+	dec	hl
+	ld	a,h
+	or	l
+	jr	nz,fl$0wait
+
+	call	re$select
 	ld	a,cmd$intrpt
 	ld	(a$dcmd),a
 
@@ -495,6 +494,8 @@ fl$loop:
 	and	2
 	xor	e
 	jr	nz,fl$wait
+	ld	b,1
+	djnz	$
 	dec	hl
 	ld	a,h
 	or	l
@@ -502,6 +503,7 @@ fl$loop:
 	ret
 
 fl$wait:
+	call	re$select
 	ld	hl,0
 fl$1wait:
 	dec	hl
@@ -591,7 +593,7 @@ side$5:
 ; select 2nd side
 ;
 sel$2nd$side:
-	call	back				;Select 2. Side
+	call	back_side				;Select 2. Side
 	jr	seek$track
 ;
 ; no 2nd side, side select by skew table
@@ -1048,7 +1050,7 @@ front:
 ;
 ; select back
 ;
-back:
+back_side:
 	ld	a,(s$b1)
 	ld	(low$sector),a
 	ld	a,(sel$code)
@@ -1063,7 +1065,7 @@ back:
 wait$key:
 	call	prttxt
 wait1$key:
-	ld	c,getchr
+	ld	c,conin
 	call	?bdos
 	push	af
 	call	enable_memio
@@ -1112,8 +1114,8 @@ exit:
 ;
 enable_memio:
 	di
-	ld	a,71h
-	out	(0fah),a
+	ld	a,0000_0110b
+	out	(0feh),a
 	di
 	ret
 ;
@@ -1122,9 +1124,10 @@ enable_memio:
 ;
 text0:
 	defb	cr,lf
-	defm	'Genie III CP/M 2.2XV3 Formatierprogramm'
+	defm	'Genie IIs CP/M 2.2XV1 Formatierprogramm'
 	defb	cr,lf
-	defm	'Copyright (c) Klaus K{mpf Softwareentwicklung 1984,1985,1986'
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'1984,1985,1986'
 	defb	cr,lf,cr,lf,cr,lf,'$'
 text1:	defb	esc,'t'
 	defm	'Welches Laufwerk ? $'

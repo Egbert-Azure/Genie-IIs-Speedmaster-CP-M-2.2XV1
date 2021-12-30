@@ -1,0 +1,559 @@
+;****************************************************************
+;*								*
+;*	SIO.MAC  Z80-SIO Support				*
+;*	Genie IIs CP/M 2.2XV1 Version 1.0  22.06.86		*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung	*
+;*					1985,1986		*
+;*	0.0   4.09.85  Original IIIs Version			*
+;*	0.1  18.05.86  1st IIs Adaption				*
+;*	0.2  19.05.86  2nd IIs Adaption				*
+;*	1.0  22.06.86  corrected in: out: handling		*
+;*		       changed parameter S to SAVE		*
+;*								*
+;****************************************************************
+
+	.z80
+	.com
+	org	100h
+
+	include CPMHEAD.INC
+;
+	jp	entry
+;
+	defb	cr
+	defm	'SIO.COM'
+	defb	cr,lf
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'1984, 1985, 1986'
+	defb	cr,lf
+	defm	'Genie IIs CP/M 2.2XV1 Version 1.0 vom 22.06.86'
+	defb	1ah
+;
+cnffcb:
+	defb	0
+	defm	'CONFIG  ','SYS'
+	defs	21
+rec$num:
+	defs	3
+;
+entry:
+	ld	sp,stack
+
+	bdos_call	open,cnffcb
+	inc	a
+	jr	nz,open$ok
+	ld	a,1
+	ld	(cnffcb),a
+	bdos_call	open,cnffcb
+	ld	de,no$config
+	inc	a
+	jp	z,error1
+open$ok:
+	ld	a,0
+	ld	(rec$num),a
+	bdos_call	setdma,io_buffer
+	bdos_call	redrnd,cnffcb
+
+	ld	a,cr
+	call	tv
+	ld	a,lf
+	call	tv
+	ld	hl,@buffer
+	ld	a,(hl)
+	inc	hl
+	or	a				;Any Input ?
+	jp	z,sioprt			;N: Show parameters
+;
+	CALL SIOA         ;DEFAULT SIO-CHANNEL A
+VLOOP:  LD   DE,TABLE
+	CALL GETARG
+	JP   Z,SETSIO     ;WE ARE READY, END OF PARMLIST
+	PUSH HL
+	EX   DE,HL        ;DE=PARM POINTER,HL=TABLE
+V0:     LD   A,(DE)       ;FROM PARAM
+	CP   ','          ;END OF PARAMETER
+	JR   Z,V1
+	CP   ' '
+	JR   Z,V1
+	CP   00H
+	JR   Z,V1
+	BIT  7,(HL)
+	JR   NZ,NXTTAB    ;END OF TABLE-ENTRY?
+	INC  (HL)
+	DEC  (HL)         ;END OF TABLE ?
+	JR   Z,PAERR      ;PARAMETER-ERROR
+	CP   (HL)         ;CHARACTER THE SAME?
+	JR   NZ,NXTTAB    ;TRY NEXT IN TABLE
+	INC  HL
+	INC  DE
+	JR   V0           ;THIS CHARACTERS ARE THE SAME
+V1:     BIT  7,(HL)       ;TEST IF TERMINATOR IN TABLE
+	JR   Z,NXTTAB     ;NO TRY NEXT IN TABLE
+	POP  AF           ;KILL TOS=START OF THIS PARM
+	PUSH DE           ;SAVE POINTER
+	INC  HL
+	LD   E,(HL)
+	INC  HL
+	LD   D,(HL)       ;LD DE WITH ADRESS
+	LD   BC,V2        ;RETURN-ADRESS
+	PUSH BC
+	INC  HL
+	LD   A,(HL)       ;IF BAUDRATE,CODE IN A
+	EX   DE,HL        ;HL=ADRESS
+	JP   (HL)         ;CALL ROUTINE
+V2:     POP  HL           ;RETRIEVE PARM-POINTER
+	JR   VLOOP        ;TEST NEXT PARAMTER
+NXTTAB: BIT  7,(HL)
+	INC  HL
+	JR   Z,NXTTAB     ;SEARCH END OF TABLE-ENTRY
+	INC  HL
+NXT2:   INC  HL           ;BEHIND POINTER
+	LD   A,(HL)
+	OR   A
+	JR   Z,NXT3       ;TABLE-END-MARKER
+	CP   20H          ;CHECK IF BD-VALUE
+	JR   C,NXT2
+NXT3:   POP  DE           ;POINT TO OLD PARM
+	PUSH DE
+	JR   V0
+PAERR:  POP  HL
+	POP  IX
+	JP   error
+
+TA      MACRO  TX,AD
+	DEFM   TX
+	CALL   AD
+	ENDM
+TABLE:
+	TA 'SAVE',SAVE				;Save configuration
+	TA 'A',SIOA
+	TA 'B',SIOB
+MSEVEN: TA 'EVEN',EVEN
+MSODD:  TA 'ODD',ODD
+MSNO:   TA 'NO',NOPARI
+	TA '5',BIT5
+	TA '6',BIT6
+	TA '7',BIT7
+	TA '8',BIT8
+	TA '1',STP1
+	TA '2',STP2
+MSST15: TA '1.5',STP15
+MSIN:	TA 'IN:',in
+MSOUT:	TA 'OUT:',out
+MSXON:	TA 'XON',XON
+MSRTS:  TA 'RTS',RTS
+MSDTR:  TA 'DTR',DTR
+MSNONE: TA 'NONE',NONE
+MSWAIT: TA 'WAIT',WAIT
+MSNWT:  TA 'NOWAIT',NOWAIT
+msbtx:	ta 'BTX',btx
+msnbtx:	ta 'NOBTX',nobtx
+;
+SAVE:
+	ld	a,0ffh
+	ld	(@save?),a
+	ret
+;
+BTA     MACRO  NR,TX
+	TA TX,BAUD
+	DEFB NR           ;;BAUDRATE-CODE
+	ENDM
+
+BDTAB:  BTA 01H,'19200'
+	BTA 08H,'9600'
+	BTA 09H,'4800'
+	BTA 0CH,'2400'
+	BTA 0AH,'1800'
+	BTA 0BH,'1200'
+	BTA 06H,'600'
+	BTA 0DH,'300'
+	BTA 05H,'200'
+	BTA 0EH,'150'
+	BTA 04H,'134.5'
+	BTA 0FH,'110'
+	BTA 03H,'75'
+	BTA 02H,'50'
+	NOP					;END OF TABLE
+
+SIOA:   LD	A,00h				;<NOP>
+	LD	(ROTATE),A			;DO NOT SHIFT BAUD-NIBBLE
+	LD	A,11110000B
+	LD	(BDMASK),A			;LEAVE BIT 7-4 INTACT
+	LD	IX,SIOTAB
+	ld	a,0d2h
+	ld	(sioreg),a
+	RET
+;
+SIOB:   LD	A,<RLCA>
+	LD	(ROTATE),A			;SHIFT BAUD-NIBBLE LEFT
+	LD	A,00001111B
+	LD	(BDMASK),A			;LEAVE BIT 3-0 INTACT
+	LD	IX,SIOTAB+8			;1-7: SIO A, 9-15: SIO B
+	ld	a,0d3h
+	ld	(sioreg),a
+	RET
+;
+BAUD:   LD	B,4           			;SET BAUD RATE
+ROTATE: NOP					;MODIFIED!
+	DJNZ	ROTATE				;SHIFT CODE LEFT IF SIOB
+	LD	B,A				;SAVE IT
+	LD	A,(siotab)   			;BAUDRATE-CODE
+	and	<BDMASK: 0>			;ZERO LFT(B) OR RGT(A) DIGIT
+	OR	B
+	LD	(siotab),A
+	RET
+
+EVEN:   LD   C,3		;**********
+	JR   PARITY
+ODD:    LD   C,1
+	JR   PARITY
+NOPARI: LD   C,0
+PARITY: LD   A,(IX+4)
+	AND  11111100B
+LDREG4: OR   C
+	LD   (IX+4),A
+	RET
+in:
+	ld	bc,in_prot
+	ld	(@?prot),bc
+	ret
+out:
+	ld	bc,out_prot
+	ld	(@?prot),bc
+	ret
+;
+; B = in prot (effects Reg 5, Set own Status)
+; C = out prot (effects Regs 0, Check Status from Terminal)
+;
+RTS:	LD	C,0010_0100B			;check CTS
+	ld	b,1000_1000b			;swap RTS
+	JR	set_prot
+DTR:	LD	C,0000_1100B			;check DCD
+	ld	b,0000_1010b			;swap DTR
+	jr	set_prot
+none:	ld	c,0000_0100b			;check nothing
+	ld	b,1000_1010b			;keep DTR & RTS
+	jr	set_prot
+xon:	ld	c,1000_0100b			;check nothing
+	ld	b,1000_1010b			;keep DTR & RTS
+set_prot:
+	jp	<@?prot: dw 0>
+;
+in_prot:
+	ld	a,(ix+5)
+	and	0111_0101b
+	or	b
+	ld	(ix+5),a
+	ret
+;
+out_prot:
+	LD	A,(IX+7)
+	AND	0101_0101b			;only one of them active
+	OR	C
+	LD	(IX+7),A
+	RET
+;
+WAIT:   SET  0,(IX+7)
+	RET
+NOWAIT: RES  0,(IX+7)
+	RET
+;
+STP1:   LD   C,1*4
+	JR   STPBIT
+STP15:  LD   C,2*4
+	JR   STPBIT
+STP2:   LD   C,3*4
+STPBIT: LD   A,(IX+4)
+	AND  11110011B
+	JR   LDREG4
+;
+nobtx:	ld	a,00h
+	jr	setbtx
+btx:	ld	a,01h		;enable BTX mode
+setbtx:	ld	(siotab+8h),a
+	ret
+;
+BITX    MACRO CODE,mask
+	LD    BC,mask*256+CODE*32
+	JR    DATBIT
+	ENDM
+BIT5:   BITX 0,01fh
+BIT6:   BITX 2,03fh
+BIT7:   BITX 1,07fh
+BIT8:   BITX 3,0ffh
+DATBIT: LD	A,(IX+5)			;TRANSMIT-CHANNEL
+	AND	10011111B
+	OR	C
+	LD	(IX+5),A
+	RLC	C
+	LD	A,(IX+3)			;RECEIVE
+	AND	00111111B
+	OR	C
+	LD	(IX+3),A
+	ld	(ix+6),b			;set mask
+	ret
+;
+;----------------------------------------------------------
+;
+SETSIO:
+	LD	C,<sioreg: 0d2h>		;or od3h
+	LD	A,00_011_000B			;SIO CHANNEL RESET
+	OUT	(C),A
+	LD	(IX+1),0			;DISABLE ALL INTERRUPTS
+	LD	A,(IX+7)			;PROTOCOL - FLAG
+	AND	1010_1101B
+	LD	(IX+7),A
+	LD	A,(IX+3)			;Rx-CONTROL
+	AND	1100_0000B			;ZERO ALL BUT WORDLENGTH
+	OR	0000_0001B			;ENABLE Rx
+	LD	(IX+3),A
+	LD	A,(IX+4)			;SYNC AND PARITY
+	AND	0000_1111B
+	OR	0100_0000B			;SET CLOCK x16
+	LD	(IX+4),A
+	LD	A,(IX+5)			;Tx-CONTROL
+	AND	1110_0010B			;ZERO ALL BUT LEN, DTR&RTS
+	OR	0000_1000B			;Tx ENABLE
+	LD	(IX+5),A
+;
+	ld	hl,siomov
+	push	hl				;set retadr
+;
+	ld	hl,siotab			;Init SIO A und B
+	ld	a,(hl)
+	out	(0f1h),a			;Set Baudrate
+	ld	a,(siotab+8h)
+	out	(0f2h),a			;Set BTx
+	ld	c,0d2h
+	call	sioini
+	inc	hl
+	inc	hl
+	inc	c				;C=0d3h
+sioini:	ld	b,5
+	XOR	A				;START WITH REGISTER 1
+   	INC	HL				;==> SIOTAB+1 (+9)
+SET4:   INC	A
+	OUT	(C),A				;SELECT REGISTER
+	OUTI
+	JR	NZ,SET4				;NEXT REGISTER
+	ret
+;
+siomov:
+	ld	a,<@save?: 0>
+	or	a				;save ?
+	jr	z,sioprt
+
+	ld	a,0
+	ld	(rec$num),a
+	ld	de,io_buffer
+	ld	c,setdma
+	call	?bdos
+	ld	de,cnffcb
+	ld	c,wrtrnd
+	call	?bdos
+	ld	de,cnffcb
+	ld	c,close
+	call	?bdos
+;
+;----------------------------------------------------------
+;
+; Print SIO Configuration
+;
+sioprt:
+	LD   B,2				;2 CHANNELS
+	LD   IX,SIOTAB
+PRT1:   LD   HL,MSSIO				;"SIO "
+	CALL MESS				;OUTPUT IT
+	LD   A,"C"
+	SUB  B					;GIVES "A" OR "B"
+	CALL TV					;OUTPUT IT
+	CALL leer
+	LD   HL,BDTAB				;SEARCH BAUDRATE
+	LD   A,(siotab)
+	DEC  B					;Z=SIO B
+	JR   NZ,PRT2
+	RRCA					;SHIFT RIGHT 4 BITS IF SIO B
+	rrca
+	rrca
+	rrca
+PRT2:   INC  B
+	AND  0FH				;LOW-NIBBLE
+	JR   NZ,PRT21
+	INC  A					;=19200
+PRT21:  CP   7					;=2400
+	JR   NZ,PRT3
+	LD   A,0CH
+PRT3:   LD   D,H
+	ld	e,L				;SAVE TEXT-POINTER
+PRT4:   BIT  7,(HL)				;END OF TEXT?
+	INC  HL
+	JR   Z,PRT4				;SEARCH END
+	INC  HL
+	INC  HL					;POINT TO NUMBER
+	CP   (HL)				;IS IT BAUDRATE?
+	INC  HL
+	JR   NZ,PRT3				;NO TRY NEXT
+	EX   DE,HL				;START OF TEXT
+	CALL MESSH				;OUTPUT IT
+	CALL leer
+	LD   A,(IX+3)				;BITS/CHAR
+	RLCA					;BIT 7>BIT 0
+	RES  1,A
+	BIT  7,A
+	JR   Z,$+4
+	SET  1,A				;ORIG. BIT 6 COPIED TO 1
+	AND  3					;MASK OFF ALL BUT BIT 0,1
+	ADD  A,"5"				;GIVES "5","6","7" OR "8"
+	CALL TV
+	CALL leer
+	LD   A,(IX+4)				;STOP-BITS/PARITY
+	PUSH AF
+	AND  0000_1100B				;STOP-BITS
+PRT5:   CP   0000_1000B
+	JR   NZ,PRT6
+	LD   HL,MSST15				;"1.5"
+	CALL MESSH
+	JR   PRT7
+PRT6:   RRCA
+	rrca
+	SRL  A
+	ADD  A,"1"				;"1" OR "2"
+	CALL TV
+PRT7:   CALL leer
+	POP  AF					;PARITY
+	BIT  0,A
+	JR   NZ,PRT8				;NZ=EVEN/ODD
+	LD   HL,MSNO				;"NO"
+	JR   PRT9
+PRT8:   BIT  1,A
+	LD   HL,MSEVEN				;"EVEN"
+	JR   nZ,PRT9				;************
+	LD   HL,MSODD
+PRT9:   CALL MESSH				;PRINT EVEN/ODD/NO
+	CALL leer
+;
+	ld	hl,msin				;Protocoll IN
+	call	messh
+	ld	a,(ix+5)
+	ld	hl,msdtr
+	bit	7,a
+	jr	z,prt_inprot
+	ld	hl,msrts
+	bit	1,a
+	jr	z,prt_inprot
+	ld	hl,msnone
+prt_inprot:
+	call	messh
+	call	leer
+
+	ld	hl,msout			;Protocoll OUT
+	call	messh
+	LD	A,(IX+7)
+	LD	HL,MSRTS
+	BIT	5,A
+	JR	NZ,prt_outprot
+	LD	HL,MSDTR
+	bit	3,a
+	jr	nz,prt_outprot
+	ld	hl,msnone
+prt_outprot:
+	PUSH AF
+	CALL MESSH        ;XON/DTR/RTS
+	CALL leer
+	POP  AF
+	LD   HL,MSWAIT
+	BIT  0,A          ;WAIT ?
+	JR   NZ,PRT11     ;YES
+	LD   HL,MSNWT     ;NOWAIT
+PRT11:  CALL MESSH
+	call	leer
+	ld	hl,msbtx
+	ld	a,(siotab+8h)	;BTx Enabled ? 
+	or	a
+	jr	nz,prt12
+	ld	hl,msnbtx
+prt12:	call	messh
+	call	leer
+	LD   A,cr
+	CALL TV
+	ld	a,lf
+	call	tv
+	LD   IX,SIOTAB+8  ;FOR SIOB
+	DEC  B
+	JP   NZ,PRT1      ;LOOP BACK ONCE
+;
+	jp	?boot
+;
+getarg:	ld	a,(hl)
+	cp	0		;End ?
+	ret	z
+	cp	','
+	inc	hl
+	ret	z
+	cp	' '
+	dec	hl
+	ret	nz
+getar1:	inc	hl
+	cp	(hl)
+	jr	z,getar1
+	ret
+;
+leer:	LD   A,space
+	JP   TV
+
+MESSH:  LD   A,(HL)       ;OUTPUT A TEXT
+	BIT  7,A
+	RET  NZ
+	INC  HL
+	CALL TV
+	JR   MESSH
+;
+mess:	push	bc
+	push	de
+	push	hl
+	ex	de,hl
+	ld	c,prtstr
+	call	?bdos
+	di
+	pop	hl
+	pop	de
+	pop	bc
+	ret
+;
+tv:	push	bc
+	push	de
+	push	hl
+	ld	e,a
+	ld	c,conout
+	call	?bdos
+	di
+	pop	hl
+	pop	de
+	pop	bc
+	ret
+;
+error:	ld	de,errtxt
+error1:
+	ld	c,prtstr
+	call	?bdos
+	jp	?boot
+
+no$config:
+	defb	cr,lf,bell
+	defm	'Fehler: File CONFIG.SYS nicht gefunden'
+	defb	cr,lf,'$'
+;
+;
+MSSIO:  DEFm 'SIO $'
+;
+errtxt:	defb	cr,lf,bell
+	defm	'Unbekannter Parameter oder falscher Wert'
+	defb	cr,lf,'$'
+;
+io_buffer:
+siotab	equ	$+70h
+	defs	128
+;
+	defs	128
+stack:
+	end

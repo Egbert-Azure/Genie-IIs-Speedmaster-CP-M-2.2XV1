@@ -1,11 +1,14 @@
-;********************************************************
-;*							*
-;*	PD.MAC  Set/Show different Formats		*
-;*	Genie III CP/M 2.2XV3 Version 1.0 vom 19.2.86	*
-;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
-;*					1984,1985,1986	*
-;*							*
-;********************************************************
+;****************************************************************
+;*								*
+;*	PD.MAC  Set/Show different Formats			*
+;*	Genie IIs CP/M 2.2XV1 Version 1.1 vom 19.05.86		*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung		*
+;*						1984,1985,1986	*
+;*								*
+;*	1.0   19.02.86  Original 2.2XV3 Version			*
+;*	1.1   19.05.86  1st IIs Adaption			*
+;*								*
+;****************************************************************
 
 	.z80
 	.com
@@ -18,34 +21,19 @@ r$cnfxlt	equ	5			;XLT Record # in CONFIG.SYS
 ;
 c$dpb		equ	50h			;offset from bios-start
 ;
-?boot	equ	0000h
-?drive	equ	0004h
-?bdos	equ	0005h
-@buffer	equ	?boot+80h
-;
-;
-getchr	equ	01h
-prtstr	equ	09h
-getbuf	equ	0ah
-open	equ	0fh
-close	equ	10h
-read	equ	21h
-write	equ	22h
-setdma	equ	1ah
-;
-bell	equ	07h
-lf	equ	0ah
-cr	equ	0dh
-esc	equ	1bh
+	include CPMHEAD.INC
 ;
 ;
 	jp	entry
 ;
 	defb	cr
-	defm	'PD.COM Copyright (c),(p) Klaus K{mpf 1984,1985,1986'
+	defm	'PD.COM'
 	defb	cr,lf
-	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 19.2.86'
-	defb	1ah
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'1984,1985,1986'
+	defb	cr,lf
+	defm	'Genie IIs CP/M 2.2XV1 Version 1.1 vom 19.05.86'
+	defb	ctrlz
 ;
 ;
 entry:
@@ -95,7 +83,7 @@ read_loop:
 	inc	a
 	ld	(prec$num),a
 	ld	de,fcb_pdrive
-	ld	c,read
+	ld	c,redrnd
 	call	?bdos
 	pop	bc
 	djnz	read_loop
@@ -213,7 +201,7 @@ found:
 	pop	af
 	LD	(prec$num),A
 	LD	DE,fcb_pdrive			;Read Record from PDRIVE.SYS
-	LD	c,read
+	LD	c,redrnd
 	CALL	?bdos
 
 	ld	de,extrn$format
@@ -248,7 +236,7 @@ copenok:
 	ld	hl,0
 	ld	(crec$num+1),hl
 	LD	DE,fcb_config			;Read CONFIG-DPB Record
-	LD	c,read
+	LD	c,redrnd
 	CALL	?bdos
 	or	a
 	jp	nz,crderr
@@ -282,7 +270,7 @@ cloop1:
 	ld	c,setdma
 	call	?bdos
 	ld	de,fcb_config
-	ld	c,write
+	ld	c,wrtrnd
 	call	?bdos				;write CONFIG-DPB record
 	or	a
 	jp	nz,cwrerr			;Error ?
@@ -298,7 +286,7 @@ cloop1:
 	ld	hl,0
 	ld	(crec$num+1),hl
 	LD	DE,fcb_config			;Read CONFIG-XLTAB Record
-	LD	c,read
+	LD	c,redrnd
 	CALL	?bdos
 	or	a
 	jp	nz,crderr
@@ -327,7 +315,7 @@ cnoadd:
 	ld	c,setdma
 	call	?bdos
 	ld	de,fcb_config
-	ld	c,write
+	ld	c,wrtrnd
 	call	?bdos				;write CONFIG-DPB record
 	or	a
 	jp	nz,cwrerr
@@ -421,29 +409,29 @@ unknown:
 ;
 ;
 relog:
-	ld	a,(?drive)
+	ld	a,(@drive)
 	ld	b,a
 	ld	a,(@drive_number)		;Changed main drive ?
 	cp	b
-	jp	nz,reset			;N: WarmStart
+	jp	nz,make_reset			;N: WarmStart
 	ld	de,waitxt
 	ld	c,prtstr
 	call	?bdos
 waitcr:
-	ld	c,getchr
+	ld	c,conin
 	call	?bdos				;wait for <CR>
 	cp	cr
 	jr	nz,waitcr
-reset:
+make_reset:
 	ld	a,(@drive_number)
 	ld	hl,1
 	or	a
-	jr	z,resetok
+	jr	z,reset_ok
 	ld	b,a
-resetloop:
+reset_loop:
 	add	hl,hl				;Compute drive vektor
-	djnz	resetloop
-resetok:
+	djnz	reset_loop
+reset_ok:
 	ex	de,hl
 	ld	c,37				;RESET DRIVE
 	call	?bdos

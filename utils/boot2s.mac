@@ -1,0 +1,40 @@
+;****************************************************************
+;*								*
+;*	BOOT.MAC  Software Bootstrap				*
+;*	Genie IIs CP/M 2.2XV1  Version 1.0 vom 19.05.86		*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung	*
+;*						1986		*
+;*								*
+;****************************************************************
+	.z80
+	.com
+	org	100h
+
+	include CPMHEAD.INC
+
+	jp	start
+;
+	defb	cr
+	defm	'BOOT.COM'
+	defb	cr,lf
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung 1986'
+	defb	cr,lf
+	defm	'Genie IIs CP/M 2.2XV1 Version 1.0 vom 19.05.86'
+	defb	ctrlz
+start:
+	ld	hl,(1)
+	ld	l,0
+	push	hl
+	ex	de,hl
+	ld	hl,boot_start
+	ld	bc,boot_length
+	ldir
+	ret
+boot_start:
+	di
+	ld	a,0000_0000b			;Ena ROM
+	out	(0feh),a
+	jp	0
+boot_length	equ	$-boot_start
+
+	end

@@ -1,119 +1,123 @@
 ;********************************************************
 ;*							*
 ;*	SCREEN.MAC  Video driver module			*
-;*	Genie III  CP/M 2.2XV3  Version 1.5  18.05.86	*
+;*	Genie IIs  CP/M 2.2XV1  Version 0.4  18.05.86	*
 ;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
 ;*					1984,1985,1986	*
 ;*	Modification History				*
-;*	1.1  12.02.86  Original Version			*
-;*	1.2  23.03.86  Shorted ctrl_table		*
-;*	1.3  19.04.86  Removed @cursor			*
-;*		       Changed getadr			*
-;*	1.4  11.05.86  corrected ctrl handling		*
-;*	1.5  18.05.86  Added old_iobyte after getadr	*
-;*		       Added savstk to handler		*
+;*	0.0  19.04.86  Original from Genie III		*
+;*	0.1  26.04.86  1st IIs Adaption 64x16		*
+;*	0.11 28.04.86  removed line25,print,usrline	*
+;*	0.2  30.04.86  Graphic 80x24 Adaption		*
+;*	0.21  1.05.86  further improvements		*
+;*	0.22  3.05.86  Invert & Cursor Adaption		*
+;*	0.23 14.05.86  1st Clear Adaption		*
+;*		       ctrl correction (stack)		*
+;*	0.24 15.05.86  2nd Clear Adaption		*
+;*	0.25 15.05.86  insert & delete line		*
+;*	0.3  15.05.86  1st final version		*
+;*	0.4  18.05.86  SIO Adaption			*
+;*		       Added old_iobyte after getadr	*
+;*		       moved savstk from getadr		*
 ;*							*
 ;********************************************************
 	.printl Including SCREEN.MAC
 
-a$vid_start	equ	3c00h
-
+#home	equ	0000h		;row 00 / Col 00
+#scrbot	equ	1700h		;row 23 / Col 00
+#srclst	equ	174fh		;row 23 / Col 79
 
 ;	public		?conout,crtst,crtout
 ;	public		monit,esc_change,esc_end
 ;
 ;	external	getadr,?punch,savstk
-;	external	censt,cenout,v24st,v24out
-;	external	print,clock,newsta
-;	external	bell,load25,rest25,save25
+;	external	censt,cenout,siost,sioout
+;	external	print,clock
+;	external	bell
 ;	external	click,fkyput
-;	external	usrtxt,statxt,idtext
-;	external	@line25,@crtlf,@wrap,@fxact,@insrt
+;	external	statxt,idtext
+;	external	@crtlf,@wrap,@fxact,@insrt
 ;	external	@plmod,@filin
 ;
 ?conout:
 	call	savstk
 conout:
-	call	getadr
+	call getadr
 	defw	<@?conout: dw crtout>
 	defb	0
 	defb	1
-	defw	v24out
+	defw	sioAout
 	defw	crtout
 	defw	punch
-	defw	cenout
+	defw	sioBout
 
 crtst:
 	ld	a,0ffh
 	or	a
 	ret
-
+;
+;----------------------------------------------------------
+;
+?video:
 crtout:
-	ld	hl,common_return		;Set return adress
+	call	swtchg
+	call	show_cursor			;=> cursor off
+	ld	hl,swtchi
 	push	hl
-	ld	hl,<cursor: dw a$vid_start>
+	ld	hl,show_cursor
+	push	hl				;=> cursor on (on exit)
+	ld	hl,common_return		;Set return address
+	push	hl
+	ld	hl,<@rowcol: dw 0>
 	push	hl
 	ld	a,c
 	jp	<crt_vector: dw chrout>
 ;
 ; a,c    = Character
-; (sp)   = Cursor
+; (sp)   = @rowcol
 ; (sp-2) = common_return
 ;
 chrout:
-	ld   a,c
-	pop  de
-	call monit
-	push de
+;
+;	pop  de
+;	call monit
+;	push de
+;
 chout3:
-	cp   20h			;ctrl-Char ?
-	jr   c,ctrl
-	pop  hl
-	ld   a,(@insrt)			;Insert Mode On/Off
-	ld   b,a
-	ld   a,<vidinv: 0>		;Invers flag
-	or   a				;Invers on ?
-	jr   z,noinv
-	cp   1				;Real Invers ?
-	jr   z,yesinv
-	ld   a,c
-	cp   ' '			;space ?
-	ld   a,0
-	jr   z,noinv			;Y: no inv
+	ld	a,c
+	cp	space				;ctrl-Char ?
+	jr	c,ctrl
+	pop	hl				;HL = @rowcol
+	ld	a,<@vidinv: 0>			;Invers flag
+	or	a				;Invers on ?
+	jr	z,noinv
+	cp	1				;Real Invers ?
+	jr	z,yesinv
+	ld	a,c
+	cp	space				;space ?
+	jr	z,noinv				;Y: no inv
 yesinv:
-	ld   a,80h
+	ld	a,<cpl>
+	ld	(@invert),a
 noinv:
-	or   c
-	bit  0,b
-	push af
-	call z,inschr
-	pop  af
-	ld   (hl),a
-	inc  hl
-	jp   vtwrap			;Vertical Wrap ?
-
+	ld	a,c
+	and	07FH
+	call	show_char
+	jp	vtwrap				;Vertical Wrap ?
+;
+;
+;
 common_return:
-	call toobig
-	call nc,scroll
-	ld   bc,-a$vid_start
-	ld   (cursor),hl
-	add  hl,bc
-	ld   c,0f6h
-	ld   a,0eh
-	out  (c),a
-	inc  c
-	out  (c),h
-	dec  c
-	inc  a
-	out  (c),a
-	inc  c
-	out  (c),l
-	ret
+	ld	a,h
+	cp	#row				;toobig ?
+	call	nc,scroll
+	ld	(@rowcol),hl
+	ret					;to show cursor
+;
 ;----------------------------------------------------------
 ; crtl-char processing
-
 ctrl:
-	pop	hl			;pop cursor !
+	pop	hl
 	sub	7
 	ret	c
 	add	a,a			;A = 0 (7) .. 48 (31)
@@ -134,16 +138,16 @@ ctrl_val_ok:
 	ld	l,a
 	ex	(sp),hl
 	ret
-					; hl = cursor
+					; hl = @rowcol
 					;(sp)= common_return
 
 escape:
-	push hl				;save cursor
+	push hl				;save @rowcol
 	ld   hl,esc_next
 
 esc_change:
 	ld   (crt_vector),hl
-	pop  hl				;pop cursor adress
+	pop  hl				;pop @rowcol address
 	ret				;to common_return
 
 esc_end:
@@ -152,7 +156,7 @@ esc_end:
 ;
 ; a,c    = xx (after esc !)
 ; (sp-2) = common_return
-; (sp)   = cursor
+; (sp)   = @rowcol
 ; jmp comes from crt
 ;
 esc_next:
@@ -170,7 +174,7 @@ esc_next:
 	ld   a,(hl)
 	inc  hl
 	ld   d,(hl)
-	ld   e,a			;de=adress
+	ld   e,a			;de=address
 	inc  hl
 	ld   a,(hl)			;get type flag
 	cp   2
@@ -180,428 +184,275 @@ esc_next:
 	dec  a
 	jr   z,type1
 type0:
-	ex   de,hl			;hl=adress
-	ex   (sp),hl			;hl=cursor,(sp)=adress
+	ex   de,hl			;hl=address
+	ex   (sp),hl			;hl=@rowcol,(sp)=address
 	ret				;(sp) = common_return
 type1:
-	pop  hl				;pop cursor
+	pop  hl				;pop @rowcol
 	pop  hl				;pop common_return
-	push de				;push adress
+	push de				;push address
 	ret				;(sp) = bdos return
 type2:
 	ld   (crt_vector),de		;set new vector
-	pop  de				;pop cursor
+	pop  de				;pop @rowcol
 	pop  de				;pop common_return
 	ret				;ret to bdos
 ;----------------------------------------------------------
 back:
-	dec	hl
-	call toolow
-	ret  c
-	inc  hl
+	call	prev
+	ld	a,h
+	cp	#row			;toolow ?
+	call	nc,next
 	ret
-
+;
 tab:
-	ld	(hl),' '
-	inc	hl
-	call	toobig
+	push	hl
+	ld	a,' '
+	call	show_char
+	pop	hl
+	call	next
+	ld	a,h
+	cp	#row				;toobig ?
 	call	nc,scroll
 	ld	a,l
 	and	7
 	jr	nz,tab
 	ret
-
+;
 cr:
-	call lineno
-	ld   a,b	       ;a= line # 1-24
-cr1:
-	ld   hl,a$vid_start-80
-cr_loop:
-	add  hl,de
-	djnz cr_loop
+	ld	l,0
 	ret
-
+;
 crret:
+	ld	l,0				;make cr
 	ld	a,(@crtlf)			;Auto linefeed ?
 	or	a
-	jr	nz,cr				;N: cr only
-
+	ret	nz				;N: cr only
+;
 newlin:
-	call cr
+	ld	l,0
 lf:
-	ld   de,80
-	add  hl,de
+	inc	h
 	ret
-
+;
 curup:
-	ld   de,-80
-	add  hl,de
-	call toolow
-	ret  c
-	jr   lf
+	dec	h
+	ld	a,h
+	cp	#row				;toolow ?
+	ret	c
+	inc	h
+	ret
+;
 currgt:
-	inc  hl
-	call vtwrap
-	call toobig
-	ret  c
-	dec  hl
+	call	vtwrap				;inc row/col & test
+	ld	a,h
+	cp	#row				;toobig ?
+	call	nc,prev
 	ret
-
+;
 curdo:
-	call lf
-	call toobig
-	ret  c
-	sbc  hl,de	     ;CY is 0 !
+	inc	h
+	ld	a,h
+	cp	#row				;toobig ?
+	ret	c
+	dec	h
 	ret
-
+;
 chome:
-	ld   hl,scrtop
+	ld	hl,#home
 	ret
 ;----------------------------------------------------------
 alton:
-	ld   a,02h
-	jr   altset
+	ld	a,02h
+	jr	altset
 altoff:
-	xor  a
+	xor	a
 altset:
-	ld   (vidinv),a
+	ld	(@vidinv),a
 	ret
-
-monon:
-	ld   a,<nop>
-	jr   monset
-monoff:
-	ld   a,<ret>
-monset:
-	ld   (monit),a
-	ret
-
-inson:
-	xor	a
-	ld	hl,instxt
-	jr	insset
-insoff:
-	ld	a,0ffh
-	ld	hl,edttxt
-insset:
-	ld	(@insrt),a
-	ld	de,statxt+52
-	ld	bc,3
-	ldir
-	jp	newsta
-instxt:	defh	'INS'
-edttxt:	defh	'EDT'
-
+;
 wrpon:
-	xor  a
-	jr   wrpset
-wrpoff:
-	ld   a,0ffh
-wrpset:
-	ld   (@wrap),a
-	ret
-;
-edpage:
-	xor  a
-	ld   c,'P'+80h
-	jr   edmset
-edline:
-	ld   a,0ffh
-	ld   c,'L'+80h
-edmset:
-	ld   (@plmod),a
-	ld   a,c
-	ld   (statxt+55),a
-	jp   newsta
-;
-clsnul:
-	ld	a,' '
-	jr	clsset
-clsspc:
-	ld   a,<spcchr: ' '>
-clsset:
-	ld   (clrchr),a
-	jp   cls
-
-trnsid:
-	ld   hl,idtext
-	jp   sndspc
-
-dissta:
-	ld	hl,statxt
 	xor	a
-	jr	disset
-disusr:
-	ld   hl,usrtxt
-	ld   a,01h
-disset:
-	ld   (@line25),a
-	call load25
+	jr	wrpset
+wrpoff:
+	ld	a,0ffh
+wrpset:
+	ld	(@wrap),a
 	ret
+;
 ;----------------------------------------------------------
 ; jmp comes from esc_next
-inschr:
-	push hl
-	ld   a,(@plmod)
-	or   a
-	jr   z,inspag
-	call cureol
-	jr   insch1
-inspag:
-	ld   hl,scrbot
-insch1:
-	pop  de				;de=<at> pos.
-	push de				;hl=last pos.
-	ld   bc,1
-	call insert
-	pop  hl
+;
+inslin:
+	ld	a,h
+	ld	h,#row-1
+	ld	l,#row
+insert_line_loop:
+	cp	h
+	jr	z,end_insert
+	dec	h
+	dec	l
+	push	af,hl
+	call	copy_row			;copy H -> L
+	pop	hl,af
+	jr	insert_line_loop
+end_insert:
+	jp	clear_line
+;
+dellin:
+	push	hl
+	ld	l,h
+	jr	end_delete
+delete_line_loop:
+	inc	h
+	push	hl
+	call	copy_row			;copy H -> L
+	pop	hl
+	inc	l
+end_delete:
+	ld	a,#row-1
+	cp	h
+	jr	nz,delete_line_loop
+	call	clear_line
+	pop	hl
 	ret
-
-delchr:
-	push hl
-	ld   a,(@plmod)
-	or   a
-	jr   z,delpag
-	call cureol
-	jr   delch1
-delpag:
-	ld   hl,scrbot
-delch1:
-	ex   de,hl			;de=last pos.
-	pop  hl				;hl=<at> pos.
-	push hl
-	ld   bc,1
-	call delete
-	pop  hl
+;
+ceopsp:
+	push	hl
+	ld	d,#row-1			;D = EOP (row 23)
+	jr	clear_eox
+ceolsp:
+	push	hl
+	ld	d,h				;D = EOL (current row)
+clear_eox:
+	call	clear
+	pop	hl
 	ret
-
+;
+;
+; Report Cursor Position
+;
 curpos:
-	push hl
-	call cr				;a=line #
-	ex   de,hl
-	pop  hl				;hl=cursor
-	push hl				;de=start of line
-	or   a
-	sbc  hl,de			;l=column# 0-79
-	ld   bc,cpostx			;bc=Text pointer
-	add  a,1fh
-	ld   (bc),a			;set row
-	inc  bc
-	ld   a,l
-	add  a,20h
-	ld   (bc),a			;set col
-	ld   hl,<postxt: dw 0>		;BC = Position Text
-	call sndspc
-	ld   hl,cpostx			;Set Cursor Pos. Text
-	ld   (postxt),hl
-	pop  hl
+	push	hl
+	ld	bc,cpostx			;bc=Text pointer
+	ld	a,h
+	add	a,20h
+	ld	(bc),a				;set row
+	inc	bc
+	ld	a,l
+	add	a,20h
+	ld	(bc),a				;set col
+	ld	hl,<postxt: dw 0>		;BC = Position Text
+	call	sndspc
+	ld	hl,cpostx			;Set Cursor Pos. Text
+	ld	(postxt),hl
+	pop	hl
 	ret
-
+;
 cpostx:
 	defb 0				;Row
 	defb 0				;Column
 	defb 0				;End of Text
-
-inslin:
-	call lastln
-	push hl
-	ex   de,hl
-	ld   hl,scrbot
-	ld   bc,80
-	call insert
-	pop  hl
-	ret
-
-dellin:
-	call lastln
-	push hl
-	ld   de,scrbot
-	ld   bc,80
-	call delete
-	pop  hl
-	ret
-
-ceolnl:
-	push	hl
-	call	cureol
-	ld	a,' '
-	jr	clear_eol
-ceolsp:
-	push hl
-	call cureol
-	ld   a,(spcchr)
-clear_eol:
-	pop  de
-	push de
-	call clear
-	pop  hl
-	ret
-
-ceopnl:
-	ld	a,' '
-	jr	clear_eop
-ceopsp:
-	ld   a,(spcchr)
-clear_eop:
-	push hl
-	ex   de,hl
-	ld   hl,scrbot
-	call clear
-	pop  hl
-	ret
-
-sndlin:
-	push	hl
-	call	cr
-	push	hl
-	call	lf
-	ld	a,(hl)				;get char from next line
-	ld	(hl),0
-	ex	(sp),hl				;(sp) = next line, HL = line
-	push	af
-	call	sndspc
-	pop	af
-	pop	hl
-	ld	(hl),a
-	pop	hl
-	ret
+;
 ;----------------------------------------------------------
 ; jmp comes from crt (retadr = common_return)
+;
 vidatr:
-	cp   '4'
-	ld   a,0
-	jr   nz,vdatr1
-	ld   a,01h
-vdatr1:
-	ld   (vidinv),a
-	jp   esc_end
-
-subchr:
-	ld   (spcchr),a
-	jp   esc_end
-
+	cp	'<'				;Underline/Invers
+	ld	bc,0ff01h
+	jr	z,set_vidatr
+	cp	'8'				;Underline
+	ld	bc,0ff00h
+	jr	z,set_vidatr
+	cp	'4'				;Invers
+	ld	bc,0001h
+	jr	z,set_vidatr
+	ld	bc,0000h			;None
+set_vidatr:
+	ld	a,c
+	ld	(@vidinv),a
+	ld	a,b
+	ld	(@underline),a
+	jp	esc_end
+;
 curatr:
-	sub  '0'
-	jr   c,cuatr3
-	cp   5
-	jr   nc,cuatr3
-	inc  a
-	ld   bc,catrtb-1
+	sub	'0'
+	jr	c,cuatr3
+	cp	5
+	jr	nc,cuatr3
+	inc	a
+	ld	bc,catrtb-1
 cuatr1:
-	inc  bc
-	dec  a
-	jr   nz,cuatr1
+	inc	bc
+	dec	a
+	jr	nz,cuatr1
 cuatr2:
-	ld   a,0ah
-	out  (0f6h),a
-	ld   a,(bc)
-	out  (0f7h),a
+	ld	a,(bc)
+	ld	de,00ffh
+	ld	hl,@cursor_table
+	ld	b,8
+cuatr_loop:
+	ld	(hl),d				;set 00
+	rlca					;0 ok ?
+	jr	nc,nullisok			;Y: jp
+	ld	(hl),e				;N: set FF
+nullisok:
+	inc	hl
+	djnz	cuatr_loop
 cuatr3:
-	jp   esc_end
-
+	jp	esc_end
+;
+catrtb:
+	defb	0000_0000b			;Cursor off
+	defb	1111_1111b			;Cursor blinking block
+	defb	1111_1111b			;Cursor steady block
+	defb	0000_0001b			;Cursor blinking underline
+	defb	0000_0001b			;Cursor steady underline
+@cursor_table:
+	defb	0,0,0,0,0,0,0,0
+;
 curadr:
-	ld   (newrow),a
-	ld   hl,curad1
-	jp   esc_change
-
+	ld	(newrow),a
+	ld	hl,curad1
+	jp	esc_change
+;
 curad1:
-	pop  hl
-	ld   a,<newrow: 0>
-	sub  20h
-	cp   24				;Value ok ?
-	jr   c,curad2
-	ld   a,23			;N: set to last line
+	pop	hl
+	ld	a,<newrow: 0>
+	sub	20h
+	cp	#row				;Value ok ?
+	jr	c,curad2
+	ld	a,#row-1			;N: set to last line
 curad2:
-	ld   l,a			;hl=row
-	ld   h,0
-	ld   e,l			;de=row
-	ld   d,h
-	add  hl,hl			;*2
-	add  hl,hl			;*4
-	add  hl,de			;*5
-	add  hl,hl			;*10
-	add  hl,hl			;*20
-	add  hl,hl			;*40
-	add  hl,hl			;*80
-	ld   a,c			;A = column
-	sub  20h
-	cp   80				;Value ok ?
-	jr   c,curad3
-	ld   a,79
+	ld	h,a
+	ld	a,c
+	sub	20h
+	cp	#col
+	jr	c,curad3
+	ld	a,#col-1
 curad3:
-	ld   e,a
-	ld   d,high a$vid_start		;de=a$vid_start+column
-	add  hl,de
-	push hl
-	jp   esc_end
-
-lduser:
-	cp   0dh
-	jr   z,ldusr2
-	ld   hl,<usrpos: dw usrtxt>
-	ld   (hl),a
-	ld   a,<usrlen: 0>
-	cp   79
-	jr   z,ldusr1
-	inc  a
-	ld   (usrlen),a
-	inc  hl
-	ld   (usrpos),hl
-ldusr1:
-	pop  hl				;pop cursor
-	ret				;to common_return
-
-ldusr2:
-	ld   hl,usrtxt
-	ld   (usrpos),hl
-	xor  a
-	ld   (usrlen),a
-	jp   esc_end
-
-send25:
-	cp   '0'
-	jp   c,esc_end
-	cp   '2'
-	jp   nc,esc_end
-	cp   '1'
-	ld   hl,usrtxt
-	jr   z,snd251
-	ld   hl,statxt
-snd251:
-	call sndspc
-	jp   esc_end
-
+	ld	l,a
+	push	hl
+	jp	esc_end
+;
+;
 setpar:
-	ld   hl,esc_end
-	push hl				;set ret adr to esc_end
-	sub  '0'
-	ret  c
-	cp   10
-	ret  nc
-	ld   c,a
-	ld   b,0
-	ld   hl,parjmp
-	add  hl,bc
-	add  hl,bc
-	ld   a,(hl)
-	inc  hl
-	ld   h,(hl)
-	ld   l,a
-	jp   (hl)				;(sp) = esc_end
-
-staty:
-	xor	a				;Statln ON
-	jr	stat_set
-statn:
-	ld	hl,a$vid_start+24*80
-	ld	de,a$vid_start+24*80+1
-	ld	bc,79
-	ld	(hl),' '
-	ldir
-	ld	a,3				;Statln OFF
-stat_set:
-	ld	(@line25),a
-	ret
+	ld	hl,esc_end
+	push	hl				;set ret adr to esc_end
+	sub	'2'
+	ret	c
+	cp	4
+	ret	nc
+	ld	c,a
+	ld	b,0
+	ld	hl,parjmp
+	add	hl,bc
+	add	hl,bc
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)				;(sp) = esc_end
 ;
 fknorm:
 	xor	a				;Fkeys normal
@@ -612,183 +463,166 @@ fkey_set:
 	ld	(@fxact),a
 	ret
 ;
-clkon:
-	ld   a,<nop>
-	jr   clkset
-clkoff:
-	ld   a,<ret>
-clkset:
-	ld   (clock),a
-	ret
-;----------------------------------------------------------
-; Cursor at last line ?
-; Y:z N:nz
-lastln:
-	call cr
-	ld   de,scrlst
-	ld   a,d
-	cp   h
-	ret  nz
-	ld   a,e
-	cp   l
-	ret  nz
-	pop  de					;pop ret adr
-	push hl					;push cursor
-	ld   bc,80
-	call fill_space				;clear last line
-	pop  hl					;pop start of line
-	ret
+german:
+	ld	a,(@chrset)
+	xor	1
+	ret	nz
+	jr	swap_char
+ascii:
+	ld	a,(@chrset)
+	xor	1
+	ret	z
 ;
-; Insert BC spaces at (DE) up to (HL)
+; swap charset
+; I: A = new charset code
+;    0 = german
+;    1 = ascii
 ;
-insert:
-	push	hl,de,bc
-	or	a
-	sbc	hl,de				;HL = diff
-	jr	z,none_insert
-	ld	d,h
-	ld	e,l				;DE = diff
-	or	a
-	sbc	hl,bc				;BC > diff ?
-	jr	nc,bc_is_ok			;N: ok
-	pop	bc
-	push	de				;Y: set de as diff
-bc_is_ok:
-	pop	bc,de,hl
-	push	bc,de,hl
-	or	a
-	sbc	hl,bc
-	push	hl				;(sp) = last leaving pos.
-	ld	bc,1
-	or	a
-	sbc	hl,de				;hl = # of chars to move
-	jr	c,carry_move
-	inc	hl
-	ld	b,h
-	ld	c,l
-carry_move:
-	pop	hl				;hl = last leaving
-	pop	de				;de = last insert
-	lddr
-	pop	hl
-	pop	bc
-;
-fill_space:
-	ld	a,(spcchr)
-	ld	e,a
-fill_loop:
-	ld	(hl),e
-	inc	hl
-	dec	bc
-	ld	a,b
-	or	c
-	jr	nz,fill_loop
-	ret
-;
-none_insert:
-	pop	bc,de,hl
-	ret
-;
-; Delete BC chars at (HL) up to (DE)
-;
-delete:
+swap_char:
+	ld	(@chrset),a
+	push	ix
+	ld	ix,@swap_table
+	ld	de,@swap_set
+	ld	b,8				;8 chars to swap
+swap_char_loop:
 	push	bc
-	push	hl
-	add	hl,bc			;hl=1st leaving pos.
-	push	hl
-	ex	de,hl
-	or	a
-	sbc	hl,de			;hl=#of chars to move
+	ld	a,(ix)
+	call	get_image_address
+	ld	bc,08ffh
+swap_image_loop:
+	ld	a,(de)
+	ldi					;(hl) -> (de)
+	dec	hl
+	ld	(hl),a
 	inc	hl
-	ld	b,h
-	ld	c,l			;bc=# of chars
-	pop	hl			;hl=1st leaving pos
-	pop	de			;de=<at> pos.
-	ldir
-	ex	de,hl
-	pop	bc			;bc=counter
-	jr	fill_space			;Fill with spaces
+	djnz	swap_image_loop
+	pop	bc
+	inc	ix
+	djnz	swap_char_loop
+	pop	ix
+	ret
+@swap_table:
+	defb	40h,5bh,5ch,5dh,7bh,7ch,7dh,7eh
+;		 @   [   \   ]   {   |   }   ~
 ;
-; Clear from (DE) up to (HL) with A
+;----------------------------------------------------------
+;
+;
+; Copy Row H to Row L
+; I: H = Soure Row
+;    L = Dest Row
+;
+copy_row:
+	push	hl
+	ld	d,l				;de = dest row/col
+	ld	e,0				;from col 0
+	ld	l,e				;hl = source row/col
+	ld	c,64				;64 cols
+	call	copy_area
+	pop	hl
+	ld	d,l				;de = dest row/col
+	ld	e,64				;from col 64
+	ld	l,e				;hl = source row/col
+	ld	c,16				;16 cols
+;
+; copy C chars from H/L to D/E
+; H/L & D/E must be within the same area
+;
+copy_area:
+	push	bc,de				;save len, dest row
+	call	get_address
+	ex	(sp),hl				;(sp) = source addr
+	call	get_address
+	ex	de,hl				;de = destination address
+	pop	hl				;hl = source address
+	pop	bc				;c = # of chars
+	ld	b,8				;b = # of scanlines
+copy_area_loop:
+	push	bc,de,hl
+	ld	b,0				;bc = # or chars
+	ldir
+	pop	hl				;hl = old source
+	call	next_scanline
+	ex	(sp),hl				;(sp) = new source
+	call	next_scanline
+	ex	de,hl				;de = new dest
+	pop	hl,bc				;hl = new source
+	djnz	copy_area_loop
+	ret
+;
+;
+; Clear Line H
+;
+clear_line:
+	ld	l,0
+	ld	d,h
+;
+;
+; Clear from HL up to DE
+; HL = Start Row/Col		(@rowcol)
+; D  = End Row			(EOL/EOP)
 ;
 clear:
-	ld	(de),a				;at least one
-	or	a
-	sbc	hl,de
-	ret	z				;if hl=de
-	ld	b,h
-	ld	c,l
-	ld	h,d
-	ld	l,e
-	inc	de
-	ldir
+	ld	a,d
+	sub	h				;start > end ?
+	ret	c				;Y: ret
+	inc	a
+	ld	b,a
+clear_loop:
+	push	bc				;save count
+	ld	a,l
+	cp	64				;Start in inner ?
+	jr	nc,outer_start
+	ld	a,63
+	call	clear_part			;Y: clear inner
+	ld	l,64
+outer_start:
+	ld	a,79
+	call	clear_part			;clear outer
+	pop	bc
+	inc	h				;next row
+	ld	l,0				;col 0
+	djnz	clear_loop			;next row
+	dec	h
 	ret
 ;
-;Monitor Mode
 ;
-monit:
-	ret					;monitor off is default
-	jp	<monitor_jump: dw monit1>
+; Clear from H/L to H/A
+; preserves HL
 ;
-; de = cursor
-;
-monit1:
-	cp	27
-	jr	nz,monit2			;jp if not ESC
-	ld	hl,monesc
-	ld	(monitor_jump),hl
-monit2:
-	ld	(de),a
-	inc	de
-monret:
-	ex	de,hl
-	pop	de				;pop ret adr
-	xor	a
-	ret					;to common_return
-
-monesc:
-	cp	'X'
-	jr	z,mnexit
-	ld	hl,monit1
-	ld	(monitor_jump),hl
-	jp	(hl)
-;
-mnexit:
-	ld	hl,monit1
-	ld	(monitor_jump),hl
-	ld	a,<ret>
-	ld	(monit),a
-	jr	monret
-;
-;
-;
-scroll:
-	ld	hl,scrlst
+clear_part:
 	push	hl
-	ld	de,scrtop
-	or	a
-	sbc	hl,de
-	ld	b,h
-	ld	c,l
-	ld	hl,80
-	add	hl,de				;de=scrtop
-	ldir					;hl=scrtop+80
-	ld	hl,scrbot
-	ld	a,' '
-	call	clear				;Clear last line
+	sub	l
+	ld	c,a
+	ld	b,0				;BC = length
+	push	bc
+	call	get_address			;HL = 1st scanline address
+	pop	bc
+	ld	a,8				;8 Scanlines
+clear_scan:
+	push	af,bc
+	ld	d,h
+	ld	e,l
+	inc	de
+	ld	(hl),0
+	ld	a,c
+	or	a				;only 1 char ? (diff = 0)
+	jr	z,clear_next_scan		;Y: next scan
+	push	hl
+	ldir
+	pop	hl
+clear_next_scan:
+	call	next_scanline
+	pop	bc,af
+	dec	a
+	jr	nz,clear_scan
 	pop	hl
 	ret
 ;
 ;
+trnsid:
+	ld	hl,idtext
 ;
-cls:
-	ld	hl,scrbot
-	ld	de,scrtop
-	push	de				;save new cursor
-	ld	a,<clrchr: 20h>
-	call	clear
-	pop	hl
-	ret
 ;
 ; Send Char from HL to (00) to keybuf
 ; Send Space ?
@@ -809,67 +643,310 @@ sndsp1:
 sndcr:
 	defb	0dh,00h
 ;
+;
 ; Vertical Wrap ?
+; I: HL = Row/Col
+; O: HL = new Row/Col
 ;
 vtwrap:
-	ld	a,(@wrap)
-	or	a
-	ret	z
-	push	hl
-	call	cr
-	ex	de,hl				;de=start of line
-	pop	hl				;hl=cursor
-	ld	a,e				;hl at start of line ?
-	cp	l
+	inc	l				;next col
+	ld	a,#col-1
+	cp	l				;col overflow ?
+	ret	nc				;N: ret
+	ld	l,a
+	ld	a,(@wrap)			;shall we wrap ?
+	or	a				;Y: z, N: nz
 	ret	nz
-	ld	a,d
-	cp	h
-	ret	nz
-	dec	hl				;Y: dec cursor
+	ld	l,0
+	inc	h
 	ret
 ;
-; HL > scrbot ?  Y->NC
 ;
-toobig:
-	ld	bc,scrbot
-	inc	bc
-	ld	a,h
-	cp	b
-	ret	c
+; Cursor to next position
+;
+next:
+	inc	l
 	ld	a,l
-	cp	c
-	ret
-;
-; HL < scrtop ?  Y->NC
-;
-toolow:
-	ld	bc,scrtop
-	dec	bc
-	ld	a,b
-	cp	h
+	cp	#col
 	ret	c
-	ld	a,c
-	cp	l
+	ld	l,0
+	inc	h
 	ret
 ;
-; compute line# in b (1-24)
 ;
-lineno:
-	ld	de,80
-	ld	b,0
+; Cursor to prev position
+;
+prev:
+	dec	l
+	ld	a,l
 	or	a
-line1:
-	sbc	hl,de
-	inc	b
-	ld	a,h
-	cp	high a$vid_start - 1
-	jr	nz,line1
-	ret
+	ret	p
+	ld	l,#col-1
+	dec	h
+	ret	
 ;
-; Cursor to end of line
+;----------------------------------------------------------
 ;
-cureol:
-	call	cr
-	ld	de,79
+; Get Scanline address
+; I: H = Row (0..#row-1)
+;    L = Column (0..#col-1)
+; O: HL = address of 1st Scanline
+;
+get_address:
+	ld	a,l
+	ld	c,l
+	ld	b,0
+	cp	64
+	ld	de,inner_addresses
+	jr	c,inner_area
+	ld	de,outer_addresses
+inner_area:
+	ld	l,h
+	ld	h,0
+	add	hl,hl
 	add	hl,de
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	add	hl,bc
 	ret
+;
+inner_addresses:
+	defw	0000h,2000h,1040h,0080h,2080h
+	defw	10c0h,0100h,2100h,1140h,0180h
+	defw	2180h,11c0h,0200h,2200h,1240h
+	defw	0280h,2280h,12c0h,0300h,2300h
+	defw	1340h,0380h,2380h,13c0h
+;
+outer_addresses:
+	defw	3000h-64
+	defw	3020h-64
+	defw	3050h-64
+	defw	3080h-64
+	defw	30a0h-64
+	defw	30d0h-64
+	defw	3100h-64
+	defw	3120h-64
+	defw	3150h-64
+	defw	3180h-64
+	defw	31a0h-64
+	defw	31d0h-64
+	defw	3200h-64
+	defw	3220h-64
+	defw	3250h-64
+	defw	3280h-64
+	defw	32a0h-64
+	defw	32d0h-64
+	defw	3300h-64
+	defw	3320h-64
+	defw	3350h-64
+	defw	3380h-64
+	defw	33a0h-64
+	defw	33d0h-64
+;
+; put byte & compute next scanline address
+;
+;
+put_byte:
+	ld	(hl),a
+;
+; Compute next scanline address
+; I: HL = current scanline address
+; O: HL = next scanline address
+;
+next_scanline:
+	ld	a,h
+	cp	030H
+	jp	nc,next_outer_adr
+	jp	next_inner_adr
+;
+;
+; Show Character at Row/Col
+; I: H = Row
+;    L = Column
+;    A = Char
+;
+show_char:
+	push	ix,hl,af
+	call	get_image_address
+	push hl!pop ix				;IX -> @charset
+	pop	af,hl
+
+	push	hl
+	call	get_address
+	ld	b,8
+show_loop:
+	dec	b
+	ld	c,0
+	jr	nz,no_underline
+	ld	c,<@underline: 0>
+no_underline:
+	inc	b
+	ld	a,(ix+0)
+	or	c
+@invert:
+	nop					;or cpl
+	push	bc
+	call	put_byte
+	pop	bc
+	inc	ix
+	djnz	show_loop
+	xor	a
+	ld	(@invert),a
+	pop	hl,ix
+	ret
+;
+; Get address of char image
+; I: A  = charval 32..127
+; O: HL = Address of char image in @charset
+; uses bc
+;
+get_image_address:
+	ld	l,a
+	ld	h,0
+      3:add	hl,hl				;HL = Char * 8
+	ld	bc,@charset-8*32
+	add	hl,bc
+	ret
+;
+;
+; Show Cursor by inverting char
+;
+show_cursor:
+	push	ix,hl,bc
+	ld	hl,(@rowcol)
+	call	get_address
+	ld	ix,@cursor_table
+	ld	b,8
+cursor_loop:
+	ld	a,(hl)
+	xor	(ix)
+	push	bc
+	call	put_byte			;put byte & get next adr
+	pop	bc
+	inc	ix
+	djnz	cursor_loop
+	pop	bc,hl,ix
+	ret
+;
+scroll:
+	exx
+	push	hl,de
+	exx
+
+	ld	hl,02000H
+	ld	de,0
+	exx
+	ld	hl,03020H
+	ld	de,03000H
+	exx
+	ld	b,184
+scroll_loop1:
+	push	bc
+	push	hl
+	push	de
+	ld	bc,64
+	ldir
+	pop	de
+	pop	hl
+	call	next_inner_adr
+	ex	de,hl
+	call	next_inner_adr
+	ex	de,hl
+	exx
+	push	hl,de
+	ld	bc,16
+	ldir
+	pop	de,hl
+	call	next_outer_adr
+	ex	de,hl
+	call	next_outer_adr
+	ex	de,hl
+	exx
+	pop	bc
+	djnz	scroll_loop1
+;
+	ld	hl,013C0H
+	ld	b,8
+scroll_loop2:
+	push	bc,hl
+	push	hl
+	pop	de
+	inc	de
+	ld	bc,63
+	ld	(hl),0
+	ldir
+	pop	hl
+	call	next_inner_adr
+	pop	bc
+	djnz	scroll_loop2
+;
+	ld	b,4
+	ld	hl,033D0H
+scroll_loop3:
+	push	bc,hl
+	push	hl
+	pop	de
+	inc	de
+	ld	bc,31
+	ld	(hl),0
+	ldir
+	pop	hl
+	call	next_outer_adr
+	pop	bc
+	djnz	scroll_loop3
+	ld	hl,23*256+0
+
+	exx
+	pop	de,hl
+	exx
+
+	ret
+;
+;
+; Compute next scanline address in inner area
+; I: HL = current scanline address
+; O: HL = next scanline address
+; uses BC,AF
+;
+next_inner_adr:
+	ld	bc,00400H
+	add	hl,bc
+	ld	a,h
+	cp	030H
+	ret	c
+	ld	bc,0D040H			;=-2FC0H
+	add	hl,bc
+	ret
+;
+; Compute next scanline address in outer area
+; I: HL = current scanline address
+; O: HL = next scanline address
+; uses BC,AF
+;
+next_outer_adr:
+	ld	bc,1024
+	add	hl,bc
+	bit	6,h
+	ret	z
+	ld	bc,0F010h			;=-0FF0H = -4080
+	add	hl,bc
+	ld	a,l
+	and	030H
+	cp	030H
+	ret	nz
+	ld	bc,16
+	add	hl,bc
+	ret
+;
+clsnul:
+clsspc:
+cls:
+	ld	hl,0000h
+	ld	de,0001h
+	ld	bc,3FFFH
+	ld	(hl),0
+	ldir
+	jp	chome
+;

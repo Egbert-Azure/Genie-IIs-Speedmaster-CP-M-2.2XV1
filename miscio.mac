@@ -1,29 +1,30 @@
-	.printl Including MISCIO.MAC 1.5
 ;********************************************************
 ;*							*
 ;*	MISCIO.MAC  Miscelleanous I/O Module		*
-;*	Genie III  CP/M 2.2XV3  Version 1.5  23.01.87	*
+;*	Genie IIs  CP/M 2.2XV1  Version 0.22  19.5.86	*
 ;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
 ;*					1984,1985,1986	*
 ;*							*
 ;*	Modification History				*
-;*	1.0  24.02.86  Original Version			*
-;*	1.1  13.03.86  Corrected CR/LF on List		*
-;*	1.2  23.03.86  Reactivated Handshake 8250	*
-;*	1.3  19.04.86  Changed getadr			*
-;*	1.4  18.05.86  Added old_iobyte after getadr	*
-;*		       Added savstk to handler		*
-;*		       Added punst			*
-;*	1.5  23.01.87  V24 Handshake rewritten		*
+;*	0.0  19.04.86  Original Genie III Version	*
+;*	0.1  26.04.86  1st IIs Adaption			*
+;*	0.2  18.05.86  SIO Adaption			*
+;*		       Added old_iobyte after getadr	*
+;*		       moved savstk from getadr		*
+;*	0.21 19.05.86  Corrected stack handling on exit	*
+;*	0.22 19.05.86  moved Set/Reset TX in status	*
+;*		       corrected sio?out		*
 ;*							*
 ;********************************************************
+	.printl Including MISCIO.MAC
 ;
 ;	public		?list,?listst,?punch,?reader
 ;	public		censt,cenout
-;	public		v24st,v24ost,v24in,v24out
-;	public		rdrst
+;	public		sioAist,sioAost,sioAin,sioAout
+;	public		sioBist,sioBost,sioBin,sioBout
+;	public		?rdrst,?punst
 ;
-;	external	getadr,v24_table,break
+;	external	getadr,sio_table,break
 ;	external	keyst,keyin,crtst,crtout
 ;	external	@lstlf
 ;
@@ -35,23 +36,23 @@ listst:
 	defw	<@?listst: dw censt>
 	defb	0
 	defb	4
-	defw	v24ost
+	defw	sioAost
 	defw	crtst
 	defw	censt
-	defw	punst
+	defw	punst				;hexout
 ;
 ?list:
 	call	savstk
 list:
 	ld	a,c
-	cp	0ah			;LF ?
-	jr	nz,normal_lf		;N: jp
+	cp	0ah				;LF ?
+	jr	nz,normal_lf			;N: jp
 	ld	a,<last_char: 0>
-	cp	0dh			;last char cr ?
-	jr	nz,normal_lf		;N: jp
-	ld	a,(@lstlf)		;allow LF after CR ?
+	cp	0dh				;last char cr ?
+	jr	nz,normal_lf			;N: jp
+	ld	a,(@lstlf)			;allow LF after CR ?
 	or	a
-	ret	nz			;N: immediate return
+	ret	nz				;N: immediate return
 normal_lf:
 	ld	a,c
 	ld	(last_char),a
@@ -60,7 +61,7 @@ normal_lf:
 	defw	<@?list: dw cenout>
 	defb	0
 	defb	4
-	defw	v24out
+	defw	sioAout
 	defw	crtout
 	defw	cenout
 	defw	hexout
@@ -69,59 +70,59 @@ normal_lf:
 	call	savstk
 punch:
 	call	getadr
-	defw	<@?punch: dw v24out>
+	defw	<@?punch: dw sioAout>
 	defb	0
 	defb	3
-	defw	v24out
+	defw	sioAout
 	defw	cenout
 	defw	crtout
-	defw	null_out
+	defw	sioBout
 ;
+?punst:
+	call	savstk
 punst:
 	call	getadr
-	defw	<@?punst: dw v24ost>
+	defw	<@?punst: dw sioAost>
 	defb	0
 	defb	3
-	defw	v24ost
+	defw	sioAost
 	defw	censt
 	defw	crtst
-	defw	crtst				;always true
+	defw	sioBost
 ;
 ?reader:
 	call	savstk
 reader:
 	call	getadr
-	defw	<@?reader: dw v24in>
+	defw	<@?reader: dw sioAin>
 	defb	0
 	defb	2
-	defw	v24in
-	defw	v24in
-	defw	keyin
+	defw	sioAin
 	defw	null_in
+	defw	keyin
+	defw	sioBin
 ;
 ?rdrst:
 	call	savstk
 rdrst:
 	call	getadr
-	defw	<@?rdrst: dw v24ist>
+	defw	<@?rdrst: dw sioAist>
 	defb	0
 	defb	2
-	defw	v24ist
-	defw	v24ist
+	defw	sioAist
+	defw	crtst				;always true
 	defw	keyst
-	defw	crtst			;always true
+	defw	sioBist
 
 null_in:
 	ld	a,1ah
 null_out:
 	ret
-;
 ;----------------------------------------------------------
-;
 censt:
 	call	break				;BREAK pressed ?
 	jr	z,cen_stat			;Y: true status
-	in	a,(0fdh)
+	ld	a,(37e8h)
 	and	0f0h
 	cp	30h
 cen_stat:
@@ -136,7 +137,7 @@ cenout:
 	call	censt				;status true ?
 	jr	z,cenout			;N: wait for true
 	ld	a,c
-	out	(0fdh),a
+	ld	(37e8h),a
 	ret
 ;
 hexout:
@@ -158,168 +159,178 @@ hex_out_numeric:
 	add	a,30h
 	ld	c,a
 	jp	punch
-;
 ;----------------------------------------------------------
+.char	equ	0
+.TX	equ	1
+.mask	equ	2
+.prot	equ	3
 ;
-; Offsets for v24_base:
+@siotab:
+@sioAchr:	defb	0			;Last received char
+@sioAtx:	defb	0			;Tx register
+@sioAmsk:	defb	0			;Input Mask
+@sioAprt:	defb	0			;Protocoll
+@sioBchr:	defb	0
+@sioBtx:	defb	0
+@sioBmsk:	defb	0
+@sioBprt:	defb	0
 ;
-rbr	equ	0		;receiver buffer register
-thr	equ	0		;transmitter holding register
-ier	equ	1		;interrupt enable register
-;
-; Offsets for v24_table:
-;
-msk	equ	2		;receive MaSK (internal)
-lcr	equ	3		;Line Control Register
-mcr	equ	4		;Modem Control Register
-lsr	equ	5		;Line Status Register
-msr	equ	6		;Modem Status Register
-hsk	equ	7		;HandShaKe (internal)
-lrc	equ	8		;Last Received Character
-dll	equ	0		;Divisor Latch Low
-dlm	equ	1		;Divisor Latch High
-
-v24_base	equ	0e8h	;Baseport V24 (UART 8250)
-;
-;
-; Input Byte from V24
-;
-v24in:
-	ld	hl,@v24chr
-	ld	a,(hl)
-	ld	(hl),0
-	or	a				;char there ?
-	ret	nz				;Y: ok
-v24_in_wait:
-	call	v24_in_ready			;N: check & get char
-	jr	v24in				;Wait for Char
-;
-;
-; Output Byte to V24
-;
-v24out:
-	ld	a,c
-	push	af
-v24_out_wait:
-	call	v24_out_ready
-	jr	nz,v24_out_wait
-	pop	af
-	out	(v24_base+thr),a		;send byte
-	ret
-;
-;
-; Sense V24 Input Status
-;
-v24ist:
-	call	v24_in_ready
-	ld	a,0
-	jr	z,not_ready
-	dec	a
-not_ready:
-	or	a
-	ret
-;
-;
-; Sense V24 Output Status
-;
-v24ost:
-	call	v24_out_ready
-	ld	a,0
-	jr	nz,return_out
-	dec	a
-return_out:
-	or	a
-	ret
-;
-;----------------------------------------------------------
-;
-; Serial in ready ?
-; Y: nz, N: z
-;
-v24_in_ready:
+sioAist:
+	call	sioA
+	jr	sio_in_ready?
+sioBist:
+	call	sioB
+sio_in_ready?:
 	call	break
-	jr	z,char_available
-	ld	a,(@v24chr)
+	jr	z,sio_in_clear
+	ld	a,(ix+.char)
 	or	a
-	jr	nz,char_available
-	in	a,(v24_base+lsr)
-	and	0000_0001b			;data ready ?
-	jr	nz,char_received		;Y: jp
-	call	set_tx				;set DTR/RTS
+	jr	nz,sio_in_clear
 	xor	a
-	ret					;N: ret
-;
-char_received:
-	call	reset_tx			;reset DTR/RTS
-	in	a,(v24_base+rbr)		;get char
-	ld	b,a
-	ld	a,(@v24msk)
-	and	b
-	ld	(@v24chr),a
-char_available:
+	out	(c),a
+	in	a,(c)
+	and	0000_0001b			;char avail ?
+	jr	nz,char_avail			;Y: jp
+	ld	a,5
+	out	(c),a
+	ld	a,(ix+.TX)
+	or	1000_0010b			;Set DTR & RTS
+	out	(c),a
+	xor	a
+	ret
+char_avail:
+	ld	a,5
+	out	(c),a
+	ld	a,(ix+.TX)			;Update DTR & RTS by prot.
+	out	(c),a
+	dec	c
+	dec	c
+	in	a,(c)
+	ld	(ix+.char),a
+sio_in_clear:
 	or	0ffh
 	ret
 ;
-set_tx:
-	ld	a,0000_0011b			;Set DTR & RTS
-set_mcr:
-	out	(v24_base+mcr),a
+;
+sioAin:
+	call	sioA
+	jr	sio_in
+sioBin:
+	call	sioB
+sio_in:
+	ld	a,(ix+.char)
+	ld	(ix+.char),0
+	or	a
+	jr	nz,sio_in_exit
+sio_in_wait:
+	call	sio_in_ready?
+	jr	z,sio_in_wait
+	ld	a,(ix+.char)
+	ld	(ix+.char),0
+sio_in_exit:
+	and	(ix+.mask)
 	ret
 ;
-reset_tx:
-	ld	a,(@v24mcr)			;Reset DTR & RTS
-	jr	set_mcr
+sioAost:
+	call	sioA
+	jr	sio_out_status
+sioBost:
+	call	sioB
+sio_out_status:
+	call	sio_out_ready?
+	ld	a,0
+	jr	nz,sio_out_report
+	dec	a				;A = ff => out is clear
+sio_out_report:
+	or	a
+	ret
 ;
+; SIO out ready ?
+; Y: Z
+; N: NZ
 ;
-; Serial output ready ?
-; Y: z, N: nz
-;
-v24_out_ready:
+sio_out_ready?:
 	call	break
-	ret	z			;Y: ret with ready
-	ld	a,(@v24hsk)
-	ld	b,a
-	bit	0,b			;Wait on ?
-	jr	z,no_wait		;N: jp
-
-	in	a,(v24_base+lsr)	;Wait: Check for all send
-	and	0100_0000b
-	cp	0100_0000b
-	ret	nz			;NZ if not all send
-
+	ret	z
+	ld	b,(ix+.prot)			;B = protocoll
+	bit	0,b				;wait ?
+	jr	z,no_wait
+	ld	a,1
+	out	(c),a				;Y: select Reg 1
+	in	a,(c)
+	and	0000_0001b			;all sent ?
+	cp	1
+	ret	nz				;N: ret
 no_wait:
-	in	a,(v24_base+lsr)	;get status
-	and	0010_0000b
-	cp	0010_0000b		;transmit empty ?
-	ret	nz			;N: ret
-
-	bit	7,b			;Xon/Xoff enabled ?
-	jr	nz,chk_xonoff		;Y: check xon/xoff, else check bits
-
-	ld	c,0011_0000b
+	push	bc
 	ld	a,b
-	and	c
+	and	0010_1100b			;check CTS,DCD,Tx Empty
 	ld	b,a
-	in	a,(v24_base+msr)	;get status bits
-	and	c			;mask them
-	cp	b			;right ones set ?
-	ret				;Y: z, N: nz
-
-chk_xonoff:
-	in	a,(v24_base+lsr)
-	and	0000_0001b		;char avail ?
-	jr	z,not_xoff		;N: check internal status
-	in	a,(v24_base+rbr)	;Y: get char
-	cp	19			;Xoff ?
-	jr	nz,not_xoff
-	set	1,b			;Y: set xoff status
-its_xon:
-	ld	a,b
-	ld	(@v24hsk),a		;Save final status
-not_xoff:
-	bit	1,b			;Xoff status ?
-	ret	z			;N: ret, out ready !
-	cp	17			;Y: Xon received ?
-	ret	nz			;N: not ready
-	res	1,b			;Y: reset xoff status
-	jr	its_xon			;Save & return
+	xor	a
+	out	(c),a
+	in	a,(c)
+	and	b				;mask CTS,DCD,TxEmpt
+	cp	b				;all clear to send ?
+	pop	bc
+	ret	nz				;N: ret, noclear
+	bit	7,b				;Soft protocoll ?
+	ret	z				;N: ret, clear
+	dec	c
+	dec	c
+	in	a,(c)				;Get last received
+	inc	c
+	inc	c
+	cp	#xoff				;XOFF received ?
+	jr	nz,check_xonoff			;N: check status
+	set	1,b				;Y: set bit
+save_xonoff:
+	ld	(ix+.prot),b
+check_xonoff:
+	bit	1,b				;XOFF status ?
+	ret	z				;N: ret, clear
+	cp	#xon				;XON received ?
+	ret	nz				;N: ret, noclear
+	res	1,b				;Y: reset xoff status
+	jr	save_xonoff			;save status & ret
+;
+sioAout:
+	ld	b,c
+	call	sioA
+	jr	sio_out
+sioBout:
+	ld	b,c
+	call	sioB
+sio_out:
+	push	bc
+sio_out_loop:
+	call	sio_out_ready?
+	jr	nz,sio_out_loop
+	pop	af
+	dec	c
+	dec	c
+	out	(c),a
+	ret
+;----------------------------------------------------------
+sioA:
+	pop	hl				;bc = ret adr
+	push	ix
+	ld	ix,@siotab+0
+	ld	c,0d2h
+	jr	sioSet
+;
+sioB:
+	pop	hl
+	push	ix
+	ld	ix,@siotab+4
+	ld	c,0d3h
+sioSet:
+	push	hl
+	ld	hl,sio_exit
+	ex	(sp),hl
+	xor	a
+	ld	(37e4h),a
+	jp	(hl)
+;
+sio_exit:
+	pop	ix
+	ret

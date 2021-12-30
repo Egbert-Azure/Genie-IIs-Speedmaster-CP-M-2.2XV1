@@ -1,8 +1,8 @@
 	.z80
 	.com
 	org	100h
-	.phase	0cf00h
-	.printl CCP for CP/M 2.2XV3
+	.phase	0ce00h
+	.printl CCP for CP/M 2.2XV1 at CE00h-E400h
 ;
 ; CCP Source Listing
 ;

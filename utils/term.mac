@@ -13,35 +13,20 @@
 	.com
 	org	100h
 ;
-boot	equ	0000h
-bdos	equ	0005h
-buffer	equ	boot+80h
-;
-prtchr	equ	02h
-prtstr	equ	09h
-getbuf	equ	0ah
-getsta	equ	0bh
-open	equ	0fh
-close	equ	10h
-reads	equ	14h
-writes	equ	15h
-;
-bell	equ	07h
-lf	equ	0ah
-cr	equ	0dh
-esc	equ	1bh
+	include CPMHEAD.INC
 ;
 	jp	entry
 ;
 	defb	cr
-	defm	'TERM.COM Copyright (c) by Klaus K{mpf '
-	defm	'Softwareentwicklung 1986'
+	defm	'TERM.COM'
 	defb	cr,lf
-	defm	'CP/M Version 0.0 vom 23.3.86'
-	defb	1ah
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung 1986'
+	defb	cr,lf
+	defm	'CP/M Version 1.0 vom 23.3.86'
+	defb	ctrlz
 ;
 entry:
-	ld	hl,(boot+1)
+	ld	hl,(?boot+1)
 	ld	l,06h
 	ld	(?const1),hl
 	ld	(?const2),hl

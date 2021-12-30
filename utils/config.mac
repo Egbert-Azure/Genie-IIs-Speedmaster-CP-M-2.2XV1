@@ -1,14 +1,15 @@
-;********************************************************
-;*							*	
-;*	CONFIG.MAC System configuration			*
-;*	Genie III CP/M 2.2XV3 Version 1.1  19.4.86	*
-;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
-;*					1984,1985,1986	*
-;*	Modification History				*
-;*	1.0  24.2.86  Original Version			*
-;*	1.1  19.4.86  Changed cursor from 50 to 106	*
-;*							*
-;********************************************************
+;****************************************************************
+;*								*	
+;*	CONFIG.MAC  System configuration			*
+;*	Genie IIs CP/M 2.2XV1 Version 1.0  19.05.86		*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung	*
+;*						1984,1985,1986	*
+;*	Modification History					*
+;*	1.0   24.02.86  Original Version			*
+;*	1.1   19.04.86  Changed cursor from 50 to 106		*
+;*	1.0   19.05.86  1st IIs Adaption			*
+;*								*
+;****************************************************************
 ;
 ;
 	.z80
@@ -17,34 +18,19 @@
 ;
 r$systab	equ	0			;SYSTAb is record #0
 ;
-?boot	equ	0000h
-?bdos	equ	0005h
-buffer	equ	?boot+80h
-;
-getchr	equ	01h
-prtchr	equ	02h
-prtstr	equ	09h
-getbuf	equ	0ah
-open	equ	0fh
-close	equ	10h
-read	equ	21h
-write	equ	22h
-setdma	equ	1ah
-;
-bell	equ	07h
-lf	equ	0ah
-cr	equ	0dh
-esc	equ	1bh
+	include CPMHEAD.INC
 ;
 ;
 	jp	entry
 ;
 	defb	cr
-	defm	'CONFIG.COM Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'CONFIG.COM'
+	defb	cr,lf
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung '
 	defm	'1985,1986'
 	defb	cr,lf
-	defm	'Genie III CP/M 2.2XV3 Version 1.1 vom 19.4.86'
-	defb	1ah
+	defm	'Genie IIs CP/M 2.2XV1 Version 1.0 vom 19.05.86'
+	defb	ctrlz
 ;
 cnffcb:
 	defb	0
@@ -76,7 +62,7 @@ open$ok:
 	ld	c,setdma
 	call	?bdos
 	ld	de,cnffcb
-	ld	c,read
+	ld	c,redrnd
 	call	?bdos
 ;
 	ld	de,strtxt
@@ -84,7 +70,7 @@ open$ok:
 ;
 ; Ask for Y = 00H, N = FFH
 ;
-	ld	b,11				;11 Y/N parameters
+	ld	b,6				;6 Y/N parameters
 	ld	ix,par_table_00_ff		;ix = parameter table
 nextyn:
 	push	ix
@@ -132,7 +118,7 @@ nxtpar:
 ;
 ; Ask parameter Y = 00H, N = C9H
 ;
-	ld	b,7				;7 Y/N parameters
+	ld	b,4				;4 Y/N parameters
 	ld	ix,par_table_00_c9		;ix = parameter table
 next_yn:
 	push	ix
@@ -178,33 +164,33 @@ next_par:
 
 	call	crlf
 ;
-; Ask charset ASCII/German (IIIs only)
+; Ask charset ASCII/German (IIs only)
 ;
-;	ld	de,chrtxt
-;	call	prttxt
-;	ld	hl,sys_table+11h
-;	ld	a,'J'
-;	bit	0,(hl)				;on ?
-;	jr	nz,ascii_on			;Y: jp
-;	ld	a,'N'				;N: set 'N'
-;ascii_on:
-;	ld	de,fragex
-;	ld	(de),a				;set Y/N
-;	call	input				;print & get input
-;	jr	z,next0				;next parameter if no inp
-;	ld	a,(hl)				;a=1st char of input
-;	and	05fh				;make uppercase
-;	ld	c,01h
-;	cp	'J'
-;	jr	z,set_ascii
-;	ld	c,00h
-;	cp	'N'
-;	jr	nz,next0
-;set_ascii:
-;	ld	a,c
-;	ld	(sys_table+11h),a	;set new param value
-;next0:
-;	call	crlf
+	ld	de,chrtxt
+	call	prttxt
+	ld	hl,sys_table+50
+	ld	a,'J'
+	bit	0,(hl)				;on ?
+	jr	nz,ascii_on			;Y: jp
+	ld	a,'N'				;N: set 'N'
+ascii_on:
+	ld	de,fragex
+	ld	(de),a				;set Y/N
+	call	input				;print & get input
+	jr	z,next0				;next parameter if no inp
+	ld	a,(hl)				;a=1st char of input
+	and	05fh				;make uppercase
+	ld	c,01h
+	cp	'J'
+	jr	z,set_ascii
+	ld	c,00h
+	cp	'N'
+	jr	nz,next0
+set_ascii:
+	ld	a,c
+	ld	(sys_table+50),a		;set new param value
+next0:
+	call	crlf
 ;
 ; Ask retries
 ;
@@ -414,89 +400,8 @@ nxtstp:
 
 	call	crlf
 ;
-; CRTC Registers
 ;
-	ld	ix,crtc_tab
-	ld	b,8
-crtc_loop:
-	push	bc
-	push	ix
-	call	crlf
-	ld	e,(ix)
-	ld	d,(ix+1)
-	call	prttxt
-	ld	l,(ix+2)
-	ld	h,(ix+3)
-	push	hl
-	ld	a,(hl)
-	ld	l,a
-	ld	h,0
-	call	putnum
-	pop	de
-	jr	z,next_crtc			;jp if no input
-	push	de
-	call	getnum
-	pop	hl
-	ld	(hl),e				;Save low half
-next_crtc:
-	pop	ix
-	pop	bc
-	inc	ix
-	inc	ix
-	inc	ix
-	inc	ix
-	djnz	crtc_loop
-
-	call	crlf
 ;
-;lwconf:
-;	call	crlf
-;	ld	b,16				;16 logical drives
-;	xor	a
-;	ld	hl,usdtab			;clear usdtab
-;	ld	de,drvtab			;clear drvtab
-;lwlop1:
-;	ld	(hl),a
-;	ld	(de),a
-;	inc	hl
-;	inc	de
-;	djnz	lwlop1
-;	ld	b,16
-;	ld	ix,lwtab
-;lwlop:
-;	push	ix
-;	push	bc
-;	call	crlf
-;	ld	de,lwtxt
-;	call	prttxt
-;	ld	e,(ix)
-;	ld	d,(ix+1)
-;	call	prttxt
-;	pop	bc
-;	push	bc
-;	ld	a,17
-;	sub	b
-;	push	af				;save drive# (01h-10h)
-;	call	shodrv				;show drivenames
-;	ld	de,fragex+1			;de=')$'
-;	call	input				;get input
-;	pop	bc				;B=Drive# (01h-10h)
-;	jr	nz,lwcon1			;jp if input hl=buffer+2
-;	ld	hl,names			;no input: get from names
-;lwcon1:
-;	call	getdrv				;get data from (hl)
-;nxtlw:
-;	pop	bc
-;	pop	ix
-;	inc	ix
-;	inc	ix
-;	djnz	lwlop
-;
-;	ld	bc,16
-;	ld	hl,drvtab
-;	ld	de,sys_table+60h
-;	ldir					;set new konfig
-
 	ld	de,endtxt
 	call	input
 
@@ -506,7 +411,7 @@ next_crtc:
 	ld	a,r$systab
 	ld	(rec$num),a
 	ld	de,cnffcb
-	ld	c,write
+	ld	c,wrtrnd
 	call	?bdos
 
 	ld	de,cnffcb
@@ -515,120 +420,6 @@ next_crtc:
 
 	jp	?boot
 ;----------------------------------------------------------
-;
-; Set drive# b to names in (HL)
-;
-;getdrv:
-;	ld	a,(hl)		;get character
-;	inc	hl
-;	push	hl		;save bufferpointer
-;	and	05fh		;make uppercase
-;	cp	'A'
-;	jr	c,drvwrg	;wrong drive
-;	cp	'X'		;not connected ?
-;	jr	z,nxtdrv	;Y: next drive
-;	cp	'P'+1
-;	jr	nc,drvwrg
-;	sub	'A'
-;	ld	e,a		;de=name offset (0-15)
-;	ld	d,0
-;	ld	hl,usdtab
-;	add	hl,de		;hl=usdtab entry
-;	ld	a,(hl)
-;	or	a		;name used ?
-;	jr	nz,drvusd	;Y: jp
-;	dec	a		;a=ff
-;	ld	(hl),a		;mark used
-;	ld	hl,drvtab	;save new konfig in drvtab
-;	add	hl,de		;+name offset
-;	ld	(hl),b		;save drive# in table
-;nxtdrv:
-;	pop	hl		;restore bufferpointer
-;	ld	a,(hl)
-;	inc	hl
-;	cp	' '
-;	jr	z,getdrv
-;	cp	','
-;	jr	z,getdrv
-;	cp	0		;end of input ?
-;	ret	z		;Y: ok, N: wrong input
-;	push	hl		;dummy push
-;drvwrg:
-;	pop	hl		;stack ok
-;	push	bc
-;	ld	de,wrginp	;wrong input
-;gtnwdr:
-;	call	input		;get new drive input
-;	pop	bc
-;	jr	getdrv		;and process it
-;drvusd:
-;	pop	hl
-;	push	bc
-;	ld	de,usdtxt
-;	jr	gtnwdr
-;
-; Show names of drive # A
-; and set inputstring in names
-;
-;shodrv:
-;	ld	hl,sys_table+60h
-;	push	af
-;	xor	a
-;	ld	(found),a
-;	ld	iy,names+32	;Clear used Table
-;	ld	b,33
-;clrusd:
-;	ld	(iy),' '
-;	dec	iy
-;	djnz	clrusd
-;	pop	af		;iy=names-1
-;	ld	bc,17
-;shodr1:
-;	cpir
-;	jp	po,shodr2	;bc=0? Y:jp
-;	jr	nz,shodr1	;a=(hl)? N: test next
-;	push	hl
-;	push	bc
-;	push	af
-;	ld	a,16
-;	sub	c
-;	add	a,'A'
-;	inc	iy
-;	ld	(iy),a		;set name in table
-;	inc	iy
-;	ld	e,a
-;	ld	c,prtchr
-;	call	?bdos
-;	ld	e,' '
-;	ld	c,prtchr
-;	call	?bdos
-;	ld	a,0ffh
-;	ld	(found),a	;mark set
-;	pop	af
-;	pop	bc
-;	pop	hl
-;	jr	shodr1
-;shodr2:
-;	ld	(iy),0		;mark end
-;	ld	a,(found)
-;	or	a
-;	jr	z,nodrv
-;	ld	e,08h		;clear last space
-;	ld	c,prtchr
-;	call	?bdos
-;	ret
-;
-;found:
-;	defb	0
-;
-;nodrv:
-;	inc	iy
-;	ld	(iy),'X'
-;	inc	iy
-;	ld	(iy),0
-;	ld	de,nodrtx
-;	call	prttxt
-;	ret
 ;
 ; Get Number
 ;	
@@ -717,11 +508,11 @@ putnu4:
 input:
 	call	prttxt
 	ld	hl,007eh
-	ld	(buffer),hl
-	ld	de,buffer
+	ld	(@buffer),hl
+	ld	de,@buffer
 	ld	c,getbuf
 	call	?bdos
-	ld	hl,buffer+1			;hl=# of chars inputted
+	ld	hl,@buffer+1			;hl=# of chars inputted
 	ld	a,(hl)
 	inc	hl				;hl=1st char
 	or	a
@@ -730,7 +521,7 @@ input:
 	ld	d,0
 	add	hl,de
 	ld	(hl),0
-	ld	hl,buffer+2
+	ld	hl,@buffer+2
 	or	a				;NZ: input
 	ret
 
@@ -751,42 +542,27 @@ prttxt:
 ; Textadress, systaboffset
 ;
 par_table_00_ff:
-	defw	text1
+	defw	text1				;Logo ?
 	defw	1
-	defw	text2
+	defw	text2				;Int ?
 	defw	10
-	defw	text3
-	defw	31
-	defw	text4
-	defw	41
-	defw	text5
+	defw	text5				;CRT lf ?
 	defw	42
-	defw	text6
+	defw	text6				;wrap ?
 	defw	43
-	defw	text7
+	defw	text7				;Fx act ?
 	defw	44
-	defw	text8
+	defw	text8				;LST lf ?
 	defw	46
-	defw	text9
-	defw	47
-	defw	text10
-	defw	48
-	defw	text11
-	defw	49
+;
 par_table_00_c9:
-	defw	p1_txt
+	defw	p1_txt				;click
 	defw	0002h
-	defw	p2_txt
+	defw	p2_txt				;repeat
 	defw	0003h
-	defw	p3_txt
+	defw	p3_txt				;error
 	defw	0004h
-	defw	p4_txt
-	defw	0005h
-	defw	p5_txt
-	defw	0006h
-	defw	p6_txt
-	defw	0007h
-	defw	p7_txt
+	defw	p7_txt				;bell ?
 	defw	0008h
 trktab:
 	defw	lwtxt0
@@ -797,14 +573,6 @@ trktab:
 	defw	sys_table+46h
 	defw	lwtxt3
 	defw	sys_table+47h
-;	defw	lwtxt4
-;	defw	sys_table+94h
-;	defw	lwtxt5
-;	defw	sys_table+95h
-;	defw	lwtxt6
-;	defw	sys_table+96h
-;	defw	lwtxt7
-;	defw	sys_table+97h
 stptab:
 	defw	lwtxt0
 	defw	sys_table+40h
@@ -814,34 +582,14 @@ stptab:
 	defw	sys_table+42h
 	defw	lwtxt3
 	defw	sys_table+43h
-;	defw	lwtxt4
-;	defw	sys_table+9ch
-;	defw	lwtxt5
-;	defw	sys_table+9dh
-;	defw	lwtxt6
-;	defw	sys_table+9eh
-;	defw	lwtxt7
-;	defw	sys_table+9fh
 lwtab:
 	defw	lwtxt0
 	defw	lwtxt1
 	defw	lwtxt2
 	defw	lwtxt3
-;	defw	lwtxt4
-;	defw	lwtxt5
-;	defw	lwtxt6
-;	defw	lwtxt7
-;	defw	lwtxt8
-;	defw	lwtxt9
-;	defw	lwtxta
-;	defw	lwtxtb
-;	defw	lwtxtc
-;	defw	lwtxtd
-;	defw	lwtxte
-;	defw	lwtxtf
 strtxt:
 	defb	1ah,esc,'_2'
-	defm	'Genie III CP/M 2.2XV3 Systemkonfigurierung'
+	defm	'Genie IIs CP/M 2.2XV1 Systemkonfigurierung'
 	defb	cr,lf
 	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung '
 	defm	'1984,1985,1986'
@@ -873,8 +621,8 @@ p5_txt:	defm	'Monitormodus einschalten ($'
 p6_txt:	defm	'Uhrzeit anzeigen ($'
 p7_txt:	defm	'Lautsprecher einschalten ($'
 ;
-;chrtxt:	defb	cr,lf
-;	defm	'ASCII-Zeichensatz aktivieren ($'
+chrtxt:	defb	cr,lf
+	defm	'ASCII-Zeichensatz aktivieren ($'
 ;
 fragex:	defm	'X) ? $'	
 fragev:	defm	'nnnn) ? $'
@@ -918,64 +666,13 @@ lwtxt1:	defm	'des zweiten Laufwerks ($'
 lwtxt2:	defm	'des dritten Laufwerks ($'
 lwtxt3:	defm	'des vierten Laufwerks ($'
 ;
-;lwtxt4:	defm	'des ersten 8 Zoll Laufwerks ($'
-;lwtxt5:	defm	'des zweiten 8 Zoll Laufwerks ($'
-;lwtxt6:	defm	'des dritten 8 Zoll Laufwerks ($'
-;lwtxt7:	defm	'des vierten 8 Zoll Laufwerks ($'
-;lwtxt8:	defm	'des ersten Winchesterteils ($'
-;lwtxt9:	defm	'des zweiten Winchesterteils ($'
-;lwtxta:	defm	'des dritten Winchesterteils ($'
-;lwtxtb:	defm	'des vierten Winchesterteils ($'
-;lwtxtc:	defm	'des f}nften Winchesterteils ($'
-;lwtxtd:	defm	'des sechsten Winchesterteils ($'
-;lwtxte:	defm	'des siebten Winchesterteils ($'
-;lwtxtf:	defm	'der RamDisk ($'
-;
-;lwtxt:	defm	'Name(n) $'
-;
-;nodrtx:	defm	'Nicht vorhanden$'
-;
-crtc_tab:
-	defw	r0_txt
-	defw	sys_table+60h
-	defw	r1_txt
-	defw	sys_table+61h
-	defw	r2_txt
-	defw	sys_table+62h
-	defw	r3_txt
-	defw	sys_table+63h
-	defw	r4_txt
-	defw	sys_table+64h
-	defw	r5_txt
-	defw	sys_table+65h
-	defw	r6_txt
-	defw	sys_table+66h
-	defw	r7_txt
-	defw	sys_table+67h
-;
-r0_txt:	defm	'Horizontal Total Register ($'
-r1_txt:	defm	'Horizontal Displayed Register ($'
-r2_txt:	defm	'Horizontal Sync Position Register ($'
-r3_txt:	defm	'Sync Width Register ($'
-r4_txt:	defm	'Vertical Total Register ($'
-r5_txt:	defm	'Vertical Total Adjust Register ($'
-r6_txt:	defm	'Vertical Displayed Register ($'
-r7_txt:	defm	'Vertical Sync Position Register ($'
 ;
 endtxt:	defb	cr,lf,cr,lf
 	defm	'Dr}cken Sie <ENTER> zum Abspeichern der '
 	defm	'neuen Konfiguration$'
 ;
-;usdtxt:	defb	cr,lf,bell
-;	defm	'Name ist bereits benutzt. Nochmaì bitteº $'
-;
 wrginp:	defb	cr,lf,bell
 	defm	'Fehlerhafte Eingabe. Nochmal bitte: $'
-;
-;
-;names:		defs	33			;input table
-;drvtab:	defs	16
-;usdtab:	defs	16			;table of used names
 ;
 sys_table:
 	defs	128,0

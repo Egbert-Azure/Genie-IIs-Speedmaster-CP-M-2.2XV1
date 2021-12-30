@@ -3,13 +3,13 @@
 read_pdrive:
 	LD	DE,pdrive_fcb			;Read Names to name_buffer
 	LD	C,open
-	CALL	bdos
+	CALL	?bdos
 	inc	a				;Successful open ?
 	jr	nz,openok			;Y: jp
 	ld	a,1				;N: try on A:
 	ld	(pdrive_fcb),a
 	ld	c,open
-	call	bdos
+	call	?bdos
 	inc	a				;Successful ?
 	jp	z,open_error			;N: Error
 
@@ -21,10 +21,10 @@ read_pd_loop:
 	push	bc
 	LD	DE,<pd_dma_adr: dw 0>
 	ld	c,setdma
-	call	bdos
+	call	?bdos
 	LD	DE,pdrive_fcb
-	LD	c,read_seq
-	CALL	bdos
+	LD	c,redseq
+	CALL	?bdos
 	pop	bc
 	or	a
 	jp	nz,read_error
@@ -106,10 +106,10 @@ found:
 	ld	(pd_record_no),a
 	ld	de,pd_info
 	ld	c,setdma
-	call	bdos
+	call	?bdos
 	LD	DE,pdrive_fcb			;Read 1 Record
-	LD	c,read_rnd
-	CALL	bdos
+	LD	c,redrnd
+	CALL	?bdos
 
 	ld	a,(pd_info+16h)			;Internal manageable ?
 	or	a

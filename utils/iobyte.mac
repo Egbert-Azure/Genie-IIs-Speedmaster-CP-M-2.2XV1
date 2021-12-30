@@ -1,7 +1,7 @@
 ;****************************************************************
 ;*								*
 ;*	IOBYTE.MAC  Shows decimal IOBYTE-Value			*
-;*	Genie III/IIIs CP/M 2.2 Version 1.0 vom 7.3.86		*
+;*	Genie IIs/III/IIIs CP/M 2.2 Version 1.1 vom 19.5.86	*
 ;*	Copyright (c) by Klaus K{mpf Softwareentwicklung 1986	*
 ;*								*
 ;****************************************************************
@@ -10,30 +10,21 @@
 	.com
 	org	100h
 ;
-?boot	equ	0
-@iobyte	equ	3
-?bdos	equ	5
-;
-bell	equ	7
-back	equ	8
-tab	equ	9
-lf	equ	10
-cr	equ	13
-ctrlz	equ	26
-esc	equ	27
-space	equ	' '
+	include CPMHEAD.INC
 ;
 entry:
 	jp	start
 
 	defb	cr
-	defm	'IOBYTE.COM Genie III/IIIs Version 1.0 vom 7.3.86'
+	defm	'IOBYTE.COM'
 	defb	cr,lf
-	defm	'Copyright (c) 1986 by Klaus K{mpf Softwareentwicklung'
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung 1986'
+	defb	cr,lf
+	defm	'CP/M 2.2  Version 1.1 vom 19.05.86'
 	defb	cr,lf,ctrlz
 ;
 start:
-	ld	iy,flag
+	ld	ix,flag
 	ld	hl,(@iobyte)
 	ld	h,0
 	ld	de,number
@@ -71,18 +62,18 @@ div2:
 asctst:
 	or	a
 	jr	nz,asct1
-	bit	0,(iy+0)
+	bit	0,(ix)
 	jr	nz,asct2
-	ld	a,'0'-space
+	ld	a,space-'0'
 	jr	asct2
 asct1:
-	set	0,(iy+0)
+	set	0,(ix)
 asct2:
 	add	a,'0'
 	ld	(de),a
 	inc	de
 	ret
-
+;
 text:
 	defb	cr,lf
 	defm	'Der Wert des IOBYTE ist: '

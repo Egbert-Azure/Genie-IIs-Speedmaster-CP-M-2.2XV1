@@ -732,4 +732,3 @@ ret_to_user:
 @current_disk:		defb	0ffh
 ?@fcb:			defw	0
 @exit_value:		defb	0
-

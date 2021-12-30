@@ -1,71 +1,69 @@
-if1
-	.printl KERNEL.MAC  CP/M 2.2XV3, 1.7
-	.printl
-endif
 ;********************************************************
 ;*							*
 ;*	KERNEL.MAC  CBIOS Kernel Module			*
-;*	Genie III  CP/M 2.2X3 Version 1.7  29.07.86	*
+;*	Genie IIs  CP/M 2.2XV1 Version 1.2  31.07.86	*
 ;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
 ;*					1984,1985,1986	*
 ;*	Modification History				*
-;*	1.0  24.02.86  Original Version			*
-;*	1.1  13.03.86  Deleted shobuf from Interrupt	*
-;*	1.2  23.03.86  Added @v24mcr			*
-;*	1.3  23.03.86  Added swtchi to print for KEY	*
-;*	1.4  23.03.86  Made new Stack handling		*
-;*	1.5  19.04.86  Removed @cursor			*
-;*		       Phase E600 -> E500		*
-;*		       Removed swtchv			*
-;*		       Changed getadr			*
-;*		       Moved idtext from tables to here	*
-;*	1.6  18.05.86  moved old_iobyte from getadr	*
-;*		       to appr. tables			*
-;*		       moved savstk from getadr to	*
-;*		       device handler			*
-;*	1.7  29.07.86  removed ?flush from ?wboot	*
+;*	0.0  19.04.86  Original Version Genie III	*
+;*	0.1  26.04.86  1st Adaption to IIs		*
+;*	0.11 27.04.86  Added #side			*
+;*	0.12 28.04.86  Removed all Genie III labels	*
+;*	0.2   1.05.86  Graphic 80x24 Adaption		*
+;*	0.3  15.05.86  Charset Adaption			*
+;*		       removed clock			*
+;*	0.4  18.05.86  SIO Adaption			*
+;*		       new phased to E400H		*
+;*		       removed savstk from getadr	*
+;*	1.0  19.05.86  1st final Version		*
+;*	1.1  30.07.86  Added DI at interrupt & swtchg	*
+;*	1.2  31.07.86  reconstructed DISK.MAC		*
 ;*							*
 ;********************************************************
 
 	.z80
 	.com
+	.printl Mainfile: KERNEL.MAC
 	org 0100h
 
+#xon	equ	17
+#xoff	equ	19
+space	equ	' '
+
+#row	equ	24
+#col	equ	80
+#side	equ	4
+
 stack	equ	0fff0h			;upper 16 bytes for wboot !!
-buflen	equ	128			;Length of keyboard buffer
+buflen	equ	100			;Length of keyboard buffer
 
 ?io_byte	equ	3
 
-;	public		swtchi,swtcho
+;	public		swtchi,swtcho,swtchg
 ;	public		bios,table
 ;	public		savstk
 ;	public		getadr
-;	public		bell,clock
+;	public		bell
 ;	public		table,?@dpb,?@clktab
 ;	public		@k1dly,@k2dly,@dbnc1,@dbnc2
-;	public		@inlen,@line25,@crtlf,@wrap
+;	public		@inlen,@crtlf,@wrap
 ;	public		@fxact,@retries,@lstlf,@insrt
 ;	public		@plmod,@filin
-;	public		newsta
 ;	public		print
-;	public		load25,save25,rest25
-;	public		stptab,v24_table
+;	public		stptab,sio_table
 ;
 ;	external	?const,?conin,?conout
 ;	external	?list,?punch,?reader,?listst
 ;	external	?seldsk,?read,?write,?close
 ;	external	?home,?settrk,?setsec,?setdma
-;	external	?sectrn,?flush
+;	external	?sectrn
 ;	external	intkbd
-;	external	statxt,usrtxt
-;	external	usrnum,datum,zeit
 ;	external	cenout
 ;	external	pxtab
 ;	external	dpb
-;	external	error_flag
+;	external	@error?,@write?
 ;	external	fkytab,dpb,kbdbuf
-;	external	click,repeat,error,shobuf
-;	external	monit
+;	external	click,repeat,error
 ;
 config_table:
 	defw	bios			;00H  0
@@ -76,23 +74,26 @@ config_table:
 	defw	click			;0AH 10
 	defw	repeat			;0CH 12
 	defw	error			;0EH 14
-	defw	shobuf			;10H 16
-	defw	monit			;12H 18
-	defw	clock			;14H 20
+	defw	dummy			;10H 16
+	defw	dummy			;12H 18
+	defw	dummy			;14H 20
 	defw	bell			;16H 22
-	defw	cursor			;18H 24
+	defw	@rowcol			;18H 24
 	defw	int_on_off		;1AH 26
 	defw	systab_length		;1CH 28
-	defw	datum			;1EH 30
-	defw	statxt+52		;20H 32
+	defw	dummy			;1EH 30
+	defw	dummy			;20H 32
 	defw	kbstat			;22H 34
 	defw	inkbds			;24H 36
 	defw	key_ctrl_table		;26H 38
-	defw	search_table		;28H 40
+	defw	@charset		;28H 40
+	defw	charset_length		;2AH 42
+	defw	?video			;2CH 44
+	defw	@siotab			;2EH 46
 
 	defs	128-($-config_table),0
 
-	.phase 0e500h
+	.phase	0e400h
 
 ccp	equ	$-22*256
 bdos	equ	$-14*256
@@ -124,8 +125,8 @@ bios	equ	$
 	jp	?listst		;2dh 45
 	jp	?sectrn		;30h 48
 	jp	?close		;33h 51		Close File extension
-	jp	?setusr		;36h 54
-	jp	?setprt		;39h 57
+	ret!nop!nop		;36h 54
+	ret!nop!nop		;39h 57
 	jp	?reboot		;3ch 60
 	ret!nop!nop		;3fh 63		Print Error
 	jp	?dskrst		;42h 66
@@ -146,66 +147,29 @@ systab:					;Start marker
 @dbnc1:		defw	500		;Debounce 1
 @dbnc2:		defw	4000		;Debounce 2
 @inlen:		defb	0		;# of chars in Keyboard buffer
-@line25:	defb	0		;0=Status, 1=User, 2=Showbuf
+		defb	0		;free
 @crtlf:		defb	0		;Auto Linefeed on CRT ?
 @wrap:		defb	0		;Wrap-around ?
 @fxact:		defb	0		;FKeys active ?
 @retries:	defb	2		;# of retries on Disk I/O
 @lstlf:		defb	0		;Linefeed to List Device ?
-@insrt:		defb	0		;Insert mode ?
-@plmod:		defb	0		;Page or Line
-@filin:		defb	0		;fill space ?
 		defb	0		;free
-@v24hsk:	defb	0		;V24 Handshake
-@v24chr:	defb	0		;V24 last received
+		defb	0		;free
+@filin:		defb	0		;free
+@chrset:	defb	0		;Charset code
+		defb	0		;free
+		defb	0		;free
 @errdsk:	defb	0		;Disk to select after error
-@v24msk:	defb	0		;Received Char Mask
-@v24mcr:	defb	0		;Modem Control (DTR/RTS)
+		defb	0		;free
+		defb	0		;free
 		defs	8,0
 stptab:		defb	3,3,3,3		;Steprates
 trktab:		defb	80,80,40,77	;# of tracks
 
 systab_length	equ	$-systab
 
-idtext:		defb	'3,1.7',0
-;
+idtext:		defb	'2,1.2',0
 ;----------------------------------------------------------
-;
-?setusr:
-	call	savstk
-	ld	(bdos+0341h),a
-	ld	l,02fh+80h
-setusr_loop:
-	inc	l
-	sub	10
-	jr	nc,setusr_loop
-	add	a,10+'0'+80h
-	ld	h,a
-	ld	(usrnum),hl
-	jp	newsta
-;
-?setprt:
-	ld	(@hah_ell),hl
-	call	savstk
-	push	de
-	push	bc
-	ld	hl,ctrlp
-	jr	nz,set_print
-	ld	hl,free
-set_print:
-	ld	de,statxt+45
-	ld	bc,5
-	ldir
-	call	newsta
-	call	swtcho
-	pop	bc
-	pop	de
-	ld	sp,(usrstk)
-	ld	hl,<@hah_ell: dw 0>
-	jp	bdos+01efh
-ctrlp:	defh	'PRINT'
-free:	defh	'     '
-;
 ?dskrst:
 	ld	a,(4)				;reset on current disk
 	and	0fh
@@ -217,13 +181,18 @@ free:	defh	'     '
 swtchi:
 	di
 	push	af
-	ld	a,71h
+	ld	a,0000_0110b
+	jr	switch
+swtchg:						;Ena graphic mem
+	di
+	push	af
+	ld	a,0000_1110b
 	jr	switch
 swtcho:
 	push	af
-	ld	a,7fh
+	ld	a,0000_0111b
 switch:
-	out	(0fah),a
+	out	(0feh),a
 	pop	af
 	ret
 ;
@@ -233,7 +202,7 @@ getadr:
 	pop	hl				;no return from getadr
 	ld	e,(hl)
 	inc	hl
-	ld	d,(hl)
+	ld	d,(hl)				;de = old vector
 	inc	hl				;hl -> old_iobyte
 	ld	a,(?io_byte)
 	cp	(hl)				;same iobyte ?
@@ -247,7 +216,7 @@ getadr:
 	ld	(@?old_vector),hl		;save address for new vector
 	pop	hl
 	inc	hl
-	ld	b,(hl)
+	ld	b,(hl)				;b = iobyte part #
 	inc	hl
 getadr_loop:
 	dec	b
@@ -255,7 +224,7 @@ getadr_loop:
       2:rrca
 	jr	getadr_loop
 getadr_getit:
-	and	03h
+	and	0000_0011b
 	rlca
 	ld	e,a
 	ld	d,b
@@ -264,26 +233,10 @@ getadr_getit:
 	inc	hl
 	ld	h,(hl)
 	ld	l,a
-	ld	(<@?old_vector: dw 0>),hl		;save new vector for next time
+	ld	(<@?old_vector: dw 0>),hl	;save new vector for next time
 getadr_exit:
 	jp	(hl)
 ;
-; Show new status
-;
-newsta:
-	ld	a,(@line25)
-	or	a
-	ret	nz
-	call	swtchi
-	ld	hl,statxt
-;
-; Load line 25 from hl
-;
-load25:
-	ld	de,4380h
-	ld	bc,80
-	ldir
-	ret
 ;
 ; Save userstack
 ;
@@ -310,6 +263,7 @@ int_on_off:
 ; Interrupt Vector
 ;
 interrupt:
+	di
 	ld	(intret),sp
 	ld	sp,stack-4			;-4, so leave usr/int ret adr
 						;alone if int happens at <*>
@@ -317,7 +271,6 @@ interrupt:
 	call	swtchi
 	ld	a,(37ech)
 	ld	a,(37e1h)
-	call	clock
 	call	intkbd
 	call	swtcho
 	pop	hl,de,bc,af
@@ -331,8 +284,10 @@ bell:
 	nop		    ;Bell Flag
 	push	bc
 	ld	bc,0a080h
+	ld	a,0000_0001b
 bell1:
-	ld	a,(3860h)
+	out	(0ffh),a
+	xor	0000_0011b
 	push	bc
 bell2:
 	dec	c
@@ -342,88 +297,9 @@ bell2:
 	pop	bc
 	xor	a
 	ret
-
-clock:
-	nop				;Clock Flag
-	ld	a,<clkcnt: 40>
-	dec	a
-	jr	nz,clock_end
-
-wait_clock:
-	ld	hl,37e0h
-wait_clock1:
-	ld	a,(hl)
-	rlca
-	jr	c,wait_clock1
-wait_clock2:
-	ld	a,(hl)
-	rlca
-	jr	nc,wait_clock2
-	ld	a,40h
-	out	(0e1h),a
-
-	ld	hl,clktab
-	ld	de,0100fh
-	ld	bc,006e0h
-clock_loop:
-	bit	0,b
-	jr	nz,no_dot
-	ld	(hl),0ah
-	inc	hl
-no_dot:
-	ld	a,e
-	out	(c),a
-	add	a,d
-	ld	e,a
-	ini                                     ; read (c) port, write to (HL), dec B
-	jr	nz,clock_loop
-
-	dec	hl
-	res	2,(hl)
-	res	3,(hl)
-	ex	de,hl
-	inc	de				;DE -> clktab+9
-	ld	hl,zeit-1
-	ld	b,8
-clklo4:
-	inc	hl
-	dec	de
-	ld	a,(de)
-	and	0fh
-	or	30h + 80h
-	ld	c,(hl)				;C = old
-	ld	(hl),a				;A = new
-	djnz	clklo4
-	cp	c				;old = new ?
-	call	nz,newsta			;N: show new time
-	ld	a,40
-clock_end:
-	ld	(clkcnt),a
-	ret
 ;
 ;
 ;
-print:
-	call	swtchi
-	ld	hl,3c00h
-	ld	de,0780h
-print1:
-	ld	b,80	      ;80 Char/Line
-print2:
-	ld	c,(hl)
-	res	7,c
-	call	cenout
-	inc	hl
-	dec	de
-	djnz	print2
-	ld	c,0dh
-	call	cenout
-	ld	c,0ah
-	call	cenout
-	ld	a,d
-	or	e
-	jr	nz,print1
-	ret
 ;----------------------------------------------------------
 ;
 ; Reboot after Error
@@ -431,6 +307,7 @@ print2:
 ?reboot:
 	ld	a,(@errdsk)
 	ld	(4),a
+;
 ;
 ; Warm start
 ;
@@ -441,16 +318,18 @@ print2:
 	ld	(hl),<di>
 	ld	sp,0
 	xor	a
-	ld	(write_flag),a		;forget buffer
-	ld	(error_flag),a
-	call	swap_dpb		;set wboot dpb
+	ld	(@error?),a
+	ld	(@write?),a
+	dec	a
+	ld	(@new_format?),a
+	call	swap_dpb			;set wboot dpb
 wboot_slct:
 	xor	a
-	ld	c,a			;drive A:
+	ld	c,a				;drive A:
 	ld	e,a
-	call	?seldsk			;select drive A:
+	call	?seldsk				;select drive A:
 	ld	a,1
-	ld	(new_track),a
+	ld	(@new_track),a
 ;
 	ld	sp,stack
 	call	swtchi
@@ -464,7 +343,7 @@ wboot_loop:
 	jr	c,not_backside
 	sub	128+10
 not_backside:
-	ld	(new_sector),a
+	ld	(@new_sector),a
 	call	read_disk
 	pop	de
 	ld	bc,512
@@ -476,12 +355,6 @@ not_backside:
 	call	swtcho
 	call	swap_dpb			;reset dpb
 wboot1:
-	ld	hl,free				;clear ctrl-p
-	ld	de,statxt+45
-	ld	bc,5
-	ldir
-	call	newsta
-
 	ld	hl,bios+3
 	ld	a,<jp>
 	ld	(0),a
@@ -497,9 +370,7 @@ wboot1:
 	ld	a,(4)
 	ld	c,a
 	jp	ccp
-;
 ;----------------------------------------------------------
-;
 swap_dpb:
 	ld	de,(dph+0ah)			;de = dpb addr of 1st drive
 	ld	hl,<dph_save: dw wboot_dpb>	;hl = dpb addr of wboot drive
@@ -520,7 +391,7 @@ clktab:
 	include DISK.MAC
 	include TABLES.MAC
 
-	defs	128,0				;make room for stack
+	defs	64,0				;make room for stack
 
 	.printn $
 

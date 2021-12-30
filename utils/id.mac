@@ -1,45 +1,24 @@
-;********************************************************
-;*							*
-;*	ID.MAC  Initialize Disk to different Format	*
-;*	Genie III CP/M 2.2XV3  Version 1.4  13.3.86	*
-;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
-;*					1985,1986	*
-;*							*
-;*	Modification History				*
-;*							*
-;*	Original 1.3 2.3.86				*
-;*	1.4 13.3.86 Changed FORMAT DDEN, Timeloops	*
-;*	1.5 22.3.86 Write_sec + format new setup	*
-;*							*
-;********************************************************
+;****************************************************************
+;*								*
+;*	ID.MAC  Initialize Disk to different Format		*
+;*	Genie IIs CP/M 2.2XV1  Version 1.0  19.05.86		*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung	*
+;*						1985,1986	*
+;*								*
+;*	Modification History					*
+;*								*
+;*	Original 1.3 2.3.86					*
+;*	1.4  13.03.86  Changed FORMAT DDEN, Timeloops		*
+;*	1.5  22.03.86  Write_sec + format new setup		*
+;*	1.0  19.05.86  1st IIs Adaption				*
+;*								*
+;****************************************************************
 ;
 	.z80
 	.com
 	org	100h
 
-	if2
-	.printl PASS 2 started
-	endif
-
-boot	equ	0000h
-bdos	equ	0005h
-buffer	equ	boot+80h
-
-getchr	equ	01h
-drctio	equ	06h
-prtstr	equ	09h
-getbuf	equ	0ah
-open	equ	0fh
-close	equ	10h
-read_seq	equ	14h
-read_rnd	equ	21h
-curdsk	equ	19h
-setdma	equ	1ah
-
-bell	equ	07h
-lf	equ	0ah
-cr	equ	0dh
-esc	equ	1bh
+	include CPMHEAD.INC
 
 a$select	equ	037e0h
 a$command	equ	037ech
@@ -52,16 +31,18 @@ a$data		equ	037efh
 	jp	entry
 ;
 	defb	cr
-	defm	'ID.COM Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'ID.COM'
+	defb	cr,lf
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung '
 	defm	'1985,1986'
 	defb	cr,lf
-	defm	'Genie III CP/M 2.2XV3  Version 1.5 vom 22.3.86'
-	defb	1ah
+	defm	'Genie IIs CP/M 2.2XV1  Version 1.0 vom 19.05.86'
+	defb	ctrlz
 ;
 entry:
 	ld	sp,stack
 
-	ld	hl,buffer		;Save buffer
+	ld	hl,@buffer		;Save buffer
 	ld	de,iobuf
 	ld	bc,80h
 	ldir
@@ -104,10 +85,10 @@ entry:
 
 	ld	a,<same_disk?: 0>
 	or	a
-	jp	z,boot
+	jp	z,?boot
 	ld	de,insert_system
 	call	wait_key
-	jp	boot
+	jp	?boot
 ;
 ;----------------------------------------------------------
 ; Read CCP & BDOS
@@ -115,13 +96,13 @@ entry:
 read_cpm:
 	LD	DE,cpm_fcb
 	LD	C,open
-	CALL	bdos
+	CALL	?bdos
 	inc	a				;Successful open ?
 	jr	nz,cpm_open_ok			;Y: jp
 	ld	a,1				;N: try on A:
 	ld	(cpm_fcb),a
 	ld	c,open
-	call	bdos
+	call	?bdos
 	inc	a				;Successful ?
 	jp	z,cpm_open_error		;N: Error
 
@@ -133,10 +114,10 @@ read_cpm_loop:
 	push	bc
 	LD	DE,<cpm_dma_adr: dw 0>
 	ld	c,setdma
-	call	bdos
+	call	?bdos
 	LD	DE,cpm_fcb
-	LD	c,read_seq
-	CALL	bdos
+	LD	c,redseq
+	CALL	?bdos
 	pop	bc
 	or	a
 	jp	nz,cpm_read_error
@@ -168,13 +149,13 @@ cpm_fcb:
 read_booter:
 	LD	DE,boot_fcb
 	LD	C,open
-	CALL	bdos
+	CALL	?bdos
 	inc	a				;Successful open ?
 	jr	nz,boot_open_ok			;Y: jp
 	ld	a,1				;N: try on A:
 	ld	(boot_fcb),a
 	ld	c,open
-	call	bdos
+	call	?bdos
 	inc	a				;Successful ?
 	jp	z,boot_open_error		;N: Error
 
@@ -186,10 +167,10 @@ read_boot_loop:
 	push	bc
 	LD	DE,<boot_dma_adr: dw 0>
 	ld	c,setdma
-	call	bdos
+	call	?bdos
 	LD	DE,boot_fcb
-	LD	c,read_seq
-	CALL	bdos
+	LD	c,redseq
+	CALL	?bdos
 	pop	bc
 	or	a
 	jp	nz,boot_read_error
@@ -202,13 +183,13 @@ read_boot_loop:
 read_loader:
 	LD	DE,loader_fcb
 	LD	C,open
-	CALL	bdos
+	CALL	?bdos
 	inc	a				;Successful open ?
 	jr	nz,loader_open_ok		;Y: jp
 	ld	a,1				;N: try on A:
 	ld	(loader_fcb),a
 	ld	c,open
-	call	bdos
+	call	?bdos
 	inc	a				;Successful ?
 	jp	z,loader_open_error		;N: Error
 
@@ -220,10 +201,10 @@ read_loader_loop:
 	push	bc
 	LD	DE,<loader_dma_adr: dw 0>
 	ld	c,setdma
-	call	bdos
+	call	?bdos
 	LD	DE,loader_fcb
-	LD	c,read_seq
-	CALL	bdos
+	LD	c,redseq
+	CALL	?bdos
 	pop	bc
 	or	a
 	ret	nz
@@ -277,8 +258,8 @@ write_boot:
 	ld	bc,64
 	ldir					;move xltab
 
-	ld	a,02h
-	ld	(de),a				;make it Genie IIIs compatible
+	ld	a,00h
+	ld	(de),a				;make it Speedmaster compatible
 	inc	de
 	ld	hl,pd_info
 	ld	bc,31
@@ -397,7 +378,7 @@ step_in:
 ;
 select_drive:
 	ld	c,curdsk
-	call	bdos
+	call	?bdos
 	ld	a,(drive_code)
 	cp	l
 	jr	nz,not_same_disk
@@ -532,7 +513,7 @@ write4:
 ; delay and get status
 ;
 delay:
-	ld	a,5
+	ld	a,20
 delay1:
 	dec	a
 	jr	nz,delay1
@@ -550,13 +531,13 @@ resel:
 ;
 switch_in:
 	di
-	ld	a,71h
-	out	(0fah),a
+	ld	a,0000_0110b
+	out	(0feh),a
 	ret
 switch_out:
 	di
-	ld	a,7fh
-	out	(0fah),a
+	ld	a,0000_0111b
+	out	(0feh),a
 	ret
 ;
 ;----------------------------------------------------------
@@ -632,12 +613,12 @@ error:
 	ld	de,crlf_text
 	call	prttxt
 	ld	c,13				;reset disk system
-	call	bdos
-	jp	boot
+	call	?bdos
+	jp	?boot
 ;
 prttxt:
 	ld	c,prtstr
-	call	bdos
+	call	?bdos
 	ret
 ;
 wait_key:
@@ -645,7 +626,7 @@ wait_key:
 wait_key_loop:
 	ld	e,0ffh
 	ld	c,drctio
-	call	bdos
+	call	?bdos
 	cp	cr
 	jr	nz,wait_key_loop
 	ld	de,crlf_text

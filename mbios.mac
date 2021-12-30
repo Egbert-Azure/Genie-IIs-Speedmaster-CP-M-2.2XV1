@@ -1,9 +1,13 @@
 ;********************************************************
 ;*							*
 ;*	Customized BIOS for Mini-DOS	 		*
-;*	Genie III/IIIs Version 1.0 vom 25.2.86		*
+;*	Genie IIs Version 0.1 vom 26.4.86		*
 ;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
 ;*					1985,1986	*
+;*	Modification History:				*
+;*	0.0  25.02.86  Original Genie III/IIIs Version	*
+;*	0.1  26.04.86  1st IIs Adaption			*
+;*	0.11 28.04.86  Changed Side-Bit (IIs) to 4	*
 ;*							*
 ;********************************************************
 ;
@@ -12,37 +16,77 @@
 false	equ	0
 true	equ	not false
 
+drei		equ	false
 drei_s		equ	false
-version_number	equ	0
+zwei_s		equ	true
 
+version_number	equ	0
 step$rate	equ	3
+
+;
+	if zwei_s
+switch_port	equ	0feh
+	else
 switch_port	equ	0fah
+	endif
+;
 
 	if drei_s
 
-	if1
-	.printl Genie IIIs Version
-	endif
+	 if1
+	 .printl Genie IIIs Version
+	 endif
 
-video_start	equ	3800h
+#video_start	equ	3800h
 switch_in	equ	1101_0100b
 switch_out	equ	1101_0101b
+#row		equ	24
+#col		equ	80
+#side		equ	4
 
-	else
+	else					;not drei_s
 
-	if1
-	.printl Genie III Version
-	endif
+         if drei
 
-video_start	equ	3c00h
+	  if1
+	  .printl Genie III Version
+	  endif
+
+#video_start	equ	3c00h
 switch_in	equ	71h
 switch_out	equ	7fh
+#row		equ	24
+#col		equ	80
+#side		equ	4
 
-	endif
+	 else					;not drei, not drei_s
+
+	  if zwei_s
+
+	   if1
+	   .printl Genie IIs / Speedmaster Version
+	   endif
+
+#video_start	equ	3c00h
+switch_in	equ	0000_0100b
+switch_out	equ	0000_0101b
+#row		equ	16
+#col		equ	64
+#side		equ	4
+
+	  endif					;zwei_s
+
+	 endif					;drei
+
+	endif					;drei_s
 
 	.printn	version_number
 
-video_end	equ	video_start+24*80-1
+
+#video_end		equ #video_start+#row*#col-1
+#top_of_screen		equ #video_start	;first unprot. pos.
+#last_line		equ #video_end-#col-1	;start of last line
+#bottom_of_screen	equ #video_end		;last unprot. pos.
 ;
 bios:
 mbios:
@@ -77,25 +121,37 @@ disio:
 cboot:
 	di
 
-	if	drei_s
+ if	drei_s
 	ld	hl,0ffa0h
-	else
+ else
 	ld	hl,042a0h
-	endif
+ endif
 
 	ld	de,xltab
 	ld	bc,52
 	ldir
 
-	if	drei_s
+ if	drei_s
 	ld	hl,0ffe1h
-	else
+ else
 	ld	hl,042e1h
-	endif
+ endif
 
 	ld	de,dpb
 	ld	bc,31
 	ldir
+
+ if	zwei_s					;Clear Graphic
+	ld	a,0000_1101b
+	out	(switch_port),a
+	ld	hl,0
+	ld	de,1
+	ld	bc,3fffh
+	ld	(hl),0
+	ldir
+	ld	a,0000_0101b
+	out	(switch_port),a
+endif
 
 	ld	c,1ah
 	call	conout
@@ -111,7 +167,7 @@ conout:
 	call	enaio
 	ld	hl,conend
 	push	hl
-	ld	hl,<cursor_position: defw video_start>
+	ld	hl,<cursor_position: defw #video_start>
 	ld	a,c
 	cp	20h				;ctrl-Char ?
 	jr	c,ctrl
@@ -124,9 +180,9 @@ conend:
 	call	nc,scroll
 	ld	(cursor_position),hl
 	jp	disio				;back to keyboard in mem
-
+;
 ; crtl-char processing
-
+;
 ctrl:
 	cp	0dh
 	jp	z,carriage_return
@@ -136,58 +192,58 @@ ctrl:
 	jp	z,cls
 	xor	a
 	ret
-
+;
 carriage_return:
 	call	lineno
-	ld	a,b		;a= line # 1-24
+	ld	a,b
 cr1:
-	ld	hl,video_start-80
+	ld	hl,#video_start-#col
 cr2:
 	add	hl,de
 	djnz	cr2
 	ret
-
+;
 line_feed:
-	ld	de,80
+	ld	de,#col
 	add	hl,de
 	ret
-
+;
 scroll:
-	ld	hl,(last_line)		;Does what it says
+	ld	hl,#last_line
 	push	hl
-	ld	de,(top_of_screen)
+	ld	de,#top_of_screen
 	or	a
 	sbc	hl,de
 	ld	b,h
 	ld	c,l
-	ld	hl,80
-	add	hl,de			;de=top_of_screen
-	ldir				;hl=top_of_screen+80
-	ld	hl,(bottom_of_screen)
-	call	clear			;Clear last line
+	ld	hl,#col
+	add	hl,de				;de = #top_of_screen
+	ldir					;hl = #top_of_screen+80
+	ld	hl,#bottom_of_screen
+	call	clear				;Clear last line
 	pop	hl
 	ret
-
+;
 cls:
-	ld	hl,(bottom_of_screen)
+	ld	hl,#bottom_of_screen
  if not drei_s
-	ld	de,80
+	ld	de,#col
 	add	hl,de
  endif
-	ld	de,(top_of_screen)
-	push	de			;save new cursor_position
+	ld	de,#top_of_screen
+	push	de				;save new cursor_position
 	call	clear
 	pop	hl
 	ret
-
+;
 ; Clear from (DE) up to (HL) with A
-
+;
 clear:
 	ld	a,' '
-	ld	(de),a			;at least one
+	ld	(de),a				;at least one
 	or	a
 	sbc	hl,de
-	ret	z			;if hl=de
+	ret	z				;if hl=de
 	ld	b,h
 	ld	c,l
 	ld	h,d
@@ -195,11 +251,11 @@ clear:
 	inc	de
 	ldir
 	ret
-
-; HL > bottom_of_screen ?  Y->NC
-
+;
+; HL > #bottom_of_screen ?  Y->NC
+;
 toobig:
-	ld	bc,(bottom_of_screen)
+	ld	bc,#bottom_of_screen
 	inc	bc
 	ld	a,h
 	cp	b
@@ -207,24 +263,20 @@ toobig:
 	ld	a,l
 	cp	c
 	ret
-
-; compute line# in b (1-24)
-
+;
+; compute line# in b
+;
 lineno:
-	ld	de,80
+	ld	de,#col
 	ld	b,0
 	or	a
 line1:
 	sbc	hl,de
 	inc	b
 	ld	a,h
-	cp	high video_start-1
+	cp	high #video_start-1
 	jr	nz,line1
 	ret
-
-top_of_screen:		defw	video_start	;first unprot. pos.
-last_line:		defw	video_end-79	;start of last line
-bottom_of_screen:	defw	video_end	;last unprot. pos.
 ;--------------------------------------------------------------
 ;
 ; **** SELDSK
@@ -232,10 +284,10 @@ bottom_of_screen:	defw	video_end	;last unprot. pos.
 seldsk:
 	ld	a,(dpb+11h)
 	ld	b,a
-	xor	a		;nop
-	bit	1,b		;Inverted Sectors ?
+	xor	a				;nop
+	bit	1,b				;Inverted Sectors ?
 	jr	z,setinv
-	ld	a,02fh		;cpl
+	ld	a,02fh				;cpl
 setinv:
 	ld	(dskinv),a
 
@@ -346,9 +398,7 @@ read:
 new_sector:
 	call	nz,get_sector		;get new physical sector
 	ld	hl,(buffer_offset)
-	defb	11h			;'ld de,'
-dma_address:
-	defw	0
+	ld 	de,<dma_address: defw 0>
 	ld	bc,128
 	ldir
 	xor	a
@@ -381,15 +431,13 @@ getit1:
 	call	resel
 	push	bc
 
-	ld	bc,(dpb+12h)		;c=# of sectors,b=# of tracks
+	ld	bc,(dpb+12h)			;c=# of sectors,b=# of tracks
 	ld	a,(dsk_sector)
-	ld	e,a			;e=sector
+	ld	e,a				;e=sector
 	ld	a,(dsk_track)
-	ld	d,a			;a,d = track
+	ld	d,a				;a,d = track
 	ld	hl,slct_mask
-	defb	0c3h			;jp to side routine
-side$jump:
-	defw	side$0
+	jp	<side$jump: defw side$0>	;jp to side routine
 
 
 ;no 2nd side or by skew table
@@ -444,14 +492,14 @@ side$5:
 
 ; select 2nd side
 sel$2nd$side:
-	set	4,(hl)			;Select 2. Side
+	set	#side,(hl)			;Select 2. Side
 	jr	seek$track
 
 ; no 2nd side, side select by skew table
 side$6:
 side$7:
 sel$1st$side:
-	res	4,(hl)			;Select 1. Side
+	res	#side,(hl)			;Select 1. Side
 seek$track:
 	ld	(logical$address),de	;set trk,sec
 	ld	a,(dpb+11h)

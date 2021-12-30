@@ -1,11 +1,13 @@
-;********************************************************
-;*							*	
-;*	INFO.MAC Set/Reset Info-Line			*
-;*	Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86	*
-;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
-;					1985,1986	*
-;*							*
-;********************************************************
+;****************************************************************
+;*								*	
+;*	INFO.MAC Set/Reset Info-Line				*
+;*	Genie IIs/III CP/M 2.2XV3 Version 1.1 vom 19.05.86	*
+;*	Copyright (c) Klaus K{mpf Softwareentwicklung		*
+;*						1985,1986	*
+;*	1.0   20.02.86  Genie III 2.2XV3			*
+;*	1.1   19.05.86  Genie IIs 2.2XV1			*
+;*								*
+;****************************************************************
 ;
 	.z80
 	.com
@@ -14,32 +16,18 @@
 r$info	equ	1			;record # of info text in config.sys
 o$info	equ	30h			;offset of info text in record
 ;
-?boot	equ	0000h
-?bdos	equ	0005h
-@buffer	equ	?boot+80h
-;
-getchr	equ	01h
-prtstr	equ	09h
-getbuf	equ	0ah
-open	equ	0fh
-close	equ	10h
-read	equ	21h
-write	equ	22h
-setdma	equ	1ah
-;
-bell	equ	07h
-lf	equ	0ah
-cr	equ	0dh
-esc	equ	1bh
+	include CPMHEAD.INC
 ;
 ;
 	jp	entry
 ;
 	defb	cr
-	defm	'INFO.COM Copyright (c) by Klaus K{mpf Softwareentwicklung '
+	defm	'INFO.COM'
+	defb	cr,lf
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung '
 	defm	'1985,1986'
 	defb	cr,lf
-	defm	'Genie III CP/M 2.2XV3 Version 1.0 vom 20.2.86'
+	defm	'Genie IIs/III CP/M 2.2XV3 Version 1.1 vom 10.05.86'
 	defb	1ah
 ;
 cnffcb:
@@ -72,7 +60,7 @@ open$ok:
 	ld	a,r$info
 	ld	(rec$num),a
 	ld	de,cnffcb
-	ld	c,read
+	ld	c,redrnd
 	call	?bdos
 ;
 	ld	de,frage
@@ -109,7 +97,7 @@ noinfo:
 	ld	a,r$info
 	ld	(rec$num),a
 	ld	de,cnffcb
-	ld	c,write
+	ld	c,wrtrnd
 	call	?bdos
 	ld	de,cnffcb
 	ld	c,close

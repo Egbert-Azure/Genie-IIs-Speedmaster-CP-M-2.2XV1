@@ -1,0 +1,43 @@
+;****************************************************************
+;*								*
+;*	LOOP.MAC  Character I/O Test Loop			*
+;*	CP/M 2.2  Version 1.1 vom 19.05.86			*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung	*
+;*						1986		*
+;*								*
+;****************************************************************
+;
+	.z80
+	.com
+	org	100h
+;
+	include CPMHEAD.INC
+;
+;
+	jp	entry
+;
+	defb	cr
+	defm	'LOOP.COM'
+	defb	cr,lf
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung 1986'
+	defb	cr,lf
+	defm	'CP/M 2.2 Version 1.1 vom 19.05.86'
+	defb	1ah
+;
+entry:
+	ld	sp,stack
+	ld	hl,(?boot+1)
+	ld	l,09h
+	ld	(??conin),hl
+	ld	l,0ch
+	ld	(??conout),hl
+loop:
+	call	<??conin: defw 0>
+	ld	c,a
+	call	<??conout: defw 0>
+	jr	loop
+;
+	defs	64,0
+stack:
+
+	end

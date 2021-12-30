@@ -1,14 +1,17 @@
-;********************************************************
-;*							*	
-;*	FKEY.MAC Show/Change Function Keys		*
-;*	Genie III CP/M 2.2XV3 Version 1.1 vom 19.4.86	*
-;*	Copyright (c) Klaus K{mpf Softwareentwicklung	*
-;*					1984,1985,1986	* 
-;*	Modification History				*
-;*	1.0  20.2.86  Original Version			*
-;*	1.1  19.4.86  Changed ctrl vals to invers	*
-;*							*
-;********************************************************
+;****************************************************************
+;*								*	
+;*	FKEY.MAC Show/Change Function Keys			*
+;*	Genie IIs CP/M 2.2XV1 Version 1.1 vom 22.06.86		*
+;*	Copyright (c) by Klaus K{mpf Softwareentwicklung	*
+;*						1984,1985,1986	* 
+;*	Modification History					*
+;*	1.0  20.02.86  Original Version				*
+;*	1.1  19.04.86  Changed ctrl vals to invers		*
+;*	1.0  19.05.86  1st IIs Adaption				*
+;*		       Changed inschr to block cursor		*
+;*	1.1  22.06.86  changed ctrl-key to P1			*
+;*								*
+;****************************************************************
 	.z80
 	.com
 	org	100h
@@ -17,44 +20,22 @@ r$fkytbl	equ	2		;Record # in CONFIG.SYS
 fkey_length	equ	2*128		;# of Records*128
 no_of_fkeys	equ	16		;16 Fkeys defined
 ;
-;
-?boot	equ	0000h
-?bdos	equ	0005h
-@buffer	equ	?boot+80h
-;
 buflen	equ	255
 ;
 ;
-getchr	equ	01h
-prtchr	equ	02h
-drctio	equ	06h
-prtstr	equ	09h
-getbuf	equ	0ah
-open	equ	0fh
-close	equ	10h
-read	equ	21h
-write	equ	22h
-setdma	equ	1ah
+	include CPMHEAD.INC
 ;
-bell	equ	07h
-back	equ	08h
-tab	equ	09h
-lf	equ	0ah
-forwrd	equ	0ch
-cr	equ	0dh
-esc	equ	1bh
-home	equ	1eh
-;
-;
-	ORG	?boot+0100H
 ;
 	jp	entry
 ;
 	defb	cr
-	defm	'FKEY.COM Copyright (c),(p) Klaus K{mpf 1984,1985,1986'
+	defm	'FKEY.COM'
 	defb	cr,lf
-	defm	'Genie III CP/M 2.2XV3 Version 1.1 vom 19.4.86'
-	defb	1ah
+	defm	'Copyright (c) by Klaus K{mpf Softwareentwicklung'
+	defm	' 1984,1985,1986'
+	defb	cr,lf
+	defm	'Genie IIs CP/M 2.2XV1 Version 1.1 vom 22.06.86'
+	defb	ctrlz
 ;
 cnffcb:
 	defb	0
@@ -105,7 +86,7 @@ read_loop:
 	inc	a
 	ld	(rec$num),a
 	ld	de,cnffcb
-	ld	c,read
+	ld	c,redrnd
 	call	?bdos
 	pop	bc
 	djnz	read_loop
@@ -144,7 +125,7 @@ write_loop:
 	inc	a
 	ld	(rec$num),a
 	ld	de,cnffcb
-	ld	c,write
+	ld	c,wrtrnd
 	call	?bdos
 	pop	bc
 	djnz	write_loop
@@ -216,7 +197,7 @@ noctky:
 	ld	a,c
 	or	a
 	jp	nz,ctlkey
-	bit	1,b				;CTRL pressed ?
+	bit	6,b				;CTRL (P1) pressed ?
 	ret	z				;No: Quit
 	jp	newchr				;Y: Insert CTRL-Char
 ;
@@ -240,7 +221,7 @@ enter:
 	ld	(newkey),a
 	jp	newchr
 ;
-space:
+leer:
 	ld	a,20h				;Space: Insert 20h
 	ld	(newkey),a
 	jp	newchr
@@ -313,16 +294,16 @@ inser1:
 ;
 ; Delete char
 ;
-delete:
+delete_it:
 	ld	hl,(kystrt)
 	ld	de,(kyend)
 	or	a
-	sbc	hl,de				;Nothing to delete ?
+	sbc	hl,de				;Nothing to delete_it ?
 	jp	z,rngbel
 	ld	hl,(pointr)
 	or	a				;pointr = kyend ?
 	sbc	hl,de
-	jp	z,rngbel			;Y: Nothing to delete
+	jp	z,rngbel			;Y: Nothing to delete_it
 	dec	de
 	ld	(kyend),de			;Set new kyend
 	ld	hl,(tabend)
@@ -413,7 +394,7 @@ poscur:
 	ld	b,a
 poscu1:
 	push	bc
-	ld	a,forwrd
+	ld	a,cright
 	call	putchr
 	pop	bc
 	djnz	poscu1
@@ -429,6 +410,7 @@ shokey:
 	dec	hl
 	ld	(hl),20h
 	ld	a,(fkynum)
+	dec	a				;** IIs counts from 0..15
 	cp	10
 	jr	c,shonu4
 	ld	b,'0'-1
@@ -493,14 +475,14 @@ isctrl:
 	call	prttxt
 	pop	af
 	add	a,'@'
-	call	conout
+	call	direct_out
 	ld	de,monoff
 	call	prttxt
 	pop	hl
 	jr	shoke2
 ;
-conout:
-	ld	c,06h
+direct_out:
+	ld	c,drctio
 	ld	e,a
 	call	?bdos
 	ret
@@ -654,11 +636,11 @@ tstkey:
 	and	01h				;shift ?
 	jr	z,noshft			;N: jp
 	ld	a,b
-	bit	3,a
+	bit	3,a				;<- (left)
 	ld	a,5
 	jp	nz,swtcho
 	ld	a,b
-	bit	4,a
+	bit	4,a				;V (down)
 	ld	a,6
 	jp	nz,swtcho
 	jp	tstkey	
@@ -671,7 +653,7 @@ noshft:
 	ld	(last),a
 	ld	hl,3000
 	ld	(rptcnt),hl
-	bit	3,a
+	bit	3,a				;^ (up)
 	jr	z,dwnkey
 	ld	a,3
 	jr	studky
@@ -784,13 +766,13 @@ prttxt:
 ;
 putchr:
 	ld	e,a
-	ld	c,prtchr
+	ld	c,conout
 	call	?bdos
 	ret
 ;
 getkey:
 	call	clrlen
-	ld	c,getchr
+	ld	c,conin
 	call	?bdos
 	ld	(newkey),a
 	ret
@@ -824,15 +806,15 @@ gettab:
 swtchi:
 	di
 	push	af
-	ld	a,71h
-	out	(0fah),a
+	ld	a,0000_0110b
+	out	(0feh),a
 	pop	af
 	ret
 ;
 swtcho:
 	push	af
-	ld	a,7fh
-	out	(0fah),a
+	ld	a,0000_0111b
+	out	(0feh),a
 	pop	af
 	ret
 ;
@@ -895,22 +877,22 @@ jmptab:	defw	enter
 	defw	clear
 	defw	break
 	defw	insert
-	defw	delete
+	defw	delete_it
 	defw	curlft
 	defw	currgt
-	defw	space
+	defw	leer
 ;
 t1:	defb	cr,11,'$'
 t2:	defb	cr,lf,'$'
 t3:	defb	esc,'=',37,32,'$'
 t4:	defb	esc,'=',53,32,'$'
-t5:	defb	cr,esc,'O',esc,'Q>$'
-t6:	defb	cr,esc,'O',esc,'W$'
-t7:	defb	esc,'N',esc,'R$'
-t8:	defb	esc,'N',esc,'E$'
+t5:	defb	cr,esc,'.1$'
+t6:	defb	cr,esc,'.4$'
+t7:	defb	esc,'R$'
+t8:	defb	esc,'E$'
 ;
 ;
-text1:	defb	esc,'+'
+text1:	defb	esc,'*'
 	defm	'FKEY Funktionstastenprogrammierung'
 	defm	' (c),(p) Klaus K{mpf 1984,1985,1986'
 	defb	cr,lf,cr,lf
@@ -928,10 +910,10 @@ text4:	defb	esc,'.0',esc,'=',53,40
 	defm	'Dr}cke die zu {ndernde Taste oder <BREAK>'
 	defb	esc,'=',54,40
 	defm	'zum Abspeichern und Beenden des Programms$'
-text5:	defb	esc,'+'
+text5:	defb	esc,'*'
 	defb	cr,lf,lf,esc,'.4',esc,'_4'
 	defm	'Neue Belegung aktivieren (J/N) ? $'
-text6:	defb	esc,'+'
+text6:	defb	esc,'*'
 	defm	'FKEY Funktionstastenprogrammierung'
 	defm	' (c),(p) Klaus K{mpf 1984,1985,1986'
 	defb	esc,'=',49,40
@@ -950,7 +932,7 @@ monon:	defb	esc,')$'
 monoff:	defb	esc,'($'
 enttxt:	defb	esc,'_5$'			;Deutsch,fkey spcl
 
-quitxt:	defb	esc,'+',esc,'.4',esc,'_4',cr,lf
+quitxt:	defb	esc,'*',esc,'.4',esc,'_4',cr,lf
 	defm	'Bearbeitung abgebrochen'
 	defb	cr,lf,'$'
 ;

@@ -1,50 +1,58 @@
-;********************************************************
-;*							*
-;*	SYSBOOTX.MAC  Boot Sector Module		*
-;*	GENIE III  CP/M 2.2XV3 Version 0.1  11/10/85	*
-;*	Copyright (c),(p) Klaus K{mpf 1984,1985		*
-;*							*
-;********************************************************
+	.z80
+	.com
+	org	0100h
+;****************************************************************
+;*								*
+;*	SYSBOOTX.MAC  Boot Sector Module			*
+;*	GENIE IIs  CP/M 2.2XV1 Version 1.0  19.05.86		*
+;*	Copyright (c),(p) by Klaus K{mpf Softwareentwicklung	*
+;*						1984,1985,1986	*
+;*	Modification History					*
+;*	0.0  xx.09.85  Original Genie III Version		*
+;*	0.1  26.04.86  1st Speedmaster/IIs Adaption		*
+;*	0.11 27.04.86  Changed Side-Select to Bit 3		*
+;*	0.12 28.04.86  Changed Side-Select back to 4		*
+;*	0.13  5.05.86  new loader phase CE00H			*
+;*	0.14 15.05.86  set port 0f9h, im 1			*
+;*	0.2  18.05.86  new loader phase D200H			*
+;*	1.0  19.05.86  1st final Version			*
+;*								*
+;****************************************************************
 ;
 loader		equ	0d200h		;Loader address
 max_error	equ	5		;Max # of retries
-
-	.z80
-	.com
-	org	0100h			;Just for the assembler
+#side		equ	0001_0000b
 	.phase  4200h			;Boot address (by EPROM)
 
 entry:
 	di
 	ld	sp,stack
 	xor	a
-	ld	bc,10f7h			;Init CRTC
-	ld	hl,crtc_table
-crtc_loop:
-	out	(0f6h),a
-	inc	a
-	outi
-	jr	nz,crtc_loop
+	out	(0f9h),a
+	im	1
+	ld	a,0000_0100b			;swtchi
+	out	(0feh),a
+	ld	a,0feh
+	ld	(37ech),a
+	ld	a,080h
+	ld	(37eeh),a
+	ld	a,0d0h
+	ld	(37ech),a
 
-	ld	a,1			;Invers
-	out	(0f5h),a
-	ld	a,75h			;swtchi
-	out	(0fah),a
-
-	ld	a,'B'			;'BOOTER'
+	ld	a,'B'				;'BOOTER'
 	ld	(3c00h),a
 
 	ld	hl,37ech
-	ld	de,loader		;Loader-Start
-	push	de			;set as return adr
+	ld	de,loader			;Loader-Start
+	push	de				;set as return adr
 ;
-	ld	a,01h			;Front, drive 0
-	ld	bc,0901h		;9 Sectors from 1 up
+	ld	a,01h				;Front, drive 0
+	ld	bc,0901h			;9 Sectors from 1 up
 	call	read
-	ld	a,11h			;Back, drive 0
-	ld	bc,0700h		;7 Sectors from 0 up
-					;fall through to read
-					;return to loader
+	ld	a,01h+#side			;Back, drive 0
+	ld	bc,0700h			;7 Sectors from 0 up
+						;fall through to read
+						;return to loader
 ;----------------------------------------------------------
 read:
 	ld	(selcod),a
@@ -100,9 +108,7 @@ resel:
 	ld	(37e1h),a
 	ret
 ;
-crtc_table:
-	defb 66h,50h,56h,34h,1ah,00h,19h,1ah
-	defb 00h,0bh,0bh,0bh,00h,00h,00h,00h
+	defs	8,0
 stack:
 zzzz    equ  $
 	.printn zzzz

@@ -1,0 +1,68 @@
+Hinweise zur Fehlermeldung bei Diskfehlern im Genie IIs CP/M
+
+Die Fehlermeldung erscheint grunds{tzlich am Anfang der aktuellen
+Cursorzeile und wird mit einem Piepston (ASCII Bell Character)
+dem Benutzer mitgeteilt.
+
+Die Fehlermeldung selber besteht aus 20 Zeichen in folgender Reihen-
+folge:
+
+LFES TTT/KKK/PPP SSS
+
+Die einzelnen Zeichen haben folgende Bedeutung:
+
+L	Das Laufwerk, auf dem der Fehler auftrat
+	L steht f}r die Laufwerkskennung 'A' .. 'P'
+
+F	Zuletzt ausgef}hrte Funktion:
+	Lesen ('R' f}r READ) oder Schreiben ('W' f}r WRITE)
+
+E	Der Fehlercode, eine Zahl zwischen 0 und 7:
+	0	Funktion war noch nicht beendet
+	1	Eine Datenanforderung wurde nicht erf}llt
+	2	Daten verloren (Das System MUSS mit 5.2 bzw
+		8 MHz laufen !!)
+	3	Pr}fzahlfehler
+	4	Sektor nicht gefunden (Immer ein Zeichen f}r
+		ein falsch gew{hltes Format)
+	5	Schreibfehler (Laufwerk defekt)
+	6	Schreibgesch}tzt (Verh}terli ist auf der Diskette)
+	7	Laufwerk war nicht bereit
+
+S	Die Seite, auf die zuletzt zugegriffen wurde
+	S steht f}r 'V' (Vorderseite) oder 'R' (R}ckseite)
+
+TTT	Die vom CP/M angeforderte Spurnummer, i.a. eine Zahl
+	zwischen 000 und 159
+
+KKK	Die vom System nach der aktuellen Formateinstellung
+	berechnete physikalische Spurnummer. Bei 40 Spur Formaten
+	in 80 Track Laufwerken (fast) immer die H{lfte von TTT
+
+PPP	Die vom System an der physikalischen Spurposition KKK,
+	Seite S erwartete Spurnummer von der Formatierung.
+
+SSS	Die vom System erwartete physikalische Sektornummer.
+
+
+Die Werte TTT, KKK, PPP und SSS sind im allgemeinen nur f}r 'Insider'
+interessant und dienen vornehmlich zum Austesten von Formateinstellungen.
+
+
+
+Nach einer Fehlermeldung wartet das System auf eine Reaktion vom
+Benutzer in Form eines Tastendrucks:
+
+CLEAR		falls die fehlerhafte Funktion wiederholt werden
+		soll. Sehr zu empfehlen bei Pr}fzahlfehlern, bei
+		gen}gend h{ufiger Wiederholung wird ein fehler-
+		hafter Sektor meist doch noch gelesen.
+
+SHIFT-CLEAR	falls die fehlerhafte Funktion abgebrochen werden soll.
+		In diesem Fall wird der Fehler an das CP/M weiter-
+		gegeben, was sich dann mit 'BDOS Error on ...' meldet.
+
+P1-CLEAR	falls der Fehler }bergangen werden soll. Zu empfehlen
+		bei stark besch{digten Disketten, von denen aber noch
+		Daten 'gerettet' werden sollen. ]ber P1-Clear kann
+		ein Abbruch vom CP/M aus verhindert werden.
