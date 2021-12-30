@@ -49,16 +49,16 @@ seld4:  ld   a,b
         ld   e,a
         ld   d,0
         add  hl,de
-        ld   a,(37edh)
-        ld   (hl),a
+        ld   a,(hedpos)        ;Get current phys hd pos
+        ld   (hl),a            ;Save it in Table
         ld   a,c
         ld   (newdrv),a
         ld   hl,trktab
         ld   e,a
         ld   d,0
         add  hl,de
-        ld   a,(hl)
-        ld   (37edh),a
+        ld   a,(hl)            ;Get last Head Pos value
+        ld   (hedpos),a        ;Set it
         ld   l,c
         ld   h,0
       4:add  hl,hl
@@ -285,6 +285,9 @@ resel:  ld   a,(curbin)
 restor: ld   c,50h
         call isscmd
         ld   c,0
+        xor  a
+        ld   (hedpos),a        ;Set new phys head pos
+                               ;to 0
 
 ; Issue head moving cmd
 
@@ -317,21 +320,31 @@ getit0: ld   a,b
 getite: ld   b,2               ;No. of retries
 getit1: push bc
         ld   a,(cursec)
-        ld   (37eeh),a         ;Set sector
+        ld   (realtk+1),a
         ld   hl,curpdb
-        ld   a,(curtrk)
-        bit  5,(hl)            ;Double track ?
+        ld   a,(curtrk)        ;A = Track # wanted
+        push hl
+        bit  4,(hl)            ;Double sided ?
         jr   z,getitq
-        sla  a
-getitq: bit  4,(hl)            ;Double sided ?
-        jr   z,getitr
-        srl  a
-        jr   nc,getitr
+        srl  a                 ;Y: A = A/2
+        jr   nc,getitq
         ld   hl,curbin
-        set  4,(hl)
-getitr: ld   (37efh),a         ;Set track
-        ld   c,18h
+        set  4,(hl)            ;Select 2. Side
+getitq: ld   (realtk),a
+        pop  hl                ;(HL) = curpdb
+        bit  5,(hl)            ;Double track ?
+        jr   z,getitr
+        sla  a                 ;Y: A = A*2
+getitr: ld   (37efh),a         ;Set phys Head position
+        ld   hl,hedpos         ;for seek
+        ld   b,(hl)            ;Get last phys hd pos
+        ld   (hl),a            ;Save new for seldsk
+        ld   a,b
+        ld   (37edh),a         ;Set last for seek
+        ld   c,18h             ;SEEK
         call isscmd
+        ld   hl,<realtk: dw 0> ;Set Trk & Sec #
+        ld   (37edh),hl        ;for Read
         ld   hl,37ech
         ld   de,37efh
         ld   bc,secbuf
@@ -507,16 +520,17 @@ newpdb: defb 0           ;new pdrive byte
 newbin: defb 0           ;new select (1/2/4/8)
 newdrv: defb 0           ;new drive  (0/1/2/3)
 newsid: defb 0           ;new side  (0=front, 1=back)
-newtrk: defb 0           ;new trk # (logical & physical)
+newtrk: defb 0           ;new trk # (logical)
 newsec: defb 0           ;new sec # (physical)
 
 curpdb: defb 0           ;pdrive byte of current sector
-curbin: defb 0           ;sel # to seek (in memory)
-curdrv: defb 0           ;drv # to seek (in memory)
-cursid: defb 0           ;sid # to seek (in memory)
-curtrk: defb 0           ;trk # to seek (in memory)
-cursec: defb 0           ;sec # to seek (in memory)
+curbin: defb 0           ;sel # to read (in memory)
+curdrv: defb 0           ;drv # to read (in memory)
+cursid: defb 0           ;sid # to read (in memory)
+curtrk: defb 0           ;trk # to read (in memory)
+cursec: defb 0           ;sec # to read (in memory)
 
+hedpos: defb 0           ;Head pos of current drive
         page
 ; Save status line
 
@@ -770,7 +784,7 @@ cvtab4: defb 00,01,02,03,04,05,06,07
 
 ; Pdrive info table for pd.com
 
-rdtab:  defb 5,8,0,0
+rdtab:  defb 1,2,0,0
         page
 fkytab: defb 0
         defm 'DIR'                     ; F1
@@ -819,12 +833,29 @@ info:   defb 195,208,175,205,160,178,174,178,216,160
 
 vertxt: defb 195,208,175,205,160,178,174,178,216,160
         defb 160,160,160,195,194,201,207,211,160,214
-        defb 229,242,243,233,239,238,160,177,174,176
-        defb 160,246,239,237,160,177,181,174,176,184
+        defb 229,242,243,233,239,238,160,178,174,177
+        defb 160,246,239,237,160,177,183,174,177,176
         defb 174,184,180,160,160,160,160,160,160,211
         defb 229,242,233,229,238,238,245,237,237,229
         defb 242,186,160,178,183,176,177,182,179,173
-        defb 203,173,177,181,176,184,184,180,160,160
+        defb 203,173,177,183,177,176,184,180,160,160
+
+adrtab: defw flgtx0
+        defw click
+        defw flgtx1
+        defw inkbd3
+        defw flgtx2
+        defw clock
+        defw flgtx3
+        defw error
+        defw flgtx4
+        defw bell
+        defw flgtx5
+        defw show
+        defw flgtx6
+        defw dummy
+        defw flgtx7
+        defw dummy
 
 stmsg:  defb 27,'*'
         defm '64K Genie III CP/M 2.2X'
@@ -893,12 +924,14 @@ sectxt: defb 216,216,216
 
 ; Parameter Table 4
 
+dummy:  defb 0                 ;flgtx dummy flag
+
 zzzzzy  equ  $
         defm 'Genie III CP/M CBIOS Copyright (c) 1984 '
         defm ' Klaus K{mpf, Jakobstr 236/38, 51 Aachen'
-        defs 48
+        defs 40
 cpmstk  equ  $
-        defs 128
+        defs 32
 intstk  equ  $
 kbdbuf: defs buflen
 secbuf: defs 1024

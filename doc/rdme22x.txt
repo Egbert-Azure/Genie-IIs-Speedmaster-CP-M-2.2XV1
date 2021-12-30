@@ -1,0 +1,1104 @@
+.PL66
+.MÔ 8
+.HÍ 4
+.FÍ 4
+
+
+
+
+
+
+
+
+
+
+              Anleitunç zuí Genie III CP/Í 2.2X
+
+                  Version 2.1 vom 17.10.84
+.PAŠ.FO GENIE III CP/M 2.2X                            Seite: #             
+.PN 1
+
+
+
+
+Dieså Anleitunç beziehô sicè nuò auæ diå speziellå GENIÅ IIÉ 
+Anpassunç deó CP/Í Betriebssystemó sowiå diå mitgelieferteî 
+Hilfsprogramme® Weiterå Informationeî }beò daó CP/Í 2.² 
+Betriebssystem entnehmen Sie bitte dem beigef}gten Buch.
+
+
+
+
+Besonderheiteî dieseó Systems:
+
+- Lesen¬ Schreibeî unä Formatiereî alleò CP/Í Formate
+
+- Erh|htå Diskettenkapazit{ô (bió 820ë prï Diskette)
+
+- Erweitertå Fehlermeldungen
+
+- Emulatioî deò Terminaló ADM-3Á unä Televideo
+
+- 25® Zeilå (Statuszeile)
+
+- W{hlbareó Bildschirmfenster
+
+- 1¶ volì programmierbarå Funktionstasten
+
+- Gepuffertå Tastatureingabe
+
+- automatischå Tastenwiederholunç (schaltbar)
+
+- Quittierunç jdeò Tastå durcè eineî Klicktoî (schaltbar)
+
+- Tastatuò volì WordStaò kompatibel
+
+- Ausdruckeî deó Bildschirminhalts
+
+- Hexprinô auæ Druckeò m|glich
+
+- Lautsprecheò abschaltbar
+
+
+
+
+
+CP/Í isô eiî gesch}tzteó Warenzeicheî voî Digitaì Research
+WordStaò isô eiî gesch}tzteó Warenzeicheî voî MicroPrï Inter
+national
+ŠAnmerkungen zur Version 1.1 vom 12.09.84
+
+Iî deò neueî Versioî 1.± sinä allå Schw{chen¬ diå iî deî 
+ersteî ´ Wocheî seiô Auslieferunç deó CP/Í 2.2Ø auftrateî 
+beseitigô worden®
+Dieó triffô besonderó auæ diå Kopfpositionierunç zu® Sï waò 
+eó miô deò Versioî 1.° nichô m|glicè 4° Tracë Disketteî iî 8° 
+Tracë Laufwerkeî zõ bearbeiten® Teilweiså wurdeî aucè falschå 
+Direktory-Informationeî abgespeichert¬ wodurcè zuvieì Disket
+tenplatú beanspruchô wurde® Dieseò Fehleò isô miô deò jetzi
+geî Versioî vollst{ndiç aufgehoben.
+
+Deó weitereî wurdå diå Anzahì deò Lese/Schreibversuchå bió 
+zuò Fehlerausgabå voî ² auæ µ erh|ht¬ wodurcè eiî CRÃ Erroò 
+beé schlechtereî Disketteî odeò schmutzigeî Laufwerkeî jetzô 
+selteneò auftritt.
+
+Daó Programí CPMGEÎ wurdå kompletô neõ geschrieben¬ sï daş eó 
+jetzô deî aktuelleî PDRIVE-Stanä auæ diå Kopiå }bertr{gt® 
+Insbesonderå isô eó jetzô m|glicè aucè miô nuò eineí Laufwerë 
+zõ kopieren® Dadurcè k|nneî Siå aucè diå aktuellå Pdrive-
+Einstellunç auæ diå Systemdiskettå zõ }bertragen.
+
+Iî deò Versioî 1.1± voí 28.09.8´ wurdå diå Escapesequenú
+'ESÃ Z§ ge{ndert¬ dá diå letztå Versioî beé Ausf}hrunç dieseò 
+Sequenú diå Speicherstellå 9D00È {nderte® Dieó hattå abeò beé 
+deî meisteî Programmeî keineî Einflu~¬ dá siå dieså Sequenú 
+nichô benutzten.
+.PAŠAnmerkungeî zuò Versioî 2.° voí 4.10.84
+
+Nachdeí daó CP/Í 2.2Ø zuí Geniå IIÉ nuî ca® ¶ Wocheî auæ deí 
+Markô ist¬ wurdå beé deò jetzigeî ]berarbeitunç besondereî 
+Werô auæ diå W}nschå unä Tipó gelegt¬ diå micè iî deò letzteî 
+Zeiô erreichten.
+
+Aló wichtigstå [nderunç isô zõ nennen¬ daş jetzô beií Booteî 
+(Kaltstart© nichô mehò deò Befehì FKEÙ Ì ausgef}hrô wird¬ 
+sonderî jetzô SUBMIÔ START® Dieó haô f}ò Siå aló Anwendeò deî 
+Vorteil¬ daş Siå sicè jetzô selbststartendå Systemå generie
+reî k|nnen¬ indeí Siå sicè daó START.SUB-Filå entsprechenä 
+anpassen.
+
+Wiå beé deî vorherigeî Versionen¬ kanî aucè jetzô nocè dieseò 
+automatischå Starô durcè dr}ckeî deò Leertastå w{hrenä deó 
+bootenó unterdr}ckô werden® Danacè isô danî diå unteò 
+FKEY.COÍ angegebenå Funktionstastenbelegunç g}ltig.
+
+Deó weitereî wurdå diå Anzahì deò erkannteî Terminalcodeó uí 
+diå folgendeî erweitert:
+ESÃ Ç ° schalteô auæ normalå Zeichenwiedergabeî ¨ wiå ESÃ ¨ )
+ESÃ Ç ´ schalteô auæ invertiertå Zeichenwiedergabå ¨ ESÃ © )
+ESÃ ê   setzô deî Cursoò einå Zeilå h|her
+3±      f}hrô diå Sequenú CR/LÆ aus
+
+Allå Terminalcodeó sinä ií Anhanç nocheinmaì aufgef}hrt.
+
+
+Daó Programí CPMGEN.COÍ wirä jetzô iî deò Versioî 2.± ausge
+liefert® Dieså neuå Versioî kopierô zus{tzlicè zõ deí aktuel
+leî PD-Stanä aucè diå eingestelltå CTRL-Ziffeò Einstellunç 
+mit® Falló Siå alsï keinå Keyclicë w}nschen¬ sï schalteî Siå 
+ihî }beò CTRL-° aâ unä kopiereî sicè dieså Einstellunç miô 
+deí Befehì CPMGEÎ Á auæ ihrå Systemdiskette.
+
+Zuò Beachtunç seé hieò angemerkt¬ daş dieså neuå CPMGEN-
+Versioî nuò miô deî CBIOS-Versioneî 2.° unä folgendå funk
+tioniert® Siå m}sseî alsï diå neuå CBIOS-Versioî geladeî 
+habeî unä k|nneî nuò diå neuå Versioî kopiereî !!!!!!
+Falló Siå nocè {lterå CBIOS-Versioneî kopiereî wollen¬ be
+nutzeî Siå dazõ bittå diå entsprechendå CPMGEN-Version.
+
+
+
+Diå Versioî 2.± voí 17.10.8´ haô eineî }berarbeiteteî Disket
+tenzugriff¬ dá diå Versioî 2.° u.U® falschå Sektoreî ge
+schriebeî hat®
+.PAŠ.HE Einleitung
+Diå vorliegendå CP/Í Anpassunç f}ò daó GENIÅ IIÉ isô einå 
+komplettå Neuentwicklunç dereî Zieì eó war¬ einå M|glichkeiô 
+zõ schaffeî allå bekannteî µ 1/´ unä ¸ Zolì CP/Í Disketten
+formatå zõ lesen¬ schreibeî unä zõ formatieren®  Ebenfalló 
+sollteî diå M|glichkeiteî deó GENIÅ IIÉ (Zehnerblock¬ Funk
+tionstasten¬ programmierbareò Bildschirmcontroller¬ Uhr© volì 
+ausgenutzô werden.
+
+Diå jetzigå Versioî unterst}tzô aí GENIÅ IIÉ bió zõ vieò 
+Laufwerkå unterschiedlicheî Typs® Eó werdeî voí Bildschirí 
+diå Terminaló ADM-3Á unä Televideï emuliert® Deó weitereî 
+wurdå einå 25® Zeilå (Statuszeile© eingerichtet¬ iî deò 
+Meldungeî deó Betriebssystemó sowiå diå Uhrzeiô erscheinen.
+
+Einå weiterå Erg{nzunç bildeô diå M|glichkeit¬ Bildschirmzei
+leî zõ sch}tzeî uí z.B® ]berschrifteî odeò Bemerkungeî st{n
+diç sichtbaò zõ haben.
+Lese- odeò Schreibfehleò beé Diskettenzugriffeî werdeî expli
+ziô iî deò Statuszeilå angegebeî unä maî haô diå M|glichkeiô 
+diå Diskettenoperatioî zõ wiederholeî odeò abzubrechen.
+
+Interî wurdå eiî 6´ Zeicheî umfassendeò Tastaturpuffeò reali
+siert¬ deò eó erm|glichô Zeicheî ií Vorauó einzutippeî (Type-
+ahead).
+Daó CP/Í 2.² Betriebssysteí wurdå sï ge{ndert¬ daş nacè deí 
+Schlie~eî eineó Fileó aucè wirklicè allå Dateî auæ deò Dis
+kettå stehen® Dieó isô iî andereî Systemeî miô eineò ver
+gr|~erteî Sektorl{ngå eiî sehò h{ufigeò Fehler.
+
+Zuò Realisatioî voî Zeitanzeigå unä Tastaturpuffeò isô w{h
+renä deó Programmablaufó deò Interrupô eingeschaltet® Daó haô 
+beé normaleî CP/Í Programmeî keineî Einflu~® Speziellå Pro
+gramme¬ insbesonderå solche¬ diå daó CP/Í Betriebssysteí aî 
+mancheî Stelleî umgeheî odeò sicè nichô aî diå CP/Í Konven
+tioneî halten¬ k|nneî evtl® nichô laufen.
+Zuò Beachtunç seé nocè angemerkt¬ daş diå gesamtå Tastatur
+eingabå }beò deî Interrupô l{ufô unä daheò jedeò CBIOS-Aufruæ 
+dieseî wiedeò aktiviert.
+
+Uí deî Speicherbedaræ deó Betriebssystemó auæ einå vertret
+barå Gr|~å zõ beschr{nken¬ wirä diå RS-232-Schnittstellå voí 
+CP/Í auó nichô unterst}tzt® Dieó haô deî Grunä darin¬ daş 
+dieså Schnittstellå meisô zuí Modemanschluş genutzô wirä unä 
+fasô allå Modemprogrammå direkô auæ diå Schnittstellå zugrei
+fen.
+.PA ŠZuí Arbeiteî miô dieseí System¬ sollteî Siå eiî GENIÅ IIÉ iî 
+Standardkonfiguratioî d.h® zweé 80-Track-Doppelkopflaufwer
+ken¬ besitzen® Sollteî Siå anderå Laufwerkå angeschlosseî 
+habeî odeò sonstigå Problemå auftreteî wendeî Siå sicè bittå 
+m|glichst schriftlich an:
+
+
+    
+                         Klauó K{mpf
+                      Jakobstr® 236/38
+                         510° Aachen
+
+
+
+Beé Einsendunç eineó ausreichenä frankierten¬ selbstadres
+sierteî R}ckumschlagó unä eineò ií Formaô S8° DSDÄ formatier
+teî Diskettå k|nneî Siå voî miò aucè diå aktuelleî 
+PDRIVE.SYS-Versioneî erhalten.
+Falló Siå durcè Zusendunç eineò Diskette¬ dereî Formaô nocè 
+nichô unterst}tzô wird¬ mithelfeî deî PDRIVE.SYS-Filå zõ 
+erweitern¬ sï isô dieseò Servicå kostenlos® F}ò deî reineî 
+Updatå berechnå icè DÍ 30.- (V-Schecë odeò Nachnahme).
+
+
+
+Zur Beachtung:
+Beé nichô ausreichenä frankierteî R}ckumschl{geî odeò nichô 
+formatierteî Disketteî bestehô keiî Ansprucè auæ R}cksendung.
+.PAŠ.HE Anfertigen einer Sicherheitskopie
+Bevoò Siå miô deò neueî CP/Í Versioî arbeiten¬ sollteî Siå 
+sicè einå odeò mehrerå Sicherheitskopieî anfertigen.
+Dazõ legeî Siå diå Originaldiskettå iî Laufwerë ° (ií wei
+tereî Á genannt© unä dr}ckeî gleichzeitiç diå beideî RESET-
+Tasten® Nacè ca® 2-³ Sekundeî isô daó Betriebssysteí eingele
+seî unä meldeô sicè miô '64Ë Geniå IIÉ CP/Í 2.2X§ unä deí 
+Systemprompô 'A>'® Solltå dieså Meldunç beé Ihneî nichô er
+folgen¬ dr}ckeî Siå beidå RESET-Tasteî erneut® Haô dieó aucè 
+keineî Erfolg¬ schalteî Siå daó Ger{ô f}ò 3° Sekundeî auó unä 
+probiereî anschlie~enä erneuô daó Systeí zõ starten® Beé 
+weitereî Schwierigkeiteî wendeî Siå sicè bittå aî Ihreî H{nd
+ler.
+
+Legeî Siå jetzô einå neuå Diskettå inó Laufwerë ± (ií wei
+tereî Â genannt© unä gebeî deî Befehì 'FORMAÔ B'® Diå neuå 
+Diskettå wirä formatierô unä gepr}ft® Falló daó Formatier
+programí einå defektå Diskettenspuò bemerkt¬ sï probierô eó 
+immeò wiedeò dieså Spuò zõ formatiereî unä gibô beé jedeí 
+neueî Versucè eineî Piepstoî aus.
+Iî dieseí Falì isô diå neuå Diskettå defekô unä Siå sollteî 
+diå Formatierunç miô eineò andereî Diskettå wiederholen® 
+
+Nacè deí Formatiereî meldeô sicè daó Betriebssysteí wiedeò 
+miô 'A>'® Gebeî Siå nuî deî Befehì 'CPMGEÎ B§ uí daó Be
+triebssysteí voí Laufwerë Á zuí Laufwerë Â zõ kopieren® 
+Dr}ckeî Siå jetzô diå Funktionstastå F7¬ uí daó Laufwerë Bº 
+auæ daó Formaô S8° DSDÄ einzustelleî unä kopiereî Siå danî 
+miô deí Befehì 'SUBMIÔ SYSCOPY§ diå weitereî auæ deò Orginal
+diskettå befindlicheî Programme.
+
+Entnehmeî Siå danacè diå Orginaldiskettå deí Laufwerë Á unä 
+legeî Siå siå aî eineî sichereî Ort® F}ò allå weitereî Opera
+tioneî benutzeî Siå danî nuò nocè diå Kopie.
+
+
+
+
+
+
+
+
+
+
+ZUÒ BEACHTUNG:
+
+Daó geliefertå CP/Í 2.² Betriebssystem¬ sowiå s{mtlichå auæ 
+deò Orginaldiskettå befindlicheî Programmå unterliegeî deí 
+Urhebergesetz® Jeglichå Kopieî d}rfeî nuò zuí pers|nlicheî 
+Gebraucè gemachô werden® Einå Weitergabå aî Drittå isô 
+verboteî unä wirä strafrechtlicè verfolgt.Š.HE Arbeiteî miô deí System
+
+Diå Tastatur
+
+Wiå schoî iî deò Einleitunç erw{hnt¬ besitzô daó Systeí eineî 
+6´ Zeicheî umfassendeî Tastaturpuffer® W{hrenä deó Programm
+ablaufó k|nneî Siå dadurcè bió zõ 6´ Tasteî ií Vorauó dr}k
+ken¬ diå automatiscè gespeicherô werden® Beé eingeschalteteí 
+Tastenklicë wirä jedeò erkanntå Tastendrucë miô eineí kurzeî 
+Klickger{uscè quittiert® Isô deò Puffeò voll¬ sï wirä dieó 
+miô eineí Piepstoî angezeigt® Iî dieseí Falì werdeî keinå 
+Tastendr}cke mehò gespeichert.
+Habeî Siå z.B® durcè diå automatischå Zeichenwiederholung 
+deî Puffeò blockiert¬ sï k|nneî Siå ihî jederzeiô durcè 
+gleichzeitigeó Dr}ckeî deò beideî Tasteî CTRÌ unä CLEAÒ 
+wiedeò l|schen.
+
+Hierzõ einå Bemerkung:
+Eiî gleichzeitigeó Dr}ckeî deò CTRÌ bzw® Shifttastå miô eineò 
+weitereî Tastå wirä ií CP/Í Systeí |fteró gebraucht® Uí diå 
+gew}nschtå Funktioî zõ erreicheî dr}ckeî Siå ZUERSÔ diå CTRÌ- 
+bzw® Shifttaste¬ halteî dieså gedr}ckô unä bet{tigeî diå 
+zweitå Taste® Dieó isô notwendig¬ damiô daó Systeí dieså 
+Tastenkombinationeî richtiç erkennt® Ií weitereî bezeichneô 
+CTRL-ø bz÷ SHIFT-ø eiî solcheó Bet{tigeî zweieò Tasten¬ wobeé 
+ø hieò f}ò einå beliebigå zweitå Tastå steht.
+Diå obeî beschriebenå L|schunç deó Tastaturpufferó wirä alsï 
+aló CTRL-CLEAÒ bezeichnet.
+
+Diå Pfeiltasteî sinä WordStaò kompatibel® Daó hei~t¬ daş Siå 
+beé Benutzunç deó Wordstar-Textsystemó direkô miô deî Pfeil
+tasteî arbeiteî k|nnen® Daó gesonderô zõ erwerbendå Textver
+arbeitungsprogramí WordStaò haô sicè zõ eineí Arô Standarä 
+entwickelt¬ sodaş aucè anderå Programmå (z.B® Turbo-Pascal© 
+dieså Pfeiltasteî benutzen.
+
+Diå Tastå BREAË erzeugô diå Sequenú CTRL-Ã unä dienô zuí 
+Abbrucè deò meisteî CP/Í Programme® Wirä BREAË aló erstå 
+Tastå nacè deí Systemprompô 'A>§ gedr}ckt¬ sï wirä daó CP/Í 
+Betriebssysteí neõ eingeladen® Dieó isô nacè JEDEÍ DISKETTEN
+WECHSEÌ notwendig¬ uí daó Systeí voî dieseí Wechseì zõ unter
+richten.
+
+Aló Escape-Tastå dienô diå CLEAR-Taste¬ SHIFT-BREAË ergibô 
+deî Delete-Codå (siehå Tabellå ií Anhang© 
+
+Wenî Siå einå Tastå l{ngeò aló ca® ² Sekundeî gedr}ckô hal
+ten¬ sï wirä siå automatiscè wiederholô unä jedesmaì eiî 
+Klicktoî ausgegeben® Diå Tasteî deó separateî Zehnerblockó 
+werdeî nichô wiederholt® Dieó liegô aî deò besondereî Verwen
+dunç deó Zehnerblocksº ŠDiå Zifferntasteî deó ZEHNERBLOCKÓ (0° unä ° bió 5© werdeî iî 
+Verbindunç miô CTRÌ unä SHIFÔ gesonderô benutzt:
+
+CTRL-0° bewirkô eiî Ausdruckeî deó Bildschirminhaltó auæ 
+eineî angeschlosseneî Drucker® Deò Druckeò wirä }beò deî 
+Centronics-Parallelporô angesprocheî unä muş auæ AUTO-Line
+feeä AUÓ eingestellô seiî (CP/Í Standardeinstellung).
+
+]beò diå Kombinatioî CTRL-ø (ø isô einå deò Zifferntasteî deó 
+separateî Zehnerblocks© kanî einå deò ií folgendeî beschrie
+beneî Optioneî umgeschalteô werden® Beé jedeò Bet{tigunç 
+dieseò Tastenkombinatioî wirä deò jeweiligå Zustanä gewech
+selt® W{hrenä beidå Tasteî gedr}ckô sind¬ wirä deò neuå 
+Zustanä iî deò Statuszeilå angezeigt® SHIFT-ø zeigô deî au
+genblicklicheî Stanä an¬ ohnå ihî zõ ver{ndern.
+
+Eó steheî iî deò jetzigeî Versioî folgendå Optioneî zuò 
+Verf}gung:
+
+CTRL-0º Tastenklick®    Startzustandº EIN
+        Beé eingeschalteteí Tastenklicë wirä jedå Tastenbet{
+        tigunç miô eineî kurzeî Klickger{uscè quittiert® Diå 
+        isô besonderó beé Ausnutzunç deó Tastaturpufferó 
+        hilfreich¬ dá maî aí Tastenklicë merkt¬ oâ diå ge
+        dr}cktå Tastå erkannô wurdå odeò nicht.
+
+CTRL-1º Wiederholung®   Startzustandº EIN
+        Dadurcè wirä diå automatischå Tastenwiederholunç 
+        umgeschaltet® H{lô maî einå Tastå }beò l{ngerå Zeiô 
+        gedr}ckt¬ sï wirä siå automatiscè wiederholt® Dieó 
+        gilô NICHÔ f}ò diå Tasteî deó Zehnerblocks¬ dá einå 
+        Zeichenwiederholunç beé Zifferneingabeî nichô sinn
+        volì ist.
+
+CTRL-2º Uhr®            Startzustandº EIN
+        Iî deî letzteî ¸ Stelleî deò Statuszeile¬ wirä jedå 
+        Sekundå diå aktuellå Uhrzeiô angezeigt® Beé volleò 
+        Ausnutzunç deò Statuszeilå durcè eiî Anwenderprogramí 
+        kanî diå Zeitanzeigå abgeschalteô werden.
+
+CTRL-3º Fehlermeldung®  Startzustandº EIN
+        ]beò dieså Tastenkombinatioî kanî diå erweitertå 
+        Fehlermeldunç ein- unä ausgeschalteô werden® (Anmer
+        kungeî dazõ siehå unten)
+
+CTRL-4º Lautsprecher®   Startzustandº EIN
+        Beé ausgeschalteteí Lautsprecher¬ wirä daó Piepsge
+        r{uscè unterdr}ckt® (ASCII-Codå 'bell')
+.PAŠCTRL-5º Pufferanzeige®  Startzustandº AUS
+        Dieså Funktioî wurdå zuò Kontrollå deó Tastaturpuf        
+        feró implementiert® Beé eingeschalteteò Pufferan
+        zeige¬ erscheinô iî deò Statuszeilå deò aktuellå 
+        Pufferinhalt® Aló Endmarkierunç dienô eiî Leerzei
+        chen.
+
+
+
+Anmerkunç zuò erweiterteî Fehlermeldunç (CTRL-3):
+
+Beé ausgeschalteteò Fehlermeldunç wirä eiî Diskettenfehleò 
+direkô aî daó CP/Í Betriebssysteí gemeldet¬ daó solchå Fehleò 
+meisô nuò miô 'Baä Sector§ (schlechteò Sektor© bezeichneô unä 
+keinå R}ckschl}sså auæ diå Fehlerursachå zul{~t® Uí dieseî 
+Mi~stanä auszubesserî wurdå diå erweitertå Fehlermeldunç 
+eingebaut® Jedeò Diskettenfehleò wirä miô eineí Piepstoî unä 
+eineò Meldunç iî deò Statuszeilå quittiert® Dorô stehô danî 
+expliziô oâ deò Fehleò w{hrenä eineò Schreib- odeò Leseopera
+tioî aufgetreteî isô unä uí welchå Arô voî Fehleò eó sicè 
+handelt® Einå genauå Auflistunç deò m|glicheî Fehleò sowiå 
+dereî Ursacheî findeî Siå ií Anhang® Deó weitereî wirä daó 
+Laufwerk¬ diå Diskettenseitå (Ö f}ò Vorderseitå unä Ò f}ò 
+R}ckseite)¬ diå Spuò sowiå deò Sektoò iî deí deò Fehleò 
+auftrat¬ angezeigt® Maî kanî danî entwedeò CLEAÒ dr}cken¬ uí 
+diå letzteî Diskettenoperatioî zõ wiederholeî odeò BREAË uí 
+diå Operatioî abzubrechen® Dá daó Systeí miô eineò sehò 
+gro~eî Sektorl{ngå (102´ Bytes© arbeitet¬ kanî eó beé 
+schlechteî Disketteî zõ Pr}fzahlfehlerî (CRÃ Error© kommen® 
+Dr}ckeî Siå iî dieseî F{lleî immeò CLEAR¬ dá nacè eiî paaò 
+Wiederholungeî dieseò Sektoò meistenó docè nocè geleseî wird.
+
+
+Einå weiterå Besonderheiô deó Systemó ist¬ daş 1¶ Funktions
+tasteî unterst}tzô werdeî (F± bió F¸ unä Shift-F± bió Shift-
+F8).
+Miô deí Programí FKEÙ k|nneî neuå Belegungeî gew{hlô unä 
+abgespeicherô werden® F}ò allå 1¶ Funktionstasteî stehô eiî 
+Speicherrauí voî 51² Byteó zuò Verf}gung¬ sodaş ií Mitteì 
+jedå Tastå einå Zeichenkettå miô bió zõ 3² verschiedeneî 
+Zeicheî erzeugeî kann® Dá deò Funktionstastentexô iî deî 
+Tastaturpuffeò }bertrageî wird¬ isô diå maximalå L{ngå auæ 6´ 
+Zeicheî beschr{nkt.
+
+Beií gleichzeitigeî Dr}ckeî deò Leertastå sowiå deó Links- 
+unä Rechtspfeiló wirä diå aktuellå Version¬ sowiå diå Serien
+nummeò deó CP/Í Systemó iî deò Statuszeilå angezeigt.
+
+.PAŠ
+Deò Bildschirm
+
+Allå CP/Í Programmå 'erwarten§ aló Ausgabekonsolå eiî Termi
+nal¬ deí jedeó Zeicheî nacheinandeò gesendeô wirä unä diå 
+Spezialfunktioneî (Bildschirí l|schen¬ neuå Zeilå beginneî 
+etc.© durcè Sonderzeicheî odeò sogenanntå Escape-Sequenzeî 
+aktvierô werden® Diå meisteî Programmå habeî zuò Anpassunç aî 
+verschiedenå Terminaló sogenanntå Installationsroutinen¬ miô 
+dereî Hilfå daó Programí auæ deî entsprechendeî Terminaltyğ 
+eingestellô werdeî kann.
+Eineó deò verbreitetsteî Terminaló isô daó ADM-3Á Terminal¬ 
+daş voî alleî CP/Í Programmeî unterst}tzô wird® Dá dieseó 
+Terminaì abeò keinå Sonderfunktioneî hat¬ wirä daó Terminaì 
+Televideï ebenfalló voî deò Bildschirmroutinå emuliert® Eineó 
+deò besondereî Vorteilå dieseó Terminaló isô diå Funktioî zuí 
+L|scheî bzw® Einf}geî voî Zeicheî odeò Zeilen® Miô dieseî 
+Funktioneî k|nneî vielå Bildschirmoperationeî erheblicè be
+schleunigô werden.
+Einå exaktå Auff}hrunç alleò erkannteî Codeó befindeô sicè ií 
+Anhang.
+
+Nebeî deî zuò Terminalemulatioî notwendigeî Funktioneî steheî 
+nocè folgendå zuò Verf}gung:
+
+(ESÃ bezeichneô deî Escapecodå 1BH¬ 27)
+
+ESÃ ® ø zuò Umschaltunç deó Cursors.
+
+ø stehô hieò f}ò eiî Ziffernzeicheî zwischeî ° unä 4® ESÃ ® ° 
+schalteô deî Cursoò ganú aus¬ ESÃ ® ± ergibô eineî blinkendeî 
+Block¬ ESÃ ® ² eineî stehendeî Block¬ ESÃ ® ³ eineî blinken
+deî Stricè unä ESÃ ® ´ eineî stehendeî Stricè (Standard)® 
+
+Falló Ihneî deò jetzigå Cursoò nichô gef{llt¬ sï dr}ckeî Siå 
+nacè deí Systemprompô diå CLEAR-Tastå (f}ò ESC© deî Punkô '.§ 
+unä einå Zifferntastå zwischeî '0§ unä '4'® Nacè deí Dr}ckeî 
+voî 'NE× LINE§ meldeô zwaò daó CP/Í Betriebssystem¬ daş eó 
+deî Befehì nichô verstandeî haô (Ausgabå voî ¿ unä deò einge
+gebeneî Zeile© deò Cursoò isô jedocè umgeschaltet®  
+.PAŠESÃ Ú ø ¤ CTRL-Ã zuí Ansprecheî deò Statuszeile.
+
+Dieó isô deò kompliziertestå Codå kanî abeò ií Basiã leichô 
+programmierô werden® ø gibô an¬ wievieì Zeicheî aî Anfanç deò 
+Statuszeilå stehenbleibeî sollen® Deò Werô 4° bedeuteô also¬ 
+daş deò nachfolgendå Texô aâ deò Zeilenmittå angezeigô werdeî 
+soll® Isô deò Werô gr|~eò aló 79¬ sï wirä diå Escapesequenú 
+nichô erkannô unä deò nachfolgendå Texô aî deò aktuelleî 
+Cursorpositioî angezeigt.
+¤ Stehô f}ò eineî beliebigeî Text® Jedeó Zeicheî wirä inveró 
+iî deò Statuszeilå angezeigt® Kontrollzeicheî (Backspace¬ 
+Carriagå Return© werdeî innerhalâ deò Statuszeilå nichô er
+kannô unä sinä iî dieseí Zusammenhanç aucè nichô sinnvoll.
+Isô daó Endå deò Zeilå erreicht¬ sï werdeî allå folgendeî 
+Zeicheî iî deò letzteî Spaltå ausgegeben® Deò Codå 0³ (CTRL-
+C© beendeô deî Texô unä schalteô auæ normalå Bildschirmaus
+gabå zur}ck® Beé deò Programmierunç deò Statuszeilå isô zõ 
+beachten¬ daş diå letzteî ¸ Zeicheî voî deò Uhò benutzô 
+werden¬ diå jedå Sekundå dorô diå aktuellå Zeiô anzeigt® Wilì 
+maî dieså Zeicheî mitbenutzen¬ sï muş vorheò diå Uhò miô deò 
+Tastenkombinatioî CTRL-² abgeschalteô werden.
+
+Wolleî Siå z.B® voí Basiã auó aí Anfanç deò Statuszeilå 
+'Hallo§ ausgeben¬ sï erreicheî Siå daó miô folgendeí Befehl:
+PRINÔ CHR$(27);"Z";CHR$(0);"Hallo";CHR$(3);
+
+
+Beé deò Ausgabå voî Tabelleî auæ deí Bildschirí isô eó sehò 
+hilfreich¬ st{ndiç diå Bedeutunç deò einzelneî Spalteî zõ 
+erkennen® Zõ dieseí Zwecë dieneî zweé weiterå Escapesequen
+zen:
+
+ESÃ ¼ ø sch}tzô bió zõ 1² Zeilen¬ voí obereî Bildschirmranä 
+gerechnet¬ voò deí 'Scrollen'¬ d.h® nacè obeî herauslaufen®
+ø stehô f}ò eineî Werô zwischeî ° unä 12® ° sch}tzô keinå 
+Zeile¬ 1² diå zw|læ obereî Bildschirmzeilen.
+ESÃ ¾ ø haô genaõ diå selbå Funktioî f}ò diå 1² untereî 
+Bildschirmzeilen® Deò Werô ø wirä dabeé voî unteî gerechnet.
+Allå weitereî Sonderfunktioneî erkenneî dieså Einstellung¬ sï 
+daş aucè diå Funktioî Bildschirí l|schen¬ nuò diå unge
+sch}tzteî Zeileî l|scht® Werdeî sowohì diå oberen¬ wiå diå 
+untereî 1² Zeileî gesch}tzt¬ sï erfolgô keinå Bildschirmaus
+gabe.
+.PAŠDeò Drucker
+
+Diå Druckerroutinå deó Betriebsystemó sprichô eineî ange
+schlosseneî Druckeò }beò diå Centronics-Parallelschnittstellå 
+an® Uí deí CP/Í Standarä zõ entsprechen¬ m}sseî Siå deî 
+Druckeò sï einstellen¬ daş eò keineî automatischeî Zeilevor
+schuâ (Auto-LF© macht.
+
+Einå Besonderheiô deò Druckerroutinå ist¬ deî hexadezimaleî 
+Werô jedeó auszugebendeî Zeichenó zõ drucken® Dieó isô beson
+deró n}tzlich¬ wenî maî speziellå Druckerfunktioneî ausnutzeî 
+m|chte¬ jedocè nichô genaõ wei~¬ oâ aucè diå richtigeî Wertå 
+ausgegebeî werden® Dieså Sonderfunktioî wirä miô Hilfå deó 
+STAT-Programmó aktiviert® Deò Befehì lauteô (voí CP/Í System
+propô aus)º 'STAÔ LST:=UL1:'.
+.PAŠ.HE Mitgelieferte Programme
+Folgendå Programmå werdeî auæ deò Systemdiskettå mitge
+liefert:
+
+FKEY.COÍ    Bª Programmierunç deò Funktionstasten
+
+PD.COÍ       ª Umstellunç eineó Diskettenformats
+
+PDRIVE.SYÓ   ª Datenfilå deò Diskettenformate¬ wirä voî
+               PD.COÍ ben|tigt
+FORMAT.COÍ     Formatierprogramm
+
+ZEIT.COÍ     ª Einstellung/Angabå deò Zeit
+
+DATUM.COÍ    ª Einstellung/Angabå voî Datuí unä Wochentag
+
+CPMGEN.COÍ     Programí zuí Dupliziereî eineò Systemdiskette
+               (statt SYSGEN zu verwenden)
+SUBMIT.COÍ  B  Programí zuò automatischeî Abarbeitunç
+               mehrereò Befehle
+XSUB.COM    B  Hilfsprogramm zu SUBMIT.COM
+
+SYSCOPY.SUÂ    Textfilå zõ SUBMIÔ zuí Kopiereî eineò System-
+               diskette
+PIP.COÍ     Bª Kopierprogramí f}ò Files
+
+STAT.COÍ    Bª Programí zuò Bestimmung/[nderunç deó System-
+               bzw® Diskettenstatus
+DDT.COÍ     B  Programí zuí Arbeiteî iî Maschinensprache
+
+ASM.COÍ     B  8080-Assembleò zuí Arbeiteî iî Maschinen-
+               sprache
+ED.COM      B  Einfacher Texteditor (zum ASM.COM)
+
+LOAD.COM    B  Programm zum Laden eines Maschinensprache-
+               programms im INTEL-Hexformat.
+
+DUMP.COM    B  Programm zum Auslisten eines Files in Hex
+               und ASCII-Darstellung.
+
+Diå miô ª gekennzeichneteî sollteî sicè auæ jedeò Systemdis
+kettå befinden.
+Diå genauå Beschreibunç deò miô Â gekennzeichneteî Programmå 
+entnehmen Sie bitte dem mitgelieferten Buch.
+.PAŠ.HE FKEY.COM
+
+FKEÙ haô zweé Funktionen:
+
+Erstenó liesô eó diå zuletzô eingestelltå Funktionstastenbe
+legunç voî deò Systemdiskettå (Spuò 0¬ Sektoreî ± unä 2© iî 
+deî Speicher® Dieseó Einleseî wirä automatiscè beé jedeí 
+Kaltstarô deó Systemó wiederholt® Daheò isô eó wichtig¬ daş 
+daó FKEY-Programí aló ersteó auæ deò Systemdiskettå steht¬ uí 
+deî Zeitbedaræ deó Einladenó sï kurú wiå m|glicè zõ halten® 
+Eiî wiederholteó Einleseî kanî durcè deî Befehì FKEÙ Ì er
+reichô werden.
+Wenî Siå w{hrenä deó BOOT-Vorgangó diå Leertastå gedr}ckô 
+halten¬ sï wirä daó automatischå Einleseî unterdr}ckô unä diå 
+16 Funktionstasten erhalten folgende Standardeinstellung:
+
+
+F1 :DIR
+F2 :PD
+F3 :FKEY
+F4 :FORMAT
+F5 :STAT
+F6 :PIP
+F7 :PD B:S80 DSDD
+F8 :PD B:D80 DSDD
+F9 :BASIC
+F10:AUTO 10
+F11:EDIT
+F12:RUN
+F13:LIST
+F14:SAVE "
+F15:LOAD "
+F16:SYSTEM
+.PA        ŠDiå Hauptfunktioî deó Fkey-Programmó isô jedocè diå [nderunç 
+deò Belegung® Nacè deí Aufruf¬ erscheinô diå augenblicklichå 
+Einstellunç deò Funktionstasteî auæ deí Bildschirm® Inverså 
+Zeicheî zeigeî eiî Kontrollzeicheî wiå z.B® NE× LINÅ (inver
+seó M© odeò CTRL-Ã (inverseó C© an® Eiî inverseó Leerzeicheî 
+markierô daó Endå deó Textes® Durcè Dr}ckeî eineò Funktions
+tastå wirä dieså zuò Editierunç ausgew{hlt® Deò Cursoò wirä 
+iî deî blinkendeî Stricè umgewandelô unä zeigô diå aktuellå 
+Schreibpositioî an® Iî deò Statuszeilå wirä diå Anzahì deò 
+freieî Zeichen¬ sowiå diå 'Einf}gen'-Einstellunç angezeigt® 
+Deò Rechts- bzw® Linkspfeiì bewegô deî Cursoò entsprechend® 
+Deò Tiefpfeiì l|schô daó aî deò Cursorpositioî befindlichå 
+Zeichen® Deò Hochpfeiì schalteô daó Einf}geî eiî unä aus® Beé 
+ausgeschalteteí Einf}gen¬ wirä daó Zeicheî aî deò Cursorposi
+tioî durcè eiî neueó Zeicheî ersetzt¬ beé eingeschalteteí 
+Einf}geî daó neuå Zeicheî aî deò Cursorpositioî eingef}gt® 
+Diå Cleartastå l|schô deî gesamteî Text¬ durcè Breaë wirä diå 
+Editierunç beendet® Eó seé hieò nochmaló erw{hnt,daş Siå
+- abweichenä voî deò normaleî Tastaturbelegunç - iî dieseí 
+Programí CTRL-Zeicheî nuò durcè Dr}ckeî deò CTRL-Tastå unä 
+deò entsprechendeî andereî Taste¬ NICHÔ jedocè }beò diå 
+Pfeiltasten¬ Cleaò odeò Breaë erzeugô werdeî !
+Eiî nochmaligeó Dr}ckeî deò Breaktastå beendeô daó Programí 
+unä speicherô diå neuå Einstellunç auæ deò Systemspuò ab.
+.PAŠ.HE PD.COÍ unä PDRIVE.SYS
+  
+PD.COÍ unä PDRIVE.SYÓ dieneî zuò Umstellunç auæ anderå Dis
+kettenformate® 
+PÄ ohnå Argumentå zeigô diå aktuelleî Formatå deò vieò m|g
+licheî Laufwerkå A,B,Ã unä Ä an® Durcè 'PÄ l:namen§ (wobeé ì 
+f}ò diå Bezeichnunç eineó deò Laufwerkå Á bió D¬ unä 'namen§ 
+f}ò diå Bezeichnunç deó gew}nschteî Formató steht© k|nneî Siå 
+daó Laufwerë ì auæ daó Leseî bzw® Schreibeî eineò Diskettå 
+miô deí Formaô 'namen§ vorbereiten.
+Wirä beií PD-Aufruæ eiî Diskettenformaô ge{ndert¬ sï wirä 
+danacè automatiscè eiî Warmstarô ausgef}hrt¬ deò daó Systeí 
+auæ diå Format{nderunç aufmerksaí macht® Daó Dr}ckeî voî 
+Breaë bzw® CTRL-Ã entf{llô alsï iî dieseí Fall.
+
+Aló Standardformaô f}ò Systemdisketteî stehô daó Formaô
+S8° DSDÄ miô 798ë unä f}ò Datendisketteî daó Formaô D8° DSDÄ 
+miô 819ë prï Diskettå zuò Verf}gung.
+
+Einå Listå deò zuò Zeiô unterst}tzteî Formatå findeî Siå ií 
+Anhang. Weitere Formate sind in Vorbereitung. 
+.PAŠ.HE FORMAT.COM
+
+FORMAÔ dienô zuò Formatierunç eineò Diskette
+
+FORMAÔ ohnå Parameteò fragt¬ miô welcheí Laufwerë formatierô 
+werdeî soll® Eó kanî diå Laufwerksbezeichnunç aucè direkô aló 
+Paramteò angegebeî werdeî 'FORMAÔ l:'.
+Diå ií Laufwerë ì befindlichå Diskettå wirä miô deí beií 
+letzteî PD-Aufruæ gew{hlteî Formaô formatiert.
+Auæ deí Bildschirí erscheinô diå aktuellå Operatioî deó For
+matierprogramms® Falló beií Pr}feî eiî Fehleò erkannô wird¬ 
+sï wiederholô daó Programí diå Formatierunç deò fehlerhafteî 
+Spuò solange¬ bió entwedeò daó Pr}feî fehlerfreé erfolgtå 
+odeò diå BREAK-Tastå gedr}ckô wurde.
+Beé jedeò neueî Wiederholunç wirä eiî kurzeò Piepstoî ausge
+geben¬ uí deî Benutzeò voî eineí aufgetreteneî Fehleò zõ 
+unterrichten® [nderô sicè danacè diå Spurnummeò wieder¬ sï 
+haô diå Wiederholunç zuí Erfolç gef}hrt.
+Wirä st{ndiç diå selbå Spuò angezeigt¬ sï solltå diå Forma
+tierunç durcè BREAË abgebrocheî werden.
+.PAŠ.HE ZEIT.COM
+
+ZEIÔ dienô zuò Einstellunç bzw® Anzeigå deò Zeit
+
+ZEIÔ ohnå Parameteò gibô diå aktuellå Zeiô an® Uí diå Uhò zõ 
+setzen¬ gebeî siå 'ZEIÔ HH:MM§ ein¬ wobeé Siå f}ò HÈ diå 
+Stundeî (0° bió 23© unä f}ò MÍ diå Minuteî (0° bió 59© ein
+setzen® Daó Programí meldeô sicè danî miô 'Dr}ckå NE× LINÅ uí 
+diå Uhò zõ setzen'® Iî deí Augenblick¬ iî deí Siå NE× LINÅ 
+dr}cken¬ wirä diå neuå Uhrzeiô gespeicherô unä diå Sekundeî 
+auæ 0° gesetzt.
+
+.PAŠ.HE DATUM.COM
+
+DATUÍ dienô zuò Einstellunç bzw® Anzeigå deó Datums
+
+DATUÍ ohnå Parameteò gibô daó aktuellå Datuí unä deî Wochen
+taç an® Uí dieså Wertå neõ zõ programmiereî gebeî Siå 'DATUÍ 
+× TT.MM.JJ§ ein® × bezeichneô deî Wochentaç durcè einå Ziffeò 
+zwischeî ± (f}ò Montag© unä · (f}ò Sonntag)¬ TÔ deî Taç (0± 
+bió 31)¬ MÍ deî Monaô (0± bió 12© unä JÊ daó Jahò (0° bió 
+99).
+.PAŠ.HE CPMGEN.COM
+
+CPMGEÎ kopierô daó Betriebssystem
+
+CPMGEÎ dienô zuí Dupliziereî voî Systemdisketten®
+Beií Aufruæ voî CPMGEÎ ohnå Parameter¬ wirä nacè deí Quell- 
+unä Ziellaufwerë gesonderô gefragt® Siå habeî dadurcè Zeit¬ 
+aucè einå anderå Systemdiskettå einzulegen® Nacè deí Dr}ckeî 
+deò <NE× LINE¾ Tastå wirä diå Boot- unä diå Systemspuò einge
+leseî unä diå PDRIVÅ Parameteò eingebunden®
+Zuí Abspeicherî deó neõ generierteî Systemó legeî Siå nuî diå 
+Zieldiskettå iî daó angegebenå Laufwerë unä dr}ckeî wiedeò 
+<NE× LINE>® Diå Bootspuò deò Zieldiskettå wirä formatierô unä 
+daó Systeí abgespeichert®
+Falló diå Zieldiskettå nichô ií Formaô S8° DSDÄ odeò D8° DSDÄ 
+formatierô wurde¬ brichô daó Programí miô eineò entsprechen
+deî Fehlermeldunç aâ (s.u.).
+
+Einå zweitå M|glichkeiô deó Aufrufó ist¬ daó Ziellaufwerë aló 
+Parameteò miô anzugebeî (z.b® 'CPMGEÎ B')® Iî dieseí Falì 
+wirä aló Quellaufwerë daó Laufwerë Á angenommeî unä daó 
+Betriebssysteí direkô kopiert® Siå m}sseî iî dieseí Falì alsï 
+Quell- unä Zieldiskettå bereitó iî diå entsprechendeî Lauf
+werkå eingelegô haben®
+Miô deí Befehì CPMGEÎ Á isô eó insbesonderå m|glich¬ diå 
+aktuellå PDRIVE-Einstellunç auæ deò Systemdiskettå abzuspei
+chern¬ sï daş siå nacè deí n{chsteî Kaltstarô soforô zuò 
+Verf}gunç steht.
+Anzumerkeî isô noch¬ daş diå Quelldiskettå grunds{tzlicè einå 
+CP/Í 2.2Ø Systemdiskettå seiî mu~.
+
+W{hrend des Programmablaufs k|nnen folgende Fehler auftreten:
+
+During FORMAT: Die Bootspur der Zieldiskette konnte nicht
+               formatiert werden. Benutzen Sie eine andere
+               (bessere) Zieldiskette.
+ 
+Durinç SEEKº   Diå Systemspuò deò Quell- odeò Zieldiskettå
+               konntå nichô gefundeî werden® Wahrscheinlicè
+               ist die Zieldiskette falsch formatiert.
+
+During READ:   Beim Lesen der Quelldiskette ist ein Fehler
+               aufgetreten, benutzen Sie eine andere Kopie
+               der Systemdiskette.
+
+During WRITE:  Beim Schreiben der Zieldiskette ist ein Feh-
+               leò aufgetreten® Entwedeò isô diå Zieldisket-
+               te falsch formatiert oder defekt.
+.PAŠ.HE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                           Anhang
+.PAŠ.HE Diå Tastencodes
+
+Tastå       ohnå Shifô Bemerkunç        miô Shifô  Bemerkung
+            Heø   Deú                   Heø   Dez
+-------------------------------------------------------------
+NE× LINÅ    0Ä     1³  Carrigå Returî  5Æ     9µ  Underscore
+CLEAÒ       1Â     2·  Escapå (ESC©    1Æ     31
+BREAË       0³      ³  CTRL-Ã          7Æ    12·  DEL
+Hochpfeiì   0µ      µ  CTRL-Å          1²     1¸  CTRL-R
+Tiefpfeiì   1¸     2´  CTRL-Ø          0³      ³  CTRL-C
+Linkspfeiì  0¸      ¸  Backspacå       0±      ±  CTRL-A
+Rechtspfeiì 0´      ´  CTRL-Ä          0¶      ¶  CTRL-F
+Leertastå   2°     3²  Spacå           0¹      ¹  TAB
+Û           5Â     9±  Eck® Klamm® auæ 7Â    12³  Run® K® auf
+Ü           5Ã     9²  Backslasè       7Ã    12´  Trennstrich
+İ           5Ä     9³  Eck® Klamm® zõ  7Ä    12µ  Run® K® zu
+ş           5Å     9´  Pf® nacè obeî   7Å    126
+
+Allå andereî Tasteî habeî ihrå Codeó entsprechenä deí ASCII-
+Standard. (siehe Tabelle)
+.PAŠ.HE Diå Bildschirmcodes
+
+Controlsequenzen
+
+
+CTRÌ     Codå     ASCII-  Bemerkung
+Sequenú  Heø  Deú Name
+-------------------------------------------------------------
+CTRL-Ç   0·    ·  BEÌ     Piepstoî ausgeben.
+                          (nuò beé eingeschalteteí Lautspre-
+                          cher)
+
+CTRL-È   0¸    ¸  BÓ      Backspace¬ Cusoò eiî Zeicheî nacè
+                          linkó ohnå daó Zeicheî zõ l|schen®
+                          Uí daó Zeicheî aî deò Cursorposi-
+                          tioî zõ l|schen¬ m}sseî diå drei
+                          Codeó Backspace,Space,Backspacå
+                          benutzô werden.
+
+CTRL-É   0¹    ¹  HÔ      TAB¬ Cursoò zuò n{chsteî Tabulator-
+                          position.
+                          Tabulatorpositioneî sinä diå Spal-
+                          teî 0,8,16,24,32,40,48,56,64,72.
+
+CTRL-Ê   0Á   1°  LÆ      Cursoò einå Zeilå nacè unten® Nacè
+                          Erreicheî deò untersteî nichô ge-
+                          sch}tzteî Zeile¬ wirä deò Bild-
+                          schirminhalô einå Zeilå nacè obeî
+                          verschoben® (vgl® SYN)
+
+CTRL-Ë   0Â   1±  VÔ      Cursoò einå Zeilå nacè oben® Nacè
+                          Erreicheî deò obersteî ungesch}tz-
+                          teî Zeile¬ wirä dieseò Codå igno-
+                          riert.
+
+CTRL-Ì   0Ã   1²  FÆ      Cursoò eiî Zeicheî nacè rechts®
+                          Nacè Erreicheî deò letzteî unge-
+                          sch}tzteî Bildschirmposition,
+                          wirä dieseò Codå ignoriert.
+
+CTRL-Í   0Ä   1³  CÒ      Cursoò zuí Anfanç deò aktuelleî
+                          Zeile® Uí deî Cursoò aî deî Anfanç
+                          deò n{chsteî Zeilå zõ positionie-
+                          ren¬ m}sseî diå beideî Codeó CÒ und
+                          LÆ ausgegebeî werden.
+
+CTRL-Ö   1¶   2²  SYÎ     Cursoò einå Zeilå nacè unten® Nacè
+                          Erreicheî deò untersteî nichô ge-
+                          sch}tzteî Zeile¬ wirä dieseò Codå
+                          ingnoriert® (vgl® LF)
+.PAŠCTRÌ     Codå     ASCII-  Bemerkung
+Sequenú  Heø  Deú Name
+-------------------------------------------------------------
+CTRL-Ú   1Á   2¶  SUÂ     Bildschirí l|scheî unä Cursoò iî
+                          diå linkå oberå Ecke® Dieseò Codå
+                          wirkô nuò auæ diå ungesch}tzteî
+                          Zeilen.
+
+CTRL-ş   1Å   3°  RÓ      Home¬ Cursoò iî diå linkå oberå
+                          Ecke.
+
+CTRL-del 1F   31  VS      New Line, entspricht der Sequenz
+                          CR und LF. 
+.PA             ŠEscapesequenzen
+
+
+ESC-Sequenú   Heø           Deú          Bemerkung
+-------------------------------------------------------------
+ESÃ ® °       1Â 2Å 3°      2· 4¶ 4¸     Cursoò ausschalten.
+
+ESÃ ® ±       1Â 2Å 3±      2· 4¶ 4¹     Cursoò auæ blinken-
+                                         deî Blocë schalten.
+
+ESÃ ® ²       1Â 2Å 3²      2· 4¶ 5°     Cursoò auæ stehenden
+                                         Blocë schalten.
+
+ESÃ ® ³       1Â 2Å 3³      2· 4¶ 5±     Cursoò auæ blinkend
+                                         Stricè schalten.
+
+ESÃ ® ´       1Â 2Å 3´      2· 4¶ 5²     Cursoò auæ stehenden
+                                         Stricè schalten.
+
+ESÃ ½         1Â 3Ä         2· 6±        Einleitungssequenz
+                                         zuò direkteî Cursor-
+                                         positionierung® Da-
+                                         nacè folgeî muş die
+                                         neuå Zeilennummeò (0
+                                         bió 23© pluó 3² und
+                                         diå neuå Spaltennum-
+                                         meò (° bió 79© plus
+                                         32.
+
+ESÃ ¿         1Â 3Æ         2· 6³        Cursorpositioî ange-
+                                         ben.
+                                         (nuò }beò Maschinen-
+                                         sprachå verwendbar,
+                                         nacè deí Aufruæ wird
+                                         ií Registeò Å die
+                                         Cursorzeilå +3² und
+                                         iî Registeò Ä die
+                                         Cursorspaltå +32
+                                         }bergeben.)
+.PAŠESC-Sequenú   Heø           Deú          Bemerkung
+-------------------------------------------------------------
+ESÃ Å         1Â 4µ         2· 6¹        Zeilå einf}gen® Die
+                                         aktuellå unä alle
+                                         tiefereî Zeileî wer-
+                                         deî nacè unteî ver-
+                                         schoben® Diå letzte
+                                         Bildschirmzeile
+                                         f{llô weç unä es
+                                         werdeî aî deò ak-
+                                         tuelleî Zeilenposi-
+                                         tion Leerzeichen
+                                         eingef}gt.
+
+ESÃ Ò         1Â 5²         2· 8²        Zeilå l|schen® Diå
+                                         aktuellå Zeilå wirä
+                                         gel|schô unä allå
+                                         tiefereî Zeileî nacè
+                                         obeî verschoben® Iî
+                                         deò letzteî Zeilå
+                                         werden Leerzeichen
+                                         eingef}gt.
+
+ESÃ Ñ         1Â 5±         2· 8±        Zeicheî einf}gen®
+                                         Daó Zeicheî unteò
+                                         deí Cursoò unä allå
+                                         Zeicheî rechtó voí
+                                         Cursoò werdeî einå
+                                         Spaltå nacè rechtó
+                                         verschoben® Daó
+                                         letztå Zeichen der
+                                         Zeilå gehô verloren®
+                                         Aî der Cursorposi-
+                                         tioî wirä ein Leer-
+                                         zeicheî eingesetzt.
+
+ESÃ ×         1Â 5·         2· 8·        Zeicheî l|schen® Daó
+                                         Zeicheî unteò deí
+                                         Cursoò wirä gel|schô
+                                         unä allå Zeicheî
+                                         rechtó voí Cursoò
+                                         einå Spaltå nacè
+                                         linkó verschoben® Aí
+                                         Zeilenendå wirä eiî
+                                         Leerzeicheî einge-
+                                         setzt.
+.PAŠESC-Sequenú   Heø           Deú          Bemerkung
+-------------------------------------------------------------
+ESÃ Ô         1Â 5´         2· 8´        L|scheî bió zuí
+                                         Zeilenende® Allå
+                                         Zeicheî rechtó deó
+                                         Cursoró bió zuí Zei-
+                                         lenendå werdeî ge-
+                                         l|scht.
+
+ESÃ Ù         1Â 5¹         2· 8¹        L|scheî bió zuí
+                                         Bildschirmende® Allå
+                                         Zeicheî rechtó deó
+                                         Cursoró bió zuí
+                                         Bildschirmendå wer-
+                                         deî gel|scht.
+
+ESÃ ©         1Â 2¹         2· 4±        Inverså Schrifô ein®
+                                         Allå folgendeî Zei-
+                                         cheî werdeî inveró
+                                         dargestellt.
+
+ESÃ ¨         1Â 2¸         2· 4°        Inverså Schrifô aus®
+                                         Allå folgendeî Zei-
+                                         cheî werdeî normal
+                                         dargestellt.
+
+ESÃ ª         1Â 2Á         2· 4²        Bildschirí l|schen.
+                                         (wiå CTRL-Z)
+
+ESÃ ¼         1Â 3Ã         2· 6°        Oberå Bildschirm-
+                                         zeileî sch}tzen® Eó
+                                         muş eiî Werô zwi-
+                                         scheî ° unä 1² fol-
+                                         gen¬ deò diå Anzahì
+                                         deò zõ sch}tzenden
+                                         Zeileî (voí obereî
+                                         Bildschirmranä ge-
+                                         rechnet© angibt.
+
+ESÃ ¾         1Â 3Å         2· 6²        Unterå Bildschirm-
+                                         zeileî sch}tzen® Wiå
+                                         ESÃ <¬ nuò voî unteî
+                                         gerechnet.
+.PAŠESC-Sequenú   Heø           Deú          Bemerkung
+-------------------------------------------------------------
+ESÃ Ú         1Â 5Á         2· 9°        Statuszeilå anspre-
+                                         chen® Eó muş eiî
+                                         Offseô zwischeî °
+                                         unä 7¹ folgen¬ deò
+                                         angibô iî welcheò
+                                         Spaltenpositioî der
+                                         folgendå Texô begin-
+                                         neî soll.
+                                         Deò Texô muş miô deí
+                                         ETX-Code (03H© abge-
+                                         schlossen werden.
+                                        
+ESÃ Ç °       1Â 4· 3°      2· 7± 4¸     Normalå Zeichenwie-
+                                         dergabe.
+                                         entspricht ESC (
+    
+ESG G 4       1B 47 34      27 71 52     Invertierte Zeichen-
+                                         wiedergabe.    
+                                         entspricht ESC )
+
+ESC j         1B 6A         27 106       Cursor eine Zeile
+                                         h|her.
+                                         entspricht CTRL-K
+.PAŠ.HE Fehlermeldungen
+
+Beé eingeschalteteò erweiterteò Fehlermeldung¬ k|nneî fol
+gendå Fehleò iî deò Statuszeilå angezeigô werden:
+
+Reaä Errorº       Lesefehler® Deò angezeigtå Fehleò isô w{h
+                  renä eineò Leseoperatioî aufgetreten.
+Writå Errorº      Schreibfehler® Deò angezeigtå Fehleò isô 
+                  w{hrenä eineò Schreiboperatioî aufgetreten.
+Losô Datá         Dateî verloren® Deò Prozessoò lieæ w{hrenä 
+                  deó Datentransferó auó deò Synchronisation® 
+                  Dieseò Fehleò tritô meisô beé ¸ Zolì Dis
+                  ketteî auæ unä kanî durcè mehrerå Wieder
+                  holungeî umgangeî werden.
+CRÃ Erroò         Pr}fzahlfehler® Diå errechnetå Quersummå 
+                  deó Sektoró stimmô nichô miô deò gespei
+                  cherteî }berein® Dieseò Fehleò isô eiî 
+                  typischeó Zeicheî f}ò schlechteó Disketten
+                  material® Eò kanî jedocè durcè Wiederholunç 
+                  deò letzteî Operatioî umgangeî werden.
+Recorä noô founä  Sektoò nichô gefunden® Deò angezeigtå Sek
+                  toò konntå auæ deò Diskettå nichô lokali
+                  sierô werden® Dieó isô iî deî meisteî F{l
+                  leî auæ einå falschå PD-Einstellunç zur}ck
+                  zuf}hren.
+Writå faulô       Schreibfehler® W{hrenä deò Schreiboperatioî 
+                  isô eiî Fehleò aufgetreten® L{~ô eò sicè 
+                  nichô durcè Wiederholunç verbessern¬ sï isô 
+                  diå Diskettå odeò daó Laufwerë defekt.
+Writå protecô     Diå Diskettå isô schreibgesch}tzt® Entfer
+                  neî Siå deî kleineî Aufklebeò voí Disket
+                  tenranä unä wiederholeî Siå diå letztå 
+                  Operation.
+.PAŠ.HE Diskettenformate
+
+Die Formatsbezeichnungen unterliegen folgender Konvention:
+
+DD steht f}r Double Density (doppelte Schreibdichte)
+DS steht f}r Double Sided (zweiseitige Aufzeichnung)
+V  bezeichnet die Vorderseite
+R  bezeichnet die R}ckseite
+Ó  aí Namensanfanç stehô f}ò Sytemdiskettå (mit reserviertån
+   Systemspuren)
+D  am Namensanfang steht f}r Datendiskette (ohne reservierte
+   Systemspuren)
+4° aí Namensendå zeigô an¬ daş dieseó Formaô daó 8° Tracë
+   Laufwerë aló 4° Tracë Laufwerë gebrauchô (Schreibeî unä
+   Leseî eineò 4° Tracë Diskettå auæ eineí 8° Tracë Laufwerk)
+
+
+Folgende Diskettenformate stehen zur Zeit zur Verf}gung:
+
+S4° DÄ            4° Tracë Standardformaô f}ò 4° Tracë
+                  Laufwerke
+S80 DSDD          80 Track Systemdisketten-Standard
+D80 DSDD          80 Track Datendisketten-Standard
+GENIE III A DSDD  Genie III CP/M 2.2A  80 Track Doppel-
+                  seitiges Format 
+GENIE III A DD    Genie III CP/M 2.2A  80 Track Ein-
+                  seitiges Format
+GENIE III B       Genie III CP/M 2.2B Format
+GENIE III C       Genie III CP/M 2.2C Format
+OMIKRON 40        Genie I/II und Tandy TRS-80 CP/M 1.4
+                  und 2.2 40 Track Format
+OMIKRON           dito, aber 80 Track
+IBM3740           8 Zoll CP/M Standardformat
+ECMA 70 V         ECMA-Standard Vorderseite
+ECMA 70 R         ECMA-Standard R}ckseite
+                  (der ECMA-Standard wird vom MC-CP/M
+                  Computer benutzt) 
+TELEVIDEO         CP/M Format der Firma Televideo
+ALTOS 80 DSDD     CP/M Format der Firma Altos
+EPSON QX-10 40    CP/M Format des EPSON QX-10
+OLIVETTI 40       CP/M Format der Firma Olivetti 
+OSBORNE 1 40      CP/M Format des Osborne 1 (40 Tracks SSSD)
+.PAŠIn Vorbereitung sind:
+
+ALPHATRONIC¬ KAYPRO¬ G-DOÓ (!)¬ ZDOÓ (deutscheó CP/M)
+LE80, TATUNG
+
+Weiteò Formatå k|nneî auæ Wunscè jederzeiô hinzugef}gô 
+werden® Falló Siå alsï einå Diskettå haben¬ dereî Formaô 
+nocè nicht unterst}tzt wird, verfahren Sie wie folgt:
+
+1® Kopiereî Siå auæ dieså Diskettå m|glichsô vielå unä LANGÅ
+   Textfileó
+2® F}geî Siå nacè M|glichkeiô eineî Ausdrucë deò STAÔ DSKº
+   Parameter von dieser Diskette bei
+3® Schickeî Siå dieså Diskettå unä einå ií Formaô S8° DSDÄ
+   formatiertå Leerdiskettå miô eineí aî Siå adressierten
+   Freiumschlaç aî die in der Einleitung angegebene Adresse
+
+Diå ií alteî CP/Í 2.2Ã angegebenå Tabellå isô leideò f}ò micè 
+relativ wertlos¬ dá siå nichô genuç Informationeî enth{lt® 
+Einå Gew{hò f}ò diå Richtigkeiô deò Formatå kanî icè nuò 
+}bernehmen¬ wenî Siå nacè deî obeî genannteî Regelî ver
+fahren® 
+.PAŠ.HE ASCII-Tabelle
+
+
+
+
+
+
+
++-----------------------------------------------------------+
+!                    H|herwertiges Digit                    !
+!       0     1      2      3      4      5      6      7   ! 
++-----------------------------------------------------------+
+! 0 !  NUL   DLE    SPC     0      @      P      `      p
+! 1 !  SOH   DC1     !      1      A      Q      a      q
+! 2 !  STX   DC2     "      2      B      R      b      r
+! 3 !  ETX   DC3     #      3      C      S      c      s
+! 4 !  EOT   DC4     $      4      D      T      d      t
+! 5 !  ENG   NAK     %      5      E      U      e      u
+! 6 !  ACK   SYN     &      6      F      V      f      v
+! 7 !  BEL   ETB     '      7      G      W      g      w
+! 8 !  BS    CAN     (      8      H      X      h      x
+! 9 !  HT    EM      )      9      I      Y      i      y
+! A !  LF    SUB     *      :      J      Z      j      z
+! B !  VT    ESC     +      ;      K      [      k      {
+! C !  FF    FS      ,      <      L      \      l      |
+! D !  CR    GS      -      =      M      ]      m      }
+! E !  SO    RS      .      >      N      ^      n      ~
+! F !  SI    VS      /      ?      O      _      o     DEL
++---+
+.PAŠ

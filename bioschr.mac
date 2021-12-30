@@ -1,7 +1,9 @@
+; Version 2.1 vom 17.10.84
+
 true    equ  0ffh
 false   equ  000h
 
-oldkbd  equ  false             ;True if old Keyboard
+oldkbd  equ  FALSE             ;True if old Keyboard
 
 buflen  equ  64                ;Lenght of Keyboard Buffer
 
@@ -367,24 +369,6 @@ chnfl6: ld   a,(38c0h)
         xor  a
         call load25
         jp   inched
-
-adrtab: defw flgtx0
-        defw click
-        defw flgtx1
-        defw inkbd3
-        defw flgtx2
-        defw clock
-        defw flgtx3
-        defw error
-        defw flgtx4
-        defw bell
-        defw flgtx5
-        defw show
-        defw flgtx6
-        defw dummy
-        defw flgtx7
-        defw dummy
-dummy:  defb 0                 ;Dummy Flag
         page
 getkey: ld   bc,3801h
         ld   hl,keybuf
@@ -636,6 +620,7 @@ gcode   macro x,adr
         gcode 26,cls
         gcode 27,escape
         gcode 30,chome
+        gcode 31,crlf
         org  gtabed
 grnix:  xor  a
         ret
@@ -655,8 +640,12 @@ esctab: defb '.'               ;Cursor Definition
         defb '>'               ;Scroll protect bottom
         defb 'Z'               ;Line 25
         defb '*'               ;Clear screen
+        defb 'G'               ;Set Video Attribute
+        defb 'j'               ;Reverse Linefeed
 
-jmptab: defw clscrn
+jmptab: defw rvrslf
+        defw setatt
+        defw clscrn
         defw line25
         defw scprbo
         defw scprto
@@ -677,6 +666,8 @@ cdeftb: defb 2bh
         defb 00h
         defb 6bh
         defb 0bh
+
+oset25: defb 0
         page
 ; HL > scrbot ?  Y->NC
 
@@ -809,7 +800,9 @@ cureol: call cr
         add  hl,de
         ret
 
-lf:     ld   de,50h
+crlf:   call cr
+
+lf:     ld   de,80
         add  hl,de
         ret
 
@@ -824,11 +817,11 @@ tab1:   ld   a,l
         jr   nz,tab
         ret
 
-curup:  ld   de,0ffb0h
+curup:  ld   de,-80
         add  hl,de
         call toolow
         ret  c
-        ld   de,50h
+        ld   de,80
         add  hl,de
         ret
 
@@ -882,7 +875,6 @@ escen1: ld   hl,grend2
         ld   hl,chrout
         jr   eschng
 
-
 curdef: ld   hl,curdf1
         jr   escng1
 
@@ -897,7 +889,18 @@ scprto: ld   hl,scprt1
 
 scprbo: ld   hl,scprb1
         jr   escng1
+
+setatt: ld   hl,attrib
+        jr   escng1
         page
+
+; Reverse Linefeed
+
+rvrslf: pop  de                ;de=cursor
+        ld   hl,chrout
+        ld   (escjmp),hl       ;reset jmp vector
+        ex   de,hl             ;hl=cursor
+        jp   curup
 
 ; Define cursor
 
@@ -921,7 +924,7 @@ curdf4: jp   escen1
 
 curad1: ld   (newrow),a
         ld   hl,curad2
-        jr   escng1
+        jp   escng1
 
 ; new column
 
@@ -1097,6 +1100,13 @@ filsp1: ld   h,d
         ldir
 filend: jp   nodone
 
+; Set Video Attribute
+; 0 = Invoff
+; 4 = Invon
+
+attrib: cp   '4'
+        jr   nz,invoff
+
 ; Invert on/off
 
 invon:  ld   a,80h
@@ -1138,7 +1148,7 @@ scprb2: add  hl,de
 
 linoff: cp   80                ;Get offset for 25th line
         jp   nc,escen1
-setoff: ld   (offset),a
+setoff: ld   (oset25),a
 linset: ld   hl,lintxt
         jp   escng1
 
@@ -1147,7 +1157,7 @@ lintxt: cp   03h
         xor  80h
         ld   c,a
         ld   hl,4380h
-        ld   a,(offset)
+        ld   a,(oset25)
         ld   e,a
         ld   d,0
         add  hl,de
@@ -1184,7 +1194,6 @@ scrclr: pop  hl
         pop  hl
         pop  de
         ret
-
 
 cls:    push de
         ld   de,(scrtop)

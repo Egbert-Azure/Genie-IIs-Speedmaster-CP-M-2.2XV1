@@ -1,0 +1,1149 @@
+
+// page_length "66"
+
+// margin_top " 8"
+
+// header_margin " 4"
+
+// footer_margin " 4"
+
+
+
+
+
+
+
+
+
+
+              Anleitung zum Genie III CP/M 2.2X
+
+                  Version 2.1 vom 17.10.84 +
+
+// .pa ""
+
+<<<
+
+// .fo " GENIE III CP/M 2.2X                            Seite: #             "
+
+// .pn " 1"
+
+
+
+
+Diese Anleitung bezieht sich nur auf die spezielle GENIE III  +
+Anpassung des CP/M Betriebssystems sowie die mitgelieferten  +
+Hilfsprogramme. Weitere Informationen über das CP/M 2.2  +
+Betriebssystem entnehmen Sie bitte dem beigefügten Buch.
+
+
+
+
+Besonderheiten dieses Systems:
+
+- Lesen, Schreiben und Formatieren aller CP/M Formate
+
+- Erhöhte Diskettenkapazität (bis 820k pro Diskette)
+
+- Erweiterte Fehlermeldungen
+
+- Emulation der Terminals ADM-3A und Televideo
+
+- 25. Zeile (Statuszeile)
+
+- Wählbares Bildschirmfenster
+
+- 16 voll programmierbare Funktionstasten
+
+- Gepufferte Tastatureingabe
+
+- automatische Tastenwiederholung (schaltbar)
+
+- Quittierung jder Taste durch einen Klickton (schaltbar)
+
+- Tastatur voll WordStar kompatibel
+
+- Ausdrucken des Bildschirminhalts
+
+- Hexprint auf Drucker möglich
+
+- Lautsprecher abschaltbar
+
+
+
+
+
+CP/M ist ein geschütztes Warenzeichen von Digital Research +
+WordStar ist ein geschütztes Warenzeichen von MicroPro International
+
+
+Anmerkungen zur Version 1.1 vom 12.09.84
+
+In der neuen Version 1.1 sind alle Schwächen, die in den  +
+ersten 4 Wochen seit Auslieferung des CP/M 2.2X auftraten  +
+beseitigt worden. +
+Dies trifft besonders auf die Kopfpositionierung zu. So war  +
+es mit der Version 1.0 nicht möglich 40 Track Disketten in 80  +
+Track Laufwerken zu bearbeiten. Teilweise wurden auch falsche  +
+Direktory-Informationen abgespeichert, wodurch zuviel Diskettenplatz beansprucht wurde. Dieser Fehler ist mit der jetzigen Version vollständig aufgehoben.
+
+Des weiteren wurde die Anzahl der Lese/Schreibversuche bis  +
+zur Fehlerausgabe von 2 auf 5 erhöht, wodurch ein CRC Error  +
+bei schlechteren Disketten oder schmutzigen Laufwerken jetzt  +
+seltener auftritt.
+
+Das Programm CPMGEN wurde komplett neu geschrieben, so daß es  +
+jetzt den aktuellen PDRIVE-Stand auf die Kopie überträgt.  +
+Insbesondere ist es jetzt möglich auch mit nur einem Laufwerk  +
+zu kopieren. Dadurch können Sie auch die aktuelle Pdrive- +
+Einstellung auf die Systemdiskette zu übertragen.
+
+In der Version 1.11 vom 28.09.84 wurde die Escapesequenz +
+`ESC Z` geändert, da die letzte Version bei Ausführung dieser  +
+Sequenz die Speicherstelle 9D00H änderte. Dies hatte aber bei  +
+den meisten Programmen keinen Einfluß, da sie diese Sequenz  +
+nicht benutzten. +
+
+// .pa ""
+
+<<<
+Anmerkungen zur Version 2.0 vom 4.10.84
+
+Nachdem das CP/M 2.2X zum Genie III nun ca. 6 Wochen auf dem  +
+Markt ist, wurde bei der jetzigen Überarbeitung besonderen  +
+Wert auf die Wünsche und Tips gelegt, die mich in der letzten  +
+Zeit erreichten.
+
+Als wichtigste Änderung ist zu nennen, daß jetzt beim Booten  +
+(Kaltstart) nicht mehr der Befehl FKEY L ausgeführt wird,  +
+sondern jetzt SUBMIT START. Dies hat für Sie als Anwender den  +
+Vorteil, daß Sie sich jetzt selbststartende Systeme generieren können, indem Sie sich das START.SUB-File entsprechend  +
+anpassen.
+
+Wie bei den vorherigen Versionen, kann auch jetzt noch dieser  +
+automatische Start durch drücken der Leertaste während des  +
+bootens unterdrückt werden. Danach ist dann die unter  +
+FKEY.COM angegebene Funktionstastenbelegung gültig.
+
+Des weiteren wurde die Anzahl der erkannten Terminalcodes um  +
+die folgenden erweitert: +
+ESC G 0 schaltet auf normale Zeichenwiedergaben ( wie ESC ( ) +
+ESC G 4 schaltet auf invertierte Zeichenwiedergabe ( ESC ) ) +
+ESC j   setzt den Cursor eine Zeile höher +
+31      führt die Sequenz CR/LF aus
+
+Alle Terminalcodes sind im Anhang nocheinmal aufgeführt.
+
+
+Das Programm CPMGEN.COM wird jetzt in der Version 2.1 ausgeliefert. Diese neue Version kopiert zusätzlich zu dem aktuellen PD-Stand auch die eingestellte CTRL-Ziffer Einstellung  +
+mit. Falls Sie also keine Keyclick wünschen, so schalten Sie  +
+ihn über CTRL-0 ab und kopieren sich diese Einstellung mit  +
+dem Befehl CPMGEN A auf ihre Systemdiskette.
+
+Zur Beachtung sei hier angemerkt, daß diese neue CPMGEN- +
+Version nur mit den CBIOS-Versionen 2.0 und folgende funktioniert. Sie müssen also die neue CBIOS-Version geladen  +
+haben und können nur die neue Version kopieren !!!!!! +
+Falls Sie noch ältere CBIOS-Versionen kopieren wollen, benutzen Sie dazu bitte die entsprechende CPMGEN-Version.
+
+
+
+Die Version 2.1 vom 17.10.84 hat einen überarbeiteten Diskettenzugriff, da die Version 2.0 u.U. falsche Sektoren geschrieben hat. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " Einleitung"
+Die vorliegende CP/M Anpassung für das GENIE III ist eine  +
+komplette Neuentwicklung deren Ziel es war, eine Möglichkeit  +
+zu schaffen alle bekannten 5 1/4 und 8 Zoll CP/M Diskettenformate zu lesen, schreiben und zu formatieren.  Ebenfalls  +
+sollten die Möglichkeiten des GENIE III (Zehnerblock, Funktionstasten, programmierbarer Bildschirmcontroller, Uhr) voll  +
+ausgenutzt werden.
+
+Die jetzige Version unterstützt am GENIE III bis zu vier  +
+Laufwerke unterschiedlichen Typs. Es werden vom Bildschirm  +
+die Terminals ADM-3A und Televideo emuliert. Des weiteren  +
+wurde eine 25. Zeile (Statuszeile) eingerichtet, in der  +
+Meldungen des Betriebssystems sowie die Uhrzeit erscheinen.
+
+Eine weitere Ergänzung bildet die Möglichkeit, Bildschirmzeilen zu schützen um z.B. Überschriften oder Bemerkungen ständig sichtbar zu haben. +
+Lese- oder Schreibfehler bei Diskettenzugriffen werden explizit in der Statuszeile angegeben und man hat die Möglichkeit  +
+die Diskettenoperation zu wiederholen oder abzubrechen.
+
+Intern wurde ein 64 Zeichen umfassender Tastaturpuffer realisiert, der es ermöglicht Zeichen im Voraus einzutippen (Type- +
+ahead). +
+Das CP/M 2.2 Betriebssystem wurde so geändert, daß nach dem  +
+Schließen eines Files auch wirklich alle Daten auf der Diskette stehen. Dies ist in anderen Systemen mit einer vergrößerten Sektorlänge ein sehr häufiger Fehler.
+
+Zur Realisation von Zeitanzeige und Tastaturpuffer ist während des Programmablaufs der Interrupt eingeschaltet. Das hat  +
+bei normalen CP/M Programmen keinen Einfluß. Spezielle Programme, insbesondere solche, die das CP/M Betriebssystem an  +
+manchen Stellen umgehen oder sich nicht an die CP/M Konventionen halten, können evtl. nicht laufen. +
+Zur Beachtung sei noch angemerkt, daß die gesamte Tastatureingabe über den Interrupt läuft und daher jeder CBIOS-Aufruf  +
+diesen wieder aktiviert.
+
+Um den Speicherbedarf des Betriebssystems auf eine vertretbare Größe zu beschränken, wird die RS-232-Schnittstelle vom  +
+CP/M aus nicht unterstützt. Dies hat den Grund darin, daß  +
+diese Schnittstelle meist zum Modemanschluß genutzt wird und  +
+fast alle Modemprogramme direkt auf die Schnittstelle zugreifen. +
+
+// .pa " "
+
+<<<
+Zum Arbeiten mit diesem System, sollten Sie ein GENIE III in  +
+Standardkonfiguration d.h. zwei 80-Track-Doppelkopflaufwerken, besitzen. Sollten Sie andere Laufwerke angeschlossen  +
+haben oder sonstige Probleme auftreten wenden Sie sich bitte  +
+möglichst schriftlich an:
+
+
+     +
+                         Klaus Kämpf +
+                      Jakobstr. 236/38 +
+                         5100 Aachen
+
+
+
+Bei Einsendung eines ausreichend frankierten, selbstadressierten Rückumschlags und einer im Format S80 DSDD formatierten Diskette können Sie von mir auch die aktuellen  +
+PDRIVE.SYS-Versionen erhalten. +
+Falls Sie durch Zusendung einer Diskette, deren Format noch  +
+nicht unterstützt wird, mithelfen den PDRIVE.SYS-File zu  +
+erweitern, so ist dieser Service kostenlos. Für den reinen  +
+Update berechne ich DM 30.- (V-Scheck oder Nachnahme).
+
+
+
+Zur Beachtung: +
+Bei nicht ausreichend frankierten Rückumschlägen oder nicht  +
+formatierten Disketten besteht kein Anspruch auf Rücksendung. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " Anfertigen einer Sicherheitskopie"
+Bevor Sie mit der neuen CP/M Version arbeiten, sollten Sie  +
+sich eine oder mehrere Sicherheitskopien anfertigen. +
+Dazu legen Sie die Originaldiskette in Laufwerk 0 (im weiteren A genannt) und drücken gleichzeitig die beiden RESET- +
+Tasten. Nach ca. 2-3 Sekunden ist das Betriebssystem eingelesen und meldet sich mit `64K Genie III CP/M 2.2X` und dem  +
+Systemprompt `A>`. Sollte diese Meldung bei Ihnen nicht erfolgen, drücken Sie beide RESET-Tasten erneut. Hat dies auch  +
+keinen Erfolg, schalten Sie das Gerät für 30 Sekunden aus und  +
+probieren anschließend erneut das System zu starten. Bei  +
+weiteren Schwierigkeiten wenden Sie sich bitte an Ihren Händler.
+
+Legen Sie jetzt eine neue Diskette ins Laufwerk 1 (im weiteren B genannt) und geben den Befehl `FORMAT B`. Die neue  +
+Diskette wird formatiert und geprüft. Falls das Formatierprogramm eine defekte Diskettenspur bemerkt, so probiert es  +
+immer wieder diese Spur zu formatieren und gibt bei jedem  +
+neuen Versuch einen Piepston aus. +
+In diesem Fall ist die neue Diskette defekt und Sie sollten  +
+die Formatierung mit einer anderen Diskette wiederholen. 
+
+Nach dem Formatieren meldet sich das Betriebssystem wieder  +
+mit `A>`. Geben Sie nun den Befehl `CPMGEN B` um das Betriebssystem vom Laufwerk A zum Laufwerk B zu kopieren.  +
+Drücken Sie jetzt die Funktionstaste F7, um das Laufwerk B:  +
+auf das Format S80 DSDD einzustellen und kopieren Sie dann  +
+mit dem Befehl `SUBMIT SYSCOPY` die weiteren auf der Orginaldiskette befindlichen Programme.
+
+Entnehmen Sie danach die Orginaldiskette dem Laufwerk A und  +
+legen Sie sie an einen sicheren Ort. Für alle weiteren Operationen benutzen Sie dann nur noch die Kopie.
+
+
+
+
+
+
+
+
+
+
+ZUR BEACHTUNG:
+
+Das gelieferte CP/M 2.2 Betriebssystem, sowie sämtliche auf  +
+der Orginaldiskette befindlichen Programme unterliegen dem  +
+Urhebergesetz. Jegliche Kopien dürfen nur zum persönlichen  +
+Gebrauch gemacht werden. Eine Weitergabe an Dritte ist  +
+verboten und wird strafrechtlich verfolgt.
+
+
+// ?? dot "HE" " Arbeiten mit dem System"
+
+Die Tastatur
+
+Wie schon in der Einleitung erwähnt, besitzt das System einen  +
+64 Zeichen umfassenden Tastaturpuffer. Während des Programmablaufs können Sie dadurch bis zu 64 Tasten im Voraus drükken, die automatisch gespeichert werden. Bei eingeschaltetem  +
+Tastenklick wird jeder erkannte Tastendruck mit einem kurzen  +
+Klickgeräusch quittiert. Ist der Puffer voll, so wird dies  +
+mit einem Piepston angezeigt. In diesem Fall werden keine  +
+Tastendrücke mehr gespeichert. +
+Haben Sie z.B. durch die automatische Zeichenwiederholung  +
+den Puffer blockiert, so können Sie ihn jederzeit durch  +
+gleichzeitiges Drücken der beiden Tasten CTRL und CLEAR  +
+wieder löschen.
+
+Hierzu eine Bemerkung: +
+Ein gleichzeitiges Drücken der CTRL bzw. Shifttaste mit einer  +
+weiteren Taste wird im CP/M System öfters gebraucht. Um die  +
+gewünschte Funktion zu erreichen drücken Sie ZUERST die CTRL-  +
+bzw. Shifttaste, halten diese gedrückt und betätigen die  +
+zweite Taste. Dies ist notwendig, damit das System diese  +
+Tastenkombinationen richtig erkennt. Im weiteren bezeichnet  +
+CTRL-x bzw SHIFT-x ein solches Betätigen zweier Tasten, wobei  +
+x hier für eine beliebige zweite Taste steht. +
+Die oben beschriebene Löschung des Tastaturpuffers wird also  +
+als CTRL-CLEAR bezeichnet.
+
+Die Pfeiltasten sind WordStar kompatibel. Das heißt, daß Sie  +
+bei Benutzung des Wordstar-Textsystems direkt mit den Pfeiltasten arbeiten können. Das gesondert zu erwerbende Textverarbeitungsprogramm WordStar hat sich zu einem Art Standard  +
+entwickelt, sodaß auch andere Programme (z.B. Turbo-Pascal)  +
+diese Pfeiltasten benutzen.
+
+Die Taste BREAK erzeugt die Sequenz CTRL-C und dient zum  +
+Abbruch der meisten CP/M Programme. Wird BREAK als erste  +
+Taste nach dem Systemprompt `A>` gedrückt, so wird das CP/M  +
+Betriebssystem neu eingeladen. Dies ist nach JEDEM DISKETTENWECHSEL notwendig, um das System von diesem Wechsel zu unterrichten.
+
+Als Escape-Taste dient die CLEAR-Taste, SHIFT-BREAK ergibt  +
+den Delete-Code (siehe Tabelle im Anhang) 
+
+Wenn Sie eine Taste länger als ca. 2 Sekunden gedrückt halten, so wird sie automatisch wiederholt und jedesmal ein  +
+Klickton ausgegeben. Die Tasten des separaten Zehnerblocks  +
+werden nicht wiederholt. Dies liegt an der besonderen Verwendung des Zehnerblocks: 
+
+Die Zifferntasten des ZEHNERBLOCKS (00 und 0 bis 5) werden in  +
+Verbindung mit CTRL und SHIFT gesondert benutzt:
+
+CTRL-00 bewirkt ein Ausdrucken des Bildschirminhalts auf  +
+einen angeschlossenen Drucker. Der Drucker wird über den  +
+Centronics-Parallelport angesprochen und muß auf AUTO-Linefeed AUS eingestellt sein (CP/M Standardeinstellung).
+
+Über die Kombination CTRL-x (x ist eine der Zifferntasten des  +
+separaten Zehnerblocks) kann eine der im folgenden beschriebenen Optionen umgeschaltet werden. Bei jeder Betätigung  +
+dieser Tastenkombination wird der jeweilige Zustand gewechselt. Während beide Tasten gedrückt sind, wird der neue  +
+Zustand in der Statuszeile angezeigt. SHIFT-x zeigt den augenblicklichen Stand an, ohne ihn zu verändern.
+
+Es stehen in der jetzigen Version folgende Optionen zur  +
+Verfügung:
+
+CTRL-0: Tastenklick.    Startzustand: EIN +
+        Bei eingeschaltetem Tastenklick wird jede Tastenbetä        tigung mit einen kurzen Klickgeräusch quittiert. Die  +
+        ist besonders bei Ausnutzung des Tastaturpuffers  +
+        hilfreich, da man am Tastenklick merkt, ob die ge        drückte Taste erkannt wurde oder nicht.
+
+CTRL-1: Wiederholung.   Startzustand: EIN +
+        Dadurch wird die automatische Tastenwiederholung  +
+        umgeschaltet. Hält man eine Taste über längere Zeit  +
+        gedrückt, so wird sie automatisch wiederholt. Dies  +
+        gilt NICHT für die Tasten des Zehnerblocks, da eine  +
+        Zeichenwiederholung bei Zifferneingaben nicht sinn        voll ist.
+
+CTRL-2: Uhr.            Startzustand: EIN +
+        In den letzten 8 Stellen der Statuszeile, wird jede  +
+        Sekunde die aktuelle Uhrzeit angezeigt. Bei voller  +
+        Ausnutzung der Statuszeile durch ein Anwenderprogramm  +
+        kann die Zeitanzeige abgeschaltet werden.
+
+CTRL-3: Fehlermeldung.  Startzustand: EIN +
+        Über diese Tastenkombination kann die erweiterte  +
+        Fehlermeldung ein- und ausgeschaltet werden. (Anmer        kungen dazu siehe unten)
+
+CTRL-4: Lautsprecher.   Startzustand: EIN +
+        Bei ausgeschaltetem Lautsprecher, wird das Piepsge        räusch unterdrückt. (ASCII-Code `bell`) +
+
+// .pa ""
+
+<<<
+CTRL-5: Pufferanzeige.  Startzustand: AUS +
+        Diese Funktion wurde zur Kontrolle des Tastaturpuf         +
+        fers implementiert. Bei eingeschalteter Pufferan        zeige, erscheint in der Statuszeile der aktuelle  +
+        Pufferinhalt. Als Endmarkierung dient ein Leerzei        chen.
+
+
+
+Anmerkung zur erweiterten Fehlermeldung (CTRL-3):
+
+Bei ausgeschalteter Fehlermeldung wird ein Diskettenfehler  +
+direkt an das CP/M Betriebssystem gemeldet, das solche Fehler  +
+meist nur mit `Bad Sector` (schlechter Sektor) bezeichnet und  +
+keine Rückschlüsse auf die Fehlerursache zuläßt. Um diesen  +
+Mißstand auszubessern wurde die erweiterte Fehlermeldung  +
+eingebaut. Jeder Diskettenfehler wird mit einem Piepston und  +
+einer Meldung in der Statuszeile quittiert. Dort steht dann  +
+explizit ob der Fehler während einer Schreib- oder Leseoperation aufgetreten ist und um welche Art von Fehler es sich  +
+handelt. Eine genaue Auflistung der möglichen Fehler sowie  +
+deren Ursachen finden Sie im Anhang. Des weiteren wird das  +
+Laufwerk, die Diskettenseite (V für Vorderseite und R für  +
+Rückseite), die Spur sowie der Sektor in dem der Fehler  +
+auftrat, angezeigt. Man kann dann entweder CLEAR drücken, um  +
+die letzten Diskettenoperation zu wiederholen oder BREAK um  +
+die Operation abzubrechen. Da das System mit einer sehr  +
+großen Sektorlänge (1024 Bytes) arbeitet, kann es bei  +
+schlechten Disketten zu Prüfzahlfehlern (CRC Error) kommen.  +
+Drücken Sie in diesen Fällen immer CLEAR, da nach ein paar  +
+Wiederholungen dieser Sektor meistens doch noch gelesen wird.
+
+
+Eine weitere Besonderheit des Systems ist, daß 16 Funktionstasten unterstützt werden (F1 bis F8 und Shift-F1 bis Shift- +
+F8). +
+Mit dem Programm FKEY können neue Belegungen gewählt und  +
+abgespeichert werden. Für alle 16 Funktionstasten steht ein  +
+Speicherraum von 512 Bytes zur Verfügung, sodaß im Mittel  +
+jede Taste eine Zeichenkette mit bis zu 32 verschiedenen  +
+Zeichen erzeugen kann. Da der Funktionstastentext in den  +
+Tastaturpuffer übertragen wird, ist die maximale Länge auf 64  +
+Zeichen beschränkt.
+
+Beim gleichzeitigen Drücken der Leertaste sowie des Links-  +
+und Rechtspfeils wird die aktuelle Version, sowie die Seriennummer des CP/M Systems in der Statuszeile angezeigt.
+
+
+// .pa ""
+
+<<<
+
+Der Bildschirm
+
+Alle CP/M Programme `erwarten` als Ausgabekonsole ein Terminal, dem jedes Zeichen nacheinander gesendet wird und die  +
+Spezialfunktionen (Bildschirm löschen, neue Zeile beginnen  +
+etc.) durch Sonderzeichen oder sogenannte Escape-Sequenzen  +
+aktviert werden. Die meisten Programme haben zur Anpassung an  +
+verschiedene Terminals sogenannte Installationsroutinen, mit  +
+deren Hilfe das Programm auf den entsprechenden Terminaltyp  +
+eingestellt werden kann. +
+Eines der verbreitetsten Terminals ist das ADM-3A Terminal,  +
+daß von allen CP/M Programmen unterstützt wird. Da dieses  +
+Terminal aber keine Sonderfunktionen hat, wird das Terminal  +
+Televideo ebenfalls von der Bildschirmroutine emuliert. Eines  +
+der besonderen Vorteile dieses Terminals ist die Funktion zum  +
+Löschen bzw. Einfügen von Zeichen oder Zeilen. Mit diesen  +
+Funktionen können viele Bildschirmoperationen erheblich beschleunigt werden. +
+Eine exakte Aufführung aller erkannten Codes befindet sich im  +
+Anhang.
+
+Neben den zur Terminalemulation notwendigen Funktionen stehen  +
+noch folgende zur Verfügung:
+
+(ESC bezeichnet den Escapecode 1BH, 27)
+
+ESC . x zur Umschaltung des Cursors.
+
+x steht hier für ein Ziffernzeichen zwischen 0 und 4. ESC . 0  +
+schaltet den Cursor ganz aus, ESC . 1 ergibt einen blinkenden  +
+Block, ESC . 2 einen stehenden Block, ESC . 3 einen blinkenden Strich und ESC . 4 einen stehenden Strich (Standard). 
+
+Falls Ihnen der jetzige Cursor nicht gefällt, so drücken Sie  +
+nach dem Systemprompt die CLEAR-Taste (für ESC) den Punkt `.`  +
+und eine Zifferntaste zwischen `0` und `4`. Nach dem Drücken  +
+von `NEW LINE` meldet zwar das CP/M Betriebssystem, daß es  +
+den Befehl nicht verstanden hat (Ausgabe von ? und der eingegebenen Zeile) der Cursor ist jedoch umgeschaltet.   +
+
+// .pa ""
+
+<<<
+ESC Z x $ CTRL-C zum Ansprechen der Statuszeile.
+
+Dies ist der komplizierteste Code kann aber im Basic leicht  +
+programmiert werden. x gibt an, wieviel Zeichen an Anfang der  +
+Statuszeile stehenbleiben sollen. Der Wert 40 bedeutet also,  +
+daß der nachfolgende Text ab der Zeilenmitte angezeigt werden  +
+soll. Ist der Wert größer als 79, so wird die Escapesequenz  +
+nicht erkannt und der nachfolgende Text an der aktuellen  +
+Cursorposition angezeigt. +
+$ Steht für einen beliebigen Text. Jedes Zeichen wird invers  +
+in der Statuszeile angezeigt. Kontrollzeichen (Backspace,  +
+Carriage Return) werden innerhalb der Statuszeile nicht erkannt und sind in diesem Zusammenhang auch nicht sinnvoll. +
+Ist das Ende der Zeile erreicht, so werden alle folgenden  +
+Zeichen in der letzten Spalte ausgegeben. Der Code 03 (CTRL- +
+C) beendet den Text und schaltet auf normale Bildschirmausgabe zurück. Bei der Programmierung der Statuszeile ist zu  +
+beachten, daß die letzten 8 Zeichen von der Uhr benutzt  +
+werden, die jede Sekunde dort die aktuelle Zeit anzeigt. Will  +
+man diese Zeichen mitbenutzen, so muß vorher die Uhr mit der  +
+Tastenkombination CTRL-2 abgeschaltet werden.
+
+Wollen Sie z.B. vom Basic aus am Anfang der Statuszeile  +
+`Hallo` ausgeben, so erreichen Sie das mit folgendem Befehl: +
+PRINT CHR$(27);"Z";CHR$(0);"Hallo";CHR$(3);
+
+
+Bei der Ausgabe von Tabellen auf dem Bildschirm ist es sehr  +
+hilfreich, ständig die Bedeutung der einzelnen Spalten zu  +
+erkennen. Zu diesem Zweck dienen zwei weitere Escapesequenzen:
+
+ESC < x schützt bis zu 12 Zeilen, vom oberen Bildschirmrand  +
+gerechnet, vor dem `Scrollen`, d.h. nach oben herauslaufen. +
+x steht für einen Wert zwischen 0 und 12. 0 schützt keine  +
+Zeile, 12 die zwölf oberen Bildschirmzeilen. +
+ESC > x hat genau die selbe Funktion für die 12 unteren  +
+Bildschirmzeilen. Der Wert x wird dabei von unten gerechnet. +
+Alle weiteren Sonderfunktionen erkennen diese Einstellung, so  +
+daß auch die Funktion Bildschirm löschen, nur die ungeschützten Zeilen löscht. Werden sowohl die oberen, wie die  +
+unteren 12 Zeilen geschützt, so erfolgt keine Bildschirmausgabe. +
+
+// .pa ""
+
+<<<
+Der Drucker
+
+Die Druckerroutine des Betriebsystems spricht einen angeschlossenen Drucker über die Centronics-Parallelschnittstelle  +
+an. Um dem CP/M Standard zu entsprechen, müssen Sie den  +
+Drucker so einstellen, daß er keinen automatischen Zeilevorschub (Auto-LF) macht.
+
+Eine Besonderheit der Druckerroutine ist, den hexadezimalen  +
+Wert jedes auszugebenden Zeichens zu drucken. Dies ist besonders nützlich, wenn man spezielle Druckerfunktionen ausnutzen  +
+möchte, jedoch nicht genau weiß, ob auch die richtigen Werte  +
+ausgegeben werden. Diese Sonderfunktion wird mit Hilfe des  +
+STAT-Programms aktiviert. Der Befehl lautet (vom CP/M Systempropt aus): `STAT LST:=UL1:`. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " Mitgelieferte Programme"
+Folgende Programme werden auf der Systemdiskette mitgeliefert:
+
+FKEY.COM    B* Programmierung der Funktionstasten
+
+PD.COM       * Umstellung eines Diskettenformats
+
+PDRIVE.SYS   * Datenfile der Diskettenformate, wird von +
+               PD.COM benötigt +
+FORMAT.COM     Formatierprogramm
+
+ZEIT.COM     * Einstellung/Angabe der Zeit
+
+DATUM.COM    * Einstellung/Angabe von Datum und Wochentag
+
+CPMGEN.COM     Programm zum Duplizieren einer Systemdiskette +
+               (statt SYSGEN zu verwenden) +
+SUBMIT.COM  B  Programm zur automatischen Abarbeitung +
+               mehrerer Befehle +
+XSUB.COM    B  Hilfsprogramm zu SUBMIT.COM
+
+SYSCOPY.SUB    Textfile zu SUBMIT zum Kopieren einer System- +
+               diskette +
+PIP.COM     B* Kopierprogramm für Files
+
+STAT.COM    B* Programm zur Bestimmung/Änderung des System- +
+               bzw. Diskettenstatus +
+DDT.COM     B  Programm zum Arbeiten in Maschinensprache
+
+ASM.COM     B  8080-Assembler zum Arbeiten in Maschinen- +
+               sprache +
+ED.COM      B  Einfacher Texteditor (zum ASM.COM)
+
+LOAD.COM    B  Programm zum Laden eines Maschinensprache- +
+               programms im INTEL-Hexformat.
+
+DUMP.COM    B  Programm zum Auslisten eines Files in Hex +
+               und ASCII-Darstellung.
+
+Die mit * gekennzeichneten sollten sich auf jeder Systemdiskette befinden. +
+Die genaue Beschreibung der mit B gekennzeichneten Programme  +
+entnehmen Sie bitte dem mitgelieferten Buch. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " FKEY.COM"
+
+FKEY hat zwei Funktionen:
+
+Erstens liest es die zuletzt eingestellte Funktionstastenbelegung von der Systemdiskette (Spur 0, Sektoren 1 und 2) in  +
+den Speicher. Dieses Einlesen wird automatisch bei jedem  +
+Kaltstart des Systems wiederholt. Daher ist es wichtig, daß  +
+das FKEY-Programm als erstes auf der Systemdiskette steht, um  +
+den Zeitbedarf des Einladens so kurz wie möglich zu halten.  +
+Ein wiederholtes Einlesen kann durch den Befehl FKEY L erreicht werden. +
+Wenn Sie während des BOOT-Vorgangs die Leertaste gedrückt  +
+halten, so wird das automatische Einlesen unterdrückt und die  +
+16 Funktionstasten erhalten folgende Standardeinstellung:
+
+
+F1 :DIR +
+F2 :PD +
+F3 :FKEY +
+F4 :FORMAT +
+F5 :STAT +
+F6 :PIP +
+F7 :PD B:S80 DSDD +
+F8 :PD B:D80 DSDD +
+F9 :BASIC +
+F10:AUTO 10 +
+F11:EDIT +
+F12:RUN +
+F13:LIST +
+F14:SAVE " +
+F15:LOAD " +
+F16:SYSTEM +
+
+// .pa "        "
+
+<<<
+Die Hauptfunktion des Fkey-Programms ist jedoch die Änderung  +
+der Belegung. Nach dem Aufruf, erscheint die augenblickliche  +
+Einstellung der Funktionstasten auf dem Bildschirm. Inverse  +
+Zeichen zeigen ein Kontrollzeichen wie z.B. NEW LINE (inverses M) oder CTRL-C (inverses C) an. Ein inverses Leerzeichen  +
+markiert das Ende des Textes. Durch Drücken einer Funktionstaste wird diese zur Editierung ausgewählt. Der Cursor wird  +
+in den blinkenden Strich umgewandelt und zeigt die aktuelle  +
+Schreibposition an. In der Statuszeile wird die Anzahl der  +
+freien Zeichen, sowie die `Einfügen`-Einstellung angezeigt.  +
+Der Rechts- bzw. Linkspfeil bewegt den Cursor entsprechend.  +
+Der Tiefpfeil löscht das an der Cursorposition befindliche  +
+Zeichen. Der Hochpfeil schaltet das Einfügen ein und aus. Bei  +
+ausgeschaltetem Einfügen, wird das Zeichen an der Cursorposition durch ein neues Zeichen ersetzt, bei eingeschaltetem  +
+Einfügen das neue Zeichen an der Cursorposition eingefügt.  +
+Die Cleartaste löscht den gesamten Text, durch Break wird die  +
+Editierung beendet. Es sei hier nochmals erwähnt,daß Sie +
+- abweichend von der normalen Tastaturbelegung - in diesem  +
+Programm CTRL-Zeichen nur durch Drücken der CTRL-Taste und  +
+der entsprechenden anderen Taste, NICHT jedoch über die  +
+Pfeiltasten, Clear oder Break erzeugt werden ! +
+Ein nochmaliges Drücken der Breaktaste beendet das Programm  +
+und speichert die neue Einstellung auf der Systemspur ab. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " PD.COM und PDRIVE.SYS"
+   +
+PD.COM und PDRIVE.SYS dienen zur Umstellung auf andere Diskettenformate.  +
+PD ohne Argumente zeigt die aktuellen Formate der vier möglichen Laufwerke A,B,C und D an. Durch `PD l:namen` (wobei l  +
+für die Bezeichnung eines der Laufwerke A bis D, und `namen`  +
+für die Bezeichnung des gewünschten Formats steht) können Sie  +
+das Laufwerk l auf das Lesen bzw. Schreiben einer Diskette  +
+mit dem Format `namen` vorbereiten. +
+Wird beim PD-Aufruf ein Diskettenformat geändert, so wird  +
+danach automatisch ein Warmstart ausgeführt, der das System  +
+auf die Formatänderung aufmerksam macht. Das Drücken von  +
+Break bzw. CTRL-C entfällt also in diesem Fall.
+
+Als Standardformat für Systemdisketten steht das Format +
+S80 DSDD mit 798k und für Datendisketten das Format D80 DSDD  +
+mit 819k pro Diskette zur Verfügung.
+
+Eine Liste der zur Zeit unterstützten Formate finden Sie im  +
+Anhang. Weitere Formate sind in Vorbereitung.  +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " FORMAT.COM"
+
+FORMAT dient zur Formatierung einer Diskette
+
+FORMAT ohne Parameter fragt, mit welchem Laufwerk formatiert  +
+werden soll. Es kann die Laufwerksbezeichnung auch direkt als  +
+Paramter angegeben werden `FORMAT l:`. +
+Die im Laufwerk l befindliche Diskette wird mit dem beim  +
+letzten PD-Aufruf gewählten Format formatiert. +
+Auf dem Bildschirm erscheint die aktuelle Operation des Formatierprogramms. Falls beim Prüfen ein Fehler erkannt wird,  +
+so wiederholt das Programm die Formatierung der fehlerhaften  +
+Spur solange, bis entweder das Prüfen fehlerfrei erfolgte  +
+oder die BREAK-Taste gedrückt wurde. +
+Bei jeder neuen Wiederholung wird ein kurzer Piepston ausgegeben, um den Benutzer von einem aufgetretenen Fehler zu  +
+unterrichten. Ändert sich danach die Spurnummer wieder, so  +
+hat die Wiederholung zum Erfolg geführt. +
+Wird ständig die selbe Spur angezeigt, so sollte die Formatierung durch BREAK abgebrochen werden. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " ZEIT.COM"
+
+ZEIT dient zur Einstellung bzw. Anzeige der Zeit
+
+ZEIT ohne Parameter gibt die aktuelle Zeit an. Um die Uhr zu  +
+setzen, geben sie `ZEIT HH:MM` ein, wobei Sie für HH die  +
+Stunden (00 bis 23) und für MM die Minuten (00 bis 59) einsetzen. Das Programm meldet sich dann mit `Drücke NEW LINE um  +
+die Uhr zu setzen`. In dem Augenblick, in dem Sie NEW LINE  +
+drücken, wird die neue Uhrzeit gespeichert und die Sekunden  +
+auf 00 gesetzt.
+
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " DATUM.COM"
+
+DATUM dient zur Einstellung bzw. Anzeige des Datums
+
+DATUM ohne Parameter gibt das aktuelle Datum und den Wochentag an. Um diese Werte neu zu programmieren geben Sie `DATUM  +
+W TT.MM.JJ` ein. W bezeichnet den Wochentag durch eine Ziffer  +
+zwischen 1 (für Montag) und 7 (für Sonntag), TT den Tag (01  +
+bis 31), MM den Monat (01 bis 12) und JJ das Jahr (00 bis  +
+99). +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " CPMGEN.COM"
+
+CPMGEN kopiert das Betriebssystem
+
+CPMGEN dient zum Duplizieren von Systemdisketten. +
+Beim Aufruf von CPMGEN ohne Parameter, wird nach dem Quell-  +
+und Ziellaufwerk gesondert gefragt. Sie haben dadurch Zeit,  +
+auch eine andere Systemdiskette einzulegen. Nach dem Drücken  +
+der <NEW LINE> Taste wird die Boot- und die Systemspur eingelesen und die PDRIVE Parameter eingebunden. +
+Zum Abspeichern des neu generierten Systems legen Sie nun die  +
+Zieldiskette in das angegebene Laufwerk und drücken wieder  +
+<NEW LINE>. Die Bootspur der Zieldiskette wird formatiert und  +
+das System abgespeichert. +
+Falls die Zieldiskette nicht im Format S80 DSDD oder D80 DSDD  +
+formatiert wurde, bricht das Programm mit einer entsprechenden Fehlermeldung ab (s.u.).
+
+Eine zweite Möglichkeit des Aufrufs ist, das Ziellaufwerk als  +
+Parameter mit anzugeben (z.b. `CPMGEN B`). In diesem Fall  +
+wird als Quellaufwerk das Laufwerk A angenommen und das  +
+Betriebssystem direkt kopiert. Sie müssen in diesem Fall also  +
+Quell- und Zieldiskette bereits in die entsprechenden Laufwerke eingelegt haben. +
+Mit dem Befehl CPMGEN A ist es insbesondere möglich, die  +
+aktuelle PDRIVE-Einstellung auf der Systemdiskette abzuspeichern, so daß sie nach dem nächsten Kaltstart sofort zur  +
+Verfügung steht. +
+Anzumerken ist noch, daß die Quelldiskette grundsätzlich eine  +
+CP/M 2.2X Systemdiskette sein muß.
+
+Während des Programmablaufs können folgende Fehler auftreten:
+
+During FORMAT: Die Bootspur der Zieldiskette konnte nicht +
+               formatiert werden. Benutzen Sie eine andere +
+               (bessere) Zieldiskette. +
+  +
+During SEEK:   Die Systemspur der Quell- oder Zieldiskette +
+               konnte nicht gefunden werden. Wahrscheinlich +
+               ist die Zieldiskette falsch formatiert.
+
+During READ:   Beim Lesen der Quelldiskette ist ein Fehler +
+               aufgetreten, benutzen Sie eine andere Kopie +
+               der Systemdiskette.
+
+During WRITE:  Beim Schreiben der Zieldiskette ist ein Feh- +
+               ler aufgetreten. Entweder ist die Zieldisket- +
+               te falsch formatiert oder defekt. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" ""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                           Anhang +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " Die Tastencodes"
+
+Taste       ohne Shift Bemerkung        mit Shift  Bemerkung +
+            Hex   Dez                   Hex   Dez +
+------------------------------------------------------------- +
+NEW LINE    0D     13  Carrige Return  5F     95  Underscore +
+CLEAR       1B     27  Escape (ESC)    1F     31 +
+BREAK       03      3  CTRL-C          7F    127  DEL +
+Hochpfeil   05      5  CTRL-E          12     18  CTRL-R +
+Tiefpfeil   18     24  CTRL-X          03      3  CTRL-C +
+Linkspfeil  08      8  Backspace       01      1  CTRL-A +
+Rechtspfeil 04      4  CTRL-D          06      6  CTRL-F +
+Leertaste   20     32  Space           09      9  TAB +
+Ä           5B     91  Eck. Klamm. auf 7B    123  Run. K. auf +
+Ö           5C     92  Backslash       7C    124  Trennstrich +
+Ü           5D     93  Eck. Klamm. zu  7D    125  Run. K. zu +
+ß           5E     94  Pf. nach oben   7E    126
+
+Alle anderen Tasten haben ihre Codes entsprechend dem ASCII- +
+Standard. (siehe Tabelle) +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " Die Bildschirmcodes"
+
+Controlsequenzen
+
+
+CTRL     Code     ASCII-  Bemerkung +
+Sequenz  Hex  Dez Name +
+------------------------------------------------------------- +
+CTRL-G   07    7  BEL     Piepston ausgeben. +
+                          (nur bei eingeschaltetem Lautspre- +
+                          cher)
+
+CTRL-H   08    8  BS      Backspace, Cusor ein Zeichen nach +
+                          links ohne das Zeichen zu löschen. +
+                          Um das Zeichen an der Cursorposi- +
+                          tion zu löschen, müssen die drei +
+                          Codes Backspace,Space,Backspace +
+                          benutzt werden.
+
+CTRL-I   09    9  HT      TAB, Cursor zur nächsten Tabulator- +
+                          position. +
+                          Tabulatorpositionen sind die Spal- +
+                          ten 0,8,16,24,32,40,48,56,64,72.
+
+CTRL-J   0A   10  LF      Cursor eine Zeile nach unten. Nach +
+                          Erreichen der untersten nicht ge- +
+                          schützten Zeile, wird der Bild- +
+                          schirminhalt eine Zeile nach oben +
+                          verschoben. (vgl. SYN)
+
+CTRL-K   0B   11  VT      Cursor eine Zeile nach oben. Nach +
+                          Erreichen der obersten ungeschütz- +
+                          ten Zeile, wird dieser Code igno- +
+                          riert.
+
+CTRL-L   0C   12  FF      Cursor ein Zeichen nach rechts. +
+                          Nach Erreichen der letzten unge- +
+                          schützten Bildschirmposition, +
+                          wird dieser Code ignoriert.
+
+CTRL-M   0D   13  CR      Cursor zum Anfang der aktuellen +
+                          Zeile. Um den Cursor an den Anfang +
+                          der nächsten Zeile zu positionie- +
+                          ren, müssen die beiden Codes CR und +
+                          LF ausgegeben werden.
+
+CTRL-V   16   22  SYN     Cursor eine Zeile nach unten. Nach +
+                          Erreichen der untersten nicht ge- +
+                          schützten Zeile, wird dieser Code +
+                          ingnoriert. (vgl. LF) +
+
+// .pa ""
+
+<<<
+CTRL     Code     ASCII-  Bemerkung +
+Sequenz  Hex  Dez Name +
+------------------------------------------------------------- +
+CTRL-Z   1A   26  SUB     Bildschirm löschen und Cursor in +
+                          die linke obere Ecke. Dieser Code +
+                          wirkt nur auf die ungeschützten +
+                          Zeilen.
+
+CTRL-ß   1E   30  RS      Home, Cursor in die linke obere +
+                          Ecke.
+
+CTRL-del 1F   31  VS      New Line, entspricht der Sequenz +
+                          CR und LF.  +
+
+// .pa "             "
+
+<<<
+Escapesequenzen
+
+
+ESC-Sequenz   Hex           Dez          Bemerkung +
+------------------------------------------------------------- +
+ESC . 0       1B 2E 30      27 46 48     Cursor ausschalten.
+
+ESC . 1       1B 2E 31      27 46 49     Cursor auf blinken- +
+                                         den Block schalten.
+
+ESC . 2       1B 2E 32      27 46 50     Cursor auf stehenden +
+                                         Block schalten.
+
+ESC . 3       1B 2E 33      27 46 51     Cursor auf blinkend +
+                                         Strich schalten.
+
+ESC . 4       1B 2E 34      27 46 52     Cursor auf stehenden +
+                                         Strich schalten.
+
+ESC =         1B 3D         27 61        Einleitungssequenz +
+                                         zur direkten Cursor- +
+                                         positionierung. Da- +
+                                         nach folgen muß die +
+                                         neue Zeilennummer (0 +
+                                         bis 23) plus 32 und +
+                                         die neue Spaltennum- +
+                                         mer (0 bis 79) plus +
+                                         32.
+
+ESC ?         1B 3F         27 63        Cursorposition ange- +
+                                         ben. +
+                                         (nur über Maschinen- +
+                                         sprache verwendbar, +
+                                         nach dem Aufruf wird +
+                                         im Register E die +
+                                         Cursorzeile +32 und +
+                                         in Register D die +
+                                         Cursorspalte +32 +
+                                         übergeben.) +
+
+// .pa ""
+
+<<<
+ESC-Sequenz   Hex           Dez          Bemerkung +
+------------------------------------------------------------- +
+ESC E         1B 45         27 69        Zeile einfügen. Die +
+                                         aktuelle und alle +
+                                         tieferen Zeilen wer- +
+                                         den nach unten ver- +
+                                         schoben. Die letzte +
+                                         Bildschirmzeile +
+                                         fällt weg und es +
+                                         werden an der ak- +
+                                         tuellen Zeilenposi- +
+                                         tion Leerzeichen +
+                                         eingefügt.
+
+ESC R         1B 52         27 82        Zeile löschen. Die +
+                                         aktuelle Zeile wird +
+                                         gelöscht und alle +
+                                         tieferen Zeilen nach +
+                                         oben verschoben. In +
+                                         der letzten Zeile +
+                                         werden Leerzeichen +
+                                         eingefügt.
+
+ESC Q         1B 51         27 81        Zeichen einfügen. +
+                                         Das Zeichen unter +
+                                         dem Cursor und alle +
+                                         Zeichen rechts vom +
+                                         Cursor werden eine +
+                                         Spalte nach rechts +
+                                         verschoben. Das +
+                                         letzte Zeichen der +
+                                         Zeile geht verloren. +
+                                         An der Cursorposi- +
+                                         tion wird ein Leer- +
+                                         zeichen eingesetzt.
+
+ESC W         1B 57         27 87        Zeichen löschen. Das +
+                                         Zeichen unter dem +
+                                         Cursor wird gelöscht +
+                                         und alle Zeichen +
+                                         rechts vom Cursor +
+                                         eine Spalte nach +
+                                         links verschoben. Am +
+                                         Zeilenende wird ein +
+                                         Leerzeichen einge- +
+                                         setzt. +
+
+// .pa ""
+
+<<<
+ESC-Sequenz   Hex           Dez          Bemerkung +
+------------------------------------------------------------- +
+ESC T         1B 54         27 84        Löschen bis zum +
+                                         Zeilenende. Alle +
+                                         Zeichen rechts des +
+                                         Cursors bis zum Zei- +
+                                         lenende werden ge- +
+                                         löscht.
+
+ESC Y         1B 59         27 89        Löschen bis zum +
+                                         Bildschirmende. Alle +
+                                         Zeichen rechts des +
+                                         Cursors bis zum +
+                                         Bildschirmende wer- +
+                                         den gelöscht.
+
+ESC )         1B 29         27 41        Inverse Schrift ein. +
+                                         Alle folgenden Zei- +
+                                         chen werden invers +
+                                         dargestellt.
+
+ESC (         1B 28         27 40        Inverse Schrift aus. +
+                                         Alle folgenden Zei- +
+                                         chen werden normal +
+                                         dargestellt.
+
+ESC *         1B 2A         27 42        Bildschirm löschen. +
+                                         (wie CTRL-Z)
+
+ESC <         1B 3C         27 60        Obere Bildschirm- +
+                                         zeilen schützen. Es +
+                                         muß ein Wert zwi- +
+                                         schen 0 und 12 fol- +
+                                         gen, der die Anzahl +
+                                         der zu schützenden +
+                                         Zeilen (vom oberen +
+                                         Bildschirmrand ge- +
+                                         rechnet) angibt.
+
+ESC >         1B 3E         27 62        Untere Bildschirm- +
+                                         zeilen schützen. Wie +
+                                         ESC <, nur von unten +
+                                         gerechnet. +
+
+// .pa ""
+
+<<<
+ESC-Sequenz   Hex           Dez          Bemerkung +
+------------------------------------------------------------- +
+ESC Z         1B 5A         27 90        Statuszeile anspre- +
+                                         chen. Es muß ein +
+                                         Offset zwischen 0 +
+                                         und 79 folgen, der +
+                                         angibt in welcher +
+                                         Spaltenposition der +
+                                         folgende Text begin- +
+                                         nen soll. +
+                                         Der Text muß mit dem +
+                                         ETX-Code (03H) abge- +
+                                         schlossen werden. +
+                                         +
+ESC G 0       1B 47 30      27 71 48     Normale Zeichenwie- +
+                                         dergabe. +
+                                         entspricht ESC ( +
+     +
+ESG G 4       1B 47 34      27 71 52     Invertierte Zeichen- +
+                                         wiedergabe.     +
+                                         entspricht ESC )
+
+ESC j         1B 6A         27 106       Cursor eine Zeile +
+                                         höher. +
+                                         entspricht CTRL-K +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " Fehlermeldungen"
+
+Bei eingeschalteter erweiterter Fehlermeldung, können folgende Fehler in der Statuszeile angezeigt werden:
+
+Read Error:       Lesefehler. Der angezeigte Fehler ist wäh                  rend einer Leseoperation aufgetreten. +
+Write Error:      Schreibfehler. Der angezeigte Fehler ist  +
+                  während einer Schreiboperation aufgetreten. +
+Lost Data         Daten verloren. Der Prozessor lief während  +
+                  des Datentransfers aus der Synchronisation.  +
+                  Dieser Fehler tritt meist bei 8 Zoll Dis                  ketten auf und kann durch mehrere Wieder                  holungen umgangen werden. +
+CRC Error         Prüfzahlfehler. Die errechnete Quersumme  +
+                  des Sektors stimmt nicht mit der gespei                  cherten überein. Dieser Fehler ist ein  +
+                  typisches Zeichen für schlechtes Disketten                  material. Er kann jedoch durch Wiederholung  +
+                  der letzten Operation umgangen werden. +
+Record not found  Sektor nicht gefunden. Der angezeigte Sek                  tor konnte auf der Diskette nicht lokali                  siert werden. Dies ist in den meisten Fäl                  len auf eine falsche PD-Einstellung zurück                  zuführen. +
+Write fault       Schreibfehler. Während der Schreiboperation  +
+                  ist ein Fehler aufgetreten. Läßt er sich  +
+                  nicht durch Wiederholung verbessern, so ist  +
+                  die Diskette oder das Laufwerk defekt. +
+Write protect     Die Diskette ist schreibgeschützt. Entfer                  nen Sie den kleinen Aufkleber vom Disket                  tenrand und wiederholen Sie die letzte  +
+                  Operation. +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " Diskettenformate"
+
+Die Formatsbezeichnungen unterliegen folgender Konvention:
+
+DD steht für Double Density (doppelte Schreibdichte) +
+DS steht für Double Sided (zweiseitige Aufzeichnung) +
+V  bezeichnet die Vorderseite +
+R  bezeichnet die Rückseite +
+S  am Namensanfang steht für Sytemdiskette (mit reservierten +
+   Systemspuren) +
+D  am Namensanfang steht für Datendiskette (ohne reservierte +
+   Systemspuren) +
+40 am Namensende zeigt an, daß dieses Format das 80 Track +
+   Laufwerk als 40 Track Laufwerk gebraucht (Schreiben und +
+   Lesen einer 40 Track Diskette auf einem 80 Track Laufwerk)
+
+
+Folgende Diskettenformate stehen zur Zeit zur Verfügung:
+
+S40 DD            40 Track Standardformat für 40 Track +
+                  Laufwerke +
+S80 DSDD          80 Track Systemdisketten-Standard +
+D80 DSDD          80 Track Datendisketten-Standard +
+GENIE III A DSDD  Genie III CP/M 2.2A  80 Track Doppel- +
+                  seitiges Format  +
+GENIE III A DD    Genie III CP/M 2.2A  80 Track Ein- +
+                  seitiges Format +
+GENIE III B       Genie III CP/M 2.2B Format +
+GENIE III C       Genie III CP/M 2.2C Format +
+OMIKRON 40        Genie I/II und Tandy TRS-80 CP/M 1.4 +
+                  und 2.2 40 Track Format +
+OMIKRON           dito, aber 80 Track +
+IBM3740           8 Zoll CP/M Standardformat +
+ECMA 70 V         ECMA-Standard Vorderseite +
+ECMA 70 R         ECMA-Standard Rückseite +
+                  (der ECMA-Standard wird vom MC-CP/M +
+                  Computer benutzt)  +
+TELEVIDEO         CP/M Format der Firma Televideo +
+ALTOS 80 DSDD     CP/M Format der Firma Altos +
+EPSON QX-10 40    CP/M Format des EPSON QX-10 +
+OLIVETTI 40       CP/M Format der Firma Olivetti  +
+OSBORNE 1 40      CP/M Format des Osborne 1 (40 Tracks SSSD) +
+
+// .pa ""
+
+<<<
+In Vorbereitung sind:
+
+ALPHATRONIC, KAYPRO, G-DOS (!), ZDOS (deutsches CP/M) +
+LE80, TATUNG
+
+Weiter Formate können auf Wunsch jederzeit hinzugefügt  +
+werden. Falls Sie also eine Diskette haben, deren Format  +
+noch nicht unterstützt wird, verfahren Sie wie folgt:
+
+1. Kopieren Sie auf diese Diskette möglichst viele und LANGE +
+   Textfiles +
+2. Fügen Sie nach Möglichkeit einen Ausdruck der STAT DSK: +
+   Parameter von dieser Diskette bei +
+3. Schicken Sie diese Diskette und eine im Format S80 DSDD +
+   formatierte Leerdiskette mit einem an Sie adressierten +
+   Freiumschlag an die in der Einleitung angegebene Adresse
+
+Die im alten CP/M 2.2C angegebene Tabelle ist leider für mich  +
+relativ wertlos, da sie nicht genug Informationen enthält.  +
+Eine Gewähr für die Richtigkeit der Formate kann ich nur  +
+übernehmen, wenn Sie nach den oben genannten Regeln verfahren.  +
+
+// .pa ""
+
+<<<
+
+// ?? dot "HE" " ASCII-Tabelle"
+
+
+
+
+
+
+
++-----------------------------------------------------------+ +
+!                    Höherwertiges Digit                    ! +
+!       0     1      2      3      4      5      6      7   !  +
++-----------------------------------------------------------+ +
+! 0 !  NUL   DLE    SPC     0      @      P      `      p +
+! 1 !  SOH   DC1     !      1      A      Q      a      q +
+! 2 !  STX   DC2     "      2      B      R      b      r +
+! 3 !  ETX   DC3     #      3      C      S      c      s +
+! 4 !  EOT   DC4     $      4      D      T      d      t +
+! 5 !  ENG   NAK     %      5      E      U      e      u +
+! 6 !  ACK   SYN     &      6      F      V      f      v +
+! 7 !  BEL   ETB     `      7      G      W      g      w +
+! 8 !  BS    CAN     (      8      H      X      h      x +
+! 9 !  HT    EM      )      9      I      Y      i      y +
+! A !  LF    SUB     *      :      J      Z      j      z +
+! B !  VT    ESC     +      ;      K      Ä      k      ä +
+! C !  FF    FS      ,      <      L      Ö      l      ö +
+! D !  CR    GS      -      =      M      Ü      m      ü +
+! E !  SO    RS      .      >      N      ^      n      ß +
+! F !  SI    VS      /      ?      O      _      o     DEL +
++---+ +
+
+// .pa ""
+
+<<<
